@@ -1,0 +1,21 @@
+{
+  "name": "play-ts-cucumber",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js || true",
+    "report": "npx ts-node src/test/helper/report.ts",
+    "test:report": "npm run test && npm run report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.14.0",
+    "multiple-cucumber-html-reporter": "^3.9.2",
+    "ts-node": "^10.9.2"
+  }
+}
