@@ -4,7 +4,7 @@ report.generate({
   jsonDir: "test-results",
   reportPath: "./reports",
   reportName: "Playwright Automation Report",
-  pageTitle: "BookCart App Test Report",
+  pageTitle: "Abacus Ai Login page",
   displayDuration: true,
   metadata: {
     browser: {
