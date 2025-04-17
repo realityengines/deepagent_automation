@@ -1,0 +1,61 @@
+name: Deep Agent Automated Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  metadata: read
+  packages: read
+  actions: write # Required for uploading artifacts
+
+jobs:
+  test:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          Write-Host "Installing dependencies..."
+          npm install
+          npm ci
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path .\test-results
+          npm test | Tee-Object -FilePath .\test-results\output.log
+          $test_status = $LASTEXITCODE
+          "test_status=$test_status" >> $env:GITHUB_OUTPUT
+
+      - name: Display test results
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "Test Results:"
+          Get-Content .\test-results\output.log
+          $test_exit_code = ${{ steps.test.outputs.test_status }}
+          if ($test_exit_code -ne 0) {
+            Write-Host "Tests failed with exit code $test_exit_code"
+            exit 1
+          }
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results/
+          retention-days: 7
