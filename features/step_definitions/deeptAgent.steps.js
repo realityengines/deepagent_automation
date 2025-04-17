@@ -1,6 +1,7 @@
 const { Given, When, Then } = require("@cucumber/cucumber");
 const { DeepAgentPage } = require("../../pages/deepAgent.page");
 let deepAgentPage;
+
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
@@ -11,6 +12,7 @@ When(
   async function (promatSearch, follow_up_query) {
     await deepAgentPage.enterPromapt(promatSearch);
     await deepAgentPage.clickSendButton();
+    await deepAgentPage.maximumLimitEach();
   }
 );
 

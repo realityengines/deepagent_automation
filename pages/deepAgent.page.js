@@ -7,7 +7,7 @@ class DeepAgentPage {
     this.searchPromaptTextArea=page.locator('textarea[dir*="auto"]');
     this.sendButton = page.locator('button [data-icon*="paper-plane"]');
     this.stopButton=page.locator('[class*=" animate-spin-slow "]');
-
+    this.maxLimitTask=page.locator("[class*='space-y-2 flex flex-col items-center']")
 
   }
   async clickCheckoutButton() {
@@ -24,6 +24,10 @@ class DeepAgentPage {
     await this.sendButton.click();
 }
 
+async maximumLimitEach()
+{
+  await this.maxLimitTask.waitFor({ state: "visible" });
+}
 }
 
 

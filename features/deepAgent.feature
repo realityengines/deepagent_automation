@@ -6,7 +6,7 @@ Feature: Dashboard Functionality
   Background:
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
     Then I should be logged in successfully
-
+    When I click the deep Agent option
 # Not fully implemented due to limit reached
 
   @DeepAgent
@@ -16,9 +16,7 @@ Feature: Dashboard Functionality
     Then I should see a prompt that tests factual recall and accuracy of the response
     And the response time should not exceed 5 minutes
     And the compute points should not exceed 50k
-   
 
     Examples:
-      | promat_user_search                                    | follow_up_query                         |
+      | promat_user_search                                    | follow_up_query               |
       | Who is the current PM and Governor General of Canada? | No follow-up questions please |
-    
