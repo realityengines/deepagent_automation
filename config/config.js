@@ -1,4 +1,5 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 const config = {
     baseUrl: process.env.BASE_URL || 'https://apps.abacus.ai/chatllm',
@@ -35,11 +36,11 @@ const config = {
 };
 
 // Helper function to check if running on LambdaTest
-config.isLambdaTest = () => config.executionMode === 'lambda';
+const isLambdaTest = () => config.executionMode === 'lambda';
 
 // Helper function to get browser capabilities
-config.getBrowserCapabilities = () => {
-    if (config.isLambdaTest()) {
+const getBrowserCapabilities = () => {
+    if (isLambdaTest()) {
         return {
             'browserName': config.lambdaTest.browserName,
             'browserVersion': config.lambdaTest.browserVersion,
@@ -61,11 +62,16 @@ config.getBrowserCapabilities = () => {
 };
 
 // Helper function to get the WebDriver URL
-config.getDriverUrl = () => {
-    if (config.isLambdaTest()) {
+const getDriverUrl = () => {
+    if (isLambdaTest()) {
         return `https://${config.lambdaTest.username}:${config.lambdaTest.accessKey}@${config.lambdaTest.hubUrl}`;
     }
     return 'http://localhost:4444/wd/hub'; // Default local Selenium server
 };
 
-module.exports = config;
+// Add helper functions to config object
+config.isLambdaTest = isLambdaTest;
+config.getBrowserCapabilities = getBrowserCapabilities;
+config.getDriverUrl = getDriverUrl;
+
+export default config;

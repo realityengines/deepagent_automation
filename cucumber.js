@@ -1,14 +1,20 @@
-module.exports = {
-  default: {
-    parallel: 1,
-    format: [
-      'progress-bar',
-      ['html', 'reports/cucumber-report.html'],
-      ['json', 'reports/cucumber-report.json']
-    ],
-    paths: ['features/**/*.feature'],
-    require: ['features/step_definitions/*.js', 'features/support/*.js'],
-    requireModule: ['@playwright/test'],
-    publishQuiet: true
+const options = {
+  parallel: 1,
+  paths: ['features/**/*.feature'],
+  import: [
+    'features/step_definitions/**/*.js',
+    'features/support/**/*.js'
+  ],
+  requireModule: ['@playwright/test'],
+  format: [
+    'progress',
+    'html:reports/cucumber-report.html',
+    'json:reports/cucumber-report.json',
+    '@cucumber/pretty-formatter'
+  ],
+  formatOptions: {
+    snippetInterface: 'async-await'
   }
 };
+
+export default options;

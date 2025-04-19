@@ -22,6 +22,9 @@ npx playwright install
 
 ## Running Tests
 
+## To clean 
+  npm run clean
+  
 ### Run All Tests
 To run all test scenarios:
 ```bash

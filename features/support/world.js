@@ -1,7 +1,7 @@
-const { setWorldConstructor, World } = require('@cucumber/cucumber');
-const { chromium } = require('playwright');
-const playwright = require('playwright');
-const config = require('../../config/config');
+import { setWorldConstructor, World } from '@cucumber/cucumber';
+import { chromium } from 'playwright';
+import playwright from 'playwright';
+import config from '../../config/config.js';
 
 class BrowserType extends World {
   async init() {
@@ -31,7 +31,7 @@ class BrowserType extends World {
         });
 
         this.context = await this.browser.newContext({
-          viewport: { width: 1920, height: 1080 }
+          viewport: { width: 1600, height: 900 }
         });
       } else {
         // Local execution
@@ -40,7 +40,7 @@ class BrowserType extends World {
           slowMo: config.browser.slowMo
         });
         this.context = await this.browser.newContext({
-          viewport: { width: 1920, height: 1080 },
+          viewport: { width: 1600, height: 900 },
           timeout: config.browser.timeout
         });
       }

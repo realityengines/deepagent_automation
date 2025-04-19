@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Playwright automation framework with Cucumber BDD",
   "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); ['reports', 'test-results'].forEach(dir => {try {fs.rmSync(path.join(__dirname, dir), {recursive: true, force: true}); fs.mkdirSync(path.join(__dirname, dir), {recursive: true});} catch (e) {console.error(e)}});\"",
-    "test": "cucumber-js --config cucumber.js",
+    "test": "cucumber-js --config cucumber.js --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format summary",
     "test:tag": "cucumber-js --config cucumber.js --tags",
     "ci-test": "node -e \"const fs=require('fs'); const path=require('path'); ['reports', 'test-results'].forEach(dir => {try {fs.rmSync(path.join(__dirname, dir), {recursive: true, force: true}); fs.mkdirSync(path.join(__dirname, dir), {recursive: true});} catch (e) {console.error(e)}});\" && cucumber-js --config cucumber.js"
   },
@@ -18,13 +22,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cross-env": "^7.0.3",
-    "@cucumber/cucumber": "^9.1.2",
+    "@cucumber/cucumber": "^11.2.0",
+    "@cucumber/html-formatter": "^21.10.0",
     "@cucumber/pretty-formatter": "^1.0.0",
     "@playwright/test": "^1.35.0",
-    "cucumber-html-reporter": "^7.1.0",
+    "cross-env": "^7.0.3",
+    "cucumber-html-reporter": "^7.2.0",
     "dotenv": "^16.1.4",
+    "multiple-cucumber-html-reporter": "^3.9.2",
     "playwright": "^1.35.0",
     "rimraf": "^5.0.0"
+  },
+  "devDependencies": {
+    "chai": "^5.2.0"
   }
 }

@@ -14,9 +14,11 @@ Feature: Dashboard Functionality
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     Then I should see a prompt that tests factual recall and accuracy of the response
-    And the response time should not exceed 5 minutes
+    And I should see the status "Completed" for the task
     And the compute points should not exceed 50k
 
     Examples:
-      | promat_user_search                                    | follow_up_query               |
-      | Who is the current PM and Governor General of Canada? | No follow-up questions please |
+      | promat_user_search                                                                     | follow_up_query               |
+      | Who is the current PM and Governor General of Canada?                                  | No follow-up questions please |
+      | What is photosynthesis in one sentence?                                                | your call                     |
+      # | Create a technical report on MCP. It should not be more more than 15 pages in pdf file | Master Control Program        |

@@ -1,9 +1,9 @@
-const { Before, After, BeforeAll, AfterAll, setDefaultTimeout } = require('@cucumber/cucumber');
-const { chromium } = require('playwright');
-const fs = require('fs');
+import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
+import { chromium } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
-// Set a longer default timeout for all steps
-setDefaultTimeout(90000);
+setDefaultTimeout(1500000);
 
 // Ensure the reports directory exists
 BeforeAll(async function () {

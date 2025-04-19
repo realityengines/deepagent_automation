@@ -1,6 +1,6 @@
-const config = require('../config/config');
+import config from '../config/config.js';
 
-class LoginPage {
+export class LoginPage {
   constructor(page) {
     this.page = page;
     this.usernameInput = page.locator('[name="email"]');
@@ -28,7 +28,4 @@ class LoginPage {
   getDashboardElement() {
     return this.dashboardElement;
   }
-
 }
-
-module.exports = { LoginPage };

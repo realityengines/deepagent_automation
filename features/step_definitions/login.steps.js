@@ -1,6 +1,6 @@
-const { Given, When, Then } = require('@cucumber/cucumber');
-const { expect } = require('@playwright/test');
-const { LoginPage } = require('../../pages/login.page');
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+import { LoginPage } from '../../pages/login.page.js';
 
 let loginPage;
 
@@ -17,13 +17,6 @@ When('I enter valid password {string}', async function (password) {
   await loginPage.enterPassword(password);
 });
 
-When('I enter invalid username {string}', async function (username) {
-  await loginPage.enterUsername(username);
-});
-
-When('I enter invalid password {string}', async function (password) {
-  await loginPage.enterPassword(password);
-});
 
 When('I click the login button', async function () {
   await loginPage.clickLoginButton();

@@ -1,0 +1,58 @@
+name: Release to NPM and GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: "Release Type"
+        required: true
+        type: choice
+        options:
+          - "major"
+          - "minor"
+          - "patch"
+        default: "patch"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ env.PUSH_TOKEN }}
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - name: git config
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: NPM Setup
+        run: pnpm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Release
+        run: pnpm release.${{ github.event.inputs.releaseType }}
