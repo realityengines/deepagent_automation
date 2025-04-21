@@ -31,7 +31,7 @@ class BrowserType extends World {
         });
 
         this.context = await this.browser.newContext({
-          viewport: { width: 1600, height: 900 }
+          viewport: { width: 1800, height: 900 }
         });
       } else {
         // Local execution
@@ -40,7 +40,7 @@ class BrowserType extends World {
           slowMo: config.browser.slowMo
         });
         this.context = await this.browser.newContext({
-          viewport: { width: 1600, height: 900 },
+          viewport: { width: 1800, height: 900 },
           timeout: config.browser.timeout
         });
       }

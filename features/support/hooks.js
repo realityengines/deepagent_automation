@@ -3,7 +3,8 @@ import { chromium } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-setDefaultTimeout(1500000);
+// Set default timeout to 12 minutes (720000 milliseconds) for all steps
+setDefaultTimeout(720000);
 
 // Ensure the reports directory exists
 BeforeAll(async function () {

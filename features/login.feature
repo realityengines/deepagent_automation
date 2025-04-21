@@ -14,4 +14,3 @@ Feature: Login Functionality
   @Login
   Scenario: Login to the application
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
-   

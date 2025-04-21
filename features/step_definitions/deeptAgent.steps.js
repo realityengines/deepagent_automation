@@ -6,6 +6,8 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
+  await deepAgentPage.page.waitForTimeout(1000);
+
 });
 
 When(
@@ -59,3 +61,102 @@ Then("the compute points should not exceed 50k", async function () {
     throw error;
   }
 });
+
+Then("I should download the generated summary", async function () {
+  try {
+    const downloadSuccess = await deepAgentPage.downloadFile();
+    expect(downloadSuccess).to.be.true, 'Failed to download the file';
+    
+    // Add wait to ensure download completes
+    await this.page.waitForTimeout(2000);
+  } catch (error) {
+    console.error('Error in downloading summary:', error.message);
+    throw error;
+  }
+
+  try {
+    const downloadViewSuccess = await deepAgentPage.downloadFilesFromViewer();
+    expect(downloadViewSuccess).to.be.true, 'Failed to download the file';
+    
+    // Add wait to ensure download completes
+    await this.page.waitForTimeout(2000);
+  } catch (error) {
+    console.error('Error in downloading summary:', error.message);
+    throw error;
+  }
+
+
+});
+Then("I should fetch the search results", async function () {
+  await deepAgentPage.closeBrowserPopup();
+  await deepAgentPage.page.waitForTimeout(2000);
+  try {
+    console.log("\n=== Fetching Search Results ===");
+    
+    // Call the searchAndFetchAllResults method
+    const searchData = await deepAgentPage.searchAndFetchAllResults();
+    
+    // Verify we got some results
+    expect(searchData).to.exist;
+    expect(searchData.totalSearches).to.be.greaterThan(0);
+    
+    console.log(`Total searches processed: ${searchData.totalSearches}`);
+    console.log(`Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`);
+    console.log("====\n");
+    
+    // Add small delay to ensure file writing is complete
+    await deepAgentPage.page.waitForTimeout(1000);
+    
+  } catch (error) {
+    console.error("\n=== Error Fetching Search Results ===");
+    console.error(error.message);
+    console.error("====\n");
+    throw error;
+  }
+});
+
+// c:\Users\Admin\Desktop\abacurview\deepagent_automation\steps\deepAgent.steps.js
+
+// Then("I should store the response text in a JSON file", async function () {
+//   try {
+//       // Call the method to capture and store response text
+//       const responseData = await this.deepAgentPage.captureAndStoreResponseValue();
+      
+//       // Verify the data was captured successfully
+//       if (!responseData || !responseData.responses || responseData.responses.length === 0) {
+//           throw new Error("No response text was captured");
+//       }
+
+//       console.log(`Successfully stored ${responseData.totalParagraphs} paragraphs of response text`);
+//   } catch (error) {
+//       console.error("Failed to store response text:", error.message);
+//       throw error;
+//   }
+// });
+
+// Update the Then step to use the global deepAgentPage if this.deepAgentPage is not available
+Then("I should store the response text in a JSON file", async function () {
+  try {
+    // Use either this.deepAgentPage or the global deepAgentPage
+    const pageInstance = this.deepAgentPage || deepAgentPage;
+    
+    if (!pageInstance) {
+      throw new Error("DeepAgentPage instance not initialized");
+    }
+
+    const responseData = await pageInstance.captureAndStoreResponseValue();
+    
+    // Verify the data was captured successfully
+    if (!responseData || !responseData.responses || responseData.responses.length === 0) {
+      throw new Error("No response text was captured");
+    }
+
+    console.log(`Successfully stored ${responseData.totalParagraphs} paragraphs of response text`);
+  } catch (error) {
+    console.error("Failed to store response text:", error.message);
+    throw error;
+  }
+});
+
+
+
