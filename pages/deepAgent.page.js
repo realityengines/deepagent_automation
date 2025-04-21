@@ -37,7 +37,7 @@ export class DeepAgentPage {
       '//div[@dir="auto"] //span[contains(text(), "Searching")]'
     );
     // source link
-    this.sourceName = page.locator('div [class*="group-hover:underline"]');
+    this.sourceName = page.locator('article div[class*="flex items-center"]');
     //source data
     this.sourceFetchData = page.locator(
       'section[class*="w-full group"] div[class*="first-letter:uppercase"]'

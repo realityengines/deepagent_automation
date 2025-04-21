@@ -6,7 +6,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(1000);
+  await deepAgentPage.page.waitForTimeout(2000);
 
 });
 
@@ -23,14 +23,6 @@ When(
     await deepAgentPage.waitforStopButtonInvisble();
 
 
-  }
-);
-
-// @yuvraj this one not implemented
-Then(
-  "I should see a prompt that tests factual recall and accuracy of the response",
-  async function () {
- //Need to think about quality matches — how can I verify them once the search is completed?"
   }
 );
 
@@ -115,27 +107,8 @@ Then("I should fetch the search results", async function () {
   }
 });
 
-// c:\Users\Admin\Desktop\abacurview\deepagent_automation\steps\deepAgent.steps.js
 
-// Then("I should store the response text in a JSON file", async function () {
-//   try {
-//       // Call the method to capture and store response text
-//       const responseData = await this.deepAgentPage.captureAndStoreResponseValue();
-      
-//       // Verify the data was captured successfully
-//       if (!responseData || !responseData.responses || responseData.responses.length === 0) {
-//           throw new Error("No response text was captured");
-//       }
-
-//       console.log(`Successfully stored ${responseData.totalParagraphs} paragraphs of response text`);
-//   } catch (error) {
-//       console.error("Failed to store response text:", error.message);
-//       throw error;
-//   }
-// });
-
-// Update the Then step to use the global deepAgentPage if this.deepAgentPage is not available
-Then("I should store the response text in a JSON file", async function () {
+Then("I store the response text in a JSON file", async function () {
   try {
     // Use either this.deepAgentPage or the global deepAgentPage
     const pageInstance = this.deepAgentPage || deepAgentPage;
