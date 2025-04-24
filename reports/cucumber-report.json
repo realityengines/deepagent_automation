@@ -1,0 +1,166 @@
+[
+  {
+    "description": "  As a logged in user\n  I want to access and view my dashboard\n  So that I can see my personalized information and overview",
+    "elements": [
+      {
+        "description": "",
+        "id": "dashboard-functionality;search-deepagent-prompt",
+        "keyword": "Scenario Outline",
+        "line": 38,
+        "name": "Search DeepAgent prompt",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 522921799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "the user enters username \"testuser1744775890841@internalreai.com\" and password \"Testuser@123\"",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:35"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3863579300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 8,
+            "name": "I should be logged in successfully",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2918332699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I click the deep Agent option",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\dashboard.steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2356890199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 29,
+            "name": "I click the check out from the welcome window",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3144432699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 30,
+            "name": "I search the prompt \"search Elon Musk and create pdf file\" with follow-up query \"Elon Musk's life or career in the PDf\"",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 268619037399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 31,
+            "name": "I should see the status \"Completed\" for the task",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:27"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23513100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 32,
+            "name": "the compute points should not exceed 290000lakh",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12847799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 33,
+            "name": "I should download the generated summary",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:58"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 17090935899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 34,
+            "name": "I should fetch the search results",
+            "match": {
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10379380999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 695031900
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@DeepAgentSearchPrompt",
+            "line": 27
+          },
+          {
+            "name": "@smoke",
+            "line": 27
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "dashboard-functionality",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Dashboard Functionality",
+    "tags": [],
+    "uri": "features\\deepAgent.feature"
+  }
+]

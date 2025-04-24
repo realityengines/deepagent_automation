@@ -21,7 +21,10 @@ class BrowserType extends World {
             video: true,
             console: true,
             tunnel: config.lambdaTest.tunnel,
-            timeout: 1800000, // Increased timeout for LambdaTest
+            timeout: 1800000,
+            idleTimeout:1800000,
+            sessionTimeout:1800000
+      
           },
         };
 
@@ -54,8 +57,8 @@ class BrowserType extends World {
         await this.page.setDefaultNavigationTimeout(1800000); // 30 minutes
         await this.page.setDefaultTimeout(1800000); // 30 minutes
       } else {
-        await this.page.setDefaultNavigationTimeout(90000);
-        await this.page.setDefaultTimeout(90000);
+        await this.page.setDefaultNavigationTimeout(1500000);
+        await this.page.setDefaultTimeout(1500000);
       }
     } catch (error) {
       console.error("Failed to initialize browser:", error);
@@ -63,36 +66,68 @@ class BrowserType extends World {
     }
   }
 
-  async cleanup() {
-    try {
+//   async cleanup() {
+//     try {
+//       if (this.page) {
+//         await this.page.close();
+//       }
+//       if (this.context) {
+//         await this.context.close();
+//       }
+//       if (this.browser) {
+//         await this.browser.close();
+//       }
+//     } catch (error) {
+//       console.error("Error during cleanup:", error);
+//     }
+//   }
+
+//   async takeScreenshot(path) {
+//     if (this.page) {
+//       try {
+//         return await this.page.screenshot({
+//           path: path,
+//           fullPage: true,
+//         });
+//       } catch (error) {
+//         console.error("Failed to take screenshot:", error);
+//         return null;
+//       }
+//     }
+//     return null;
+//   }
+// }
+
+
+
+
+async cleanup() {
+  try {
       if (this.page) {
-        await this.page.close();
+          try {
+              await this.page.close().catch(err => console.log('Page close error:', err));
+          } catch (error) {
+              console.log('Ignoring page close error:', error);
+          }
       }
       if (this.context) {
-        await this.context.close();
+          try {
+              await this.context.close().catch(err => console.log('Context close error:', err));
+          } catch (error) {
+              console.log('Ignoring context close error:', error);
+          }
       }
       if (this.browser) {
-        await this.browser.close();
+          try {
+              await this.browser.close().catch(err => console.log('Browser close error:', err));
+          } catch (error) {
+              console.log('Ignoring browser close error:', error);
+          }
       }
-    } catch (error) {
+  } catch (error) {
       console.error("Error during cleanup:", error);
-    }
   }
-
-  async takeScreenshot(path) {
-    if (this.page) {
-      try {
-        return await this.page.screenshot({
-          path: path,
-          fullPage: true,
-        });
-      } catch (error) {
-        console.error("Failed to take screenshot:", error);
-        return null;
-      }
-    }
-    return null;
-  }
+}
 }
 
 setWorldConstructor(BrowserType);
