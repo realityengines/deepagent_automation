@@ -584,10 +584,6 @@ export class DeepAgentPage {
         computePointsUsed: computePointsUsed,
         totalExecutionTimeMs: totalExecutionTime,
         processingTimeMs: processingTime,
-        startTime: Math.floor(searchStartTime / 1000),
-        endTime: Math.floor(searchEndTime / 1000),
-        formattedStartTime: new Date(searchStartTime).toLocaleString(),
-        formattedEndTime: new Date(searchEndTime).toLocaleString(),
         totalSearches: searchResults.length,
         searchResults: searchResults,
       };
