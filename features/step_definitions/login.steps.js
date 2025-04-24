@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { LoginPage } from '../../pages/login.page.js';
-
+/** @type {LoginPage} */
 let loginPage;
 
 Given('I am on the login page', async function () {

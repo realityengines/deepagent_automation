@@ -17,17 +17,17 @@ class BrowserType extends World {
             'name': 'Playwright Test',
             'user': config.lambdaTest.username,
             'accessKey': config.lambdaTest.accessKey,
-            'network': true,
+            'network': false,
             'video': true,
             'console': true,
             'tunnel': config.lambdaTest.tunnel,
-            'timeout': 90000  // Increased timeout for LambdaTest
+            'timeout': 1800000  // Increased timeout for LambdaTest
           },
         };
 
         this.browser = await playwright.chromium.connect({
           wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(capabilities))}`,
-          timeout: 90000
+          timeout: 100000
         });
 
         this.context = await this.browser.newContext({

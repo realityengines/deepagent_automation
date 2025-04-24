@@ -2,13 +2,14 @@ import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber
 import { chromium } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-
-// Set default timeout to 12 minutes (720000 milliseconds) for all steps
-setDefaultTimeout(720000);
+import { cleanupDirectories } from '../../utils/cleanup.js';
+// Set default timeout to 30 minutes (1800000 milliseconds) for all steps
+setDefaultTimeout(1800000);
 
 // Ensure the reports directory exists
 BeforeAll(async function () {
   try {
+    cleanupDirectories();
     if (!fs.existsSync('reports')) {
       fs.mkdirSync('reports', { recursive: true });
     }

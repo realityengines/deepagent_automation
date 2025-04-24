@@ -4,17 +4,17 @@
     "elements": [
       {
         "description": "",
-        "id": "dashboard-functionality;search-deepagent-prompt",
+        "id": "dashboard-functionality;search-a-single-default-sample-task-from-deep-agent",
         "keyword": "Scenario Outline",
-        "line": 23,
-        "name": "Search DeepAgent prompt",
+        "line": 19,
+        "name": "Search a single default sample task from deep Agent",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 455929800
+              "duration": 8533033799
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 5478075000
+              "duration": 2086788399
             }
           },
           {
@@ -40,7 +40,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2940455999
+              "duration": 2070682000
             }
           },
           {
@@ -53,98 +53,86 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2901757100
+              "duration": 828733299
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 13,
+            "line": 20,
             "name": "I click the check out from the welcome window",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:6"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:7"
             },
             "result": {
               "status": "passed",
-              "duration": 3013616400
+              "duration": 3008991299
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 14,
-            "name": "I search the prompt \"search Elon Musk and create pdf file\" with follow-up query \"Elon Musk's life or career in the PDf\"",
+            "line": 21,
+            "name": "I search for a default sample task and enter \"your call\"",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:13"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:120"
             },
             "result": {
-              "status": "passed",
-              "duration": 319510751099
+              "status": "failed",
+              "duration": 316424012600,
+              "error_message": "locator.waitFor: Target page, context or browser has been closed\n    at DeepAgentPage.waitforStopButtonInvisble (C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\pages\\deepAgent.page.js:97:27)\n    at BrowserType.<anonymous> (C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:132:25)"
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 15,
+            "line": 22,
             "name": "I should see the status \"Completed\" for the task",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:29"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:27"
             },
             "result": {
-              "status": "passed",
-              "duration": 30618000
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 16,
-            "name": "the compute points should not exceed 50k",
+            "line": 23,
+            "name": "the compute points should not exceed 290000lakh",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:34"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:32"
             },
             "result": {
-              "status": "passed",
-              "duration": 18090800
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 17,
+            "line": 24,
             "name": "I should download the generated summary",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:57"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:58"
             },
             "result": {
-              "status": "passed",
-              "duration": 48044022600
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
             "arguments": [],
-            "keyword": "And ",
-            "line": 18,
-            "name": "I should fetch the search results",
+            "keyword": "Then ",
+            "line": 25,
+            "name": "I should see the search results for the default sample task",
             "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:82"
+              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:136"
             },
             "result": {
-              "status": "passed",
-              "duration": 9730563399
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 19,
-            "name": "I store the response text in a JSON file",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:111"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 64675100
+              "status": "skipped",
+              "duration": 0
             }
           },
           {
@@ -152,14 +140,18 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 504518800
+              "duration": 3462499
             }
           }
         ],
         "tags": [
           {
-            "name": "@DeepAgent",
-            "line": 11
+            "name": "@DeepAgentDefaultSingleSampleTask",
+            "line": 18
+          },
+          {
+            "name": "@smoke",
+            "line": 18
           }
         ],
         "type": "scenario"
@@ -171,158 +163,5 @@
     "name": "Dashboard Functionality",
     "tags": [],
     "uri": "features\\deepAgent.feature"
-  },
-  {
-    "description": "  As a user\n  I want to be able to log in to the application\n  So that I can access my account",
-    "elements": [
-      {
-        "description": "",
-        "id": "login-functionality;successful-login-with-valid-credentials",
-        "keyword": "Scenario",
-        "line": 7,
-        "name": "Successful login with valid credentials",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 395949000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 8,
-            "name": "I am on the login page",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:7"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 3036204200
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 9,
-            "name": "I enter valid username \"testuser1744775890841@internalreai.com\"",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:12"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 228672100
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 10,
-            "name": "I enter valid password \"Testuser@123\"",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:16"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 66603400
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 11,
-            "name": "I click the login button",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52342999
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 12,
-            "name": "I should be logged in successfully",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:25"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 2982720099
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 490578999
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@valid_login",
-            "line": 6
-          }
-        ],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "login-functionality;login-to-the-application",
-        "keyword": "Scenario",
-        "line": 15,
-        "name": "Login to the application",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 425908500
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 16,
-            "name": "the user enters username \"testuser1744775890841@internalreai.com\" and password \"Testuser@123\"",
-            "match": {
-              "location": "file:\\C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\login.steps.js:35"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 3316149399
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 304776399
-            }
-          }
-        ],
-        "tags": [
-          {
-            "name": "@Login",
-            "line": 14
-          }
-        ],
-        "type": "scenario"
-      }
-    ],
-    "id": "login-functionality",
-    "line": 1,
-    "keyword": "Feature",
-    "name": "Login Functionality",
-    "tags": [],
-    "uri": "features\\login.feature"
   }
 ]
