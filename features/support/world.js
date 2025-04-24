@@ -1,57 +1,64 @@
-import { setWorldConstructor, World } from '@cucumber/cucumber';
-import { chromium } from 'playwright';
-import playwright from 'playwright';
-import config from '../../config/config.js';
+import { setWorldConstructor, World } from "@cucumber/cucumber";
+import { chromium } from "playwright";
+import playwright from "playwright";
+import config from "../../config/config.js";
 
 class BrowserType extends World {
   async init() {
     try {
-      if (config.executionMode === 'lambda') {
+      if (config.executionMode === "lambda") {
         // LambdaTest configuration
         const capabilities = {
-          'browserName': 'Chrome',
-          'browserVersion': 'latest',
-          'LT:Options': {
-            'platform': config.lambdaTest.platformName,
-            'build': config.lambdaTest.buildName,
-            'name': 'Playwright Test',
-            'user': config.lambdaTest.username,
-            'accessKey': config.lambdaTest.accessKey,
-            'network': false,
-            'video': true,
-            'console': true,
-            'tunnel': config.lambdaTest.tunnel,
-            'timeout': 1800000  // Increased timeout for LambdaTest
+          browserName: "Chrome",
+          browserVersion: "latest",
+          "LT:Options": {
+            platform: config.lambdaTest.platformName,
+            build: config.lambdaTest.buildName,
+            name: "Playwright Test",
+            user: config.lambdaTest.username,
+            accessKey: config.lambdaTest.accessKey,
+            network: false,
+            video: true,
+            console: true,
+            tunnel: config.lambdaTest.tunnel,
+            timeout: 1800000, // Increased timeout for LambdaTest
           },
         };
 
         this.browser = await playwright.chromium.connect({
-          wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(capabilities))}`,
-          timeout: 100000
+          wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(
+            JSON.stringify(capabilities)
+          )}`,
+          timeout: 1800000, // 30 minutes connection timeout
         });
 
         this.context = await this.browser.newContext({
-          viewport: { width: 1800, height: 900 }
+          viewport: { width: 1800, height: 900 },
+          timeout: 1800000, // 30 minutes context timeout
         });
       } else {
         // Local execution
         this.browser = await chromium.launch({
           headless: config.browser.headless,
-          slowMo: config.browser.slowMo
+          slowMo: config.browser.slowMo,
         });
         this.context = await this.browser.newContext({
           viewport: { width: 1800, height: 900 },
-          timeout: config.browser.timeout
+          timeout: config.browser.timeout,
         });
       }
       this.page = await this.context.newPage();
-      
-      // Set default navigation timeout
-      await this.page.setDefaultNavigationTimeout(90000);
-      await this.page.setDefaultTimeout(90000);
-      
+
+      // Increase default navigation and page timeouts for LambdaTest
+      if (config.executionMode === "lambda") {
+        await this.page.setDefaultNavigationTimeout(1800000); // 30 minutes
+        await this.page.setDefaultTimeout(1800000); // 30 minutes
+      } else {
+        await this.page.setDefaultNavigationTimeout(90000);
+        await this.page.setDefaultTimeout(90000);
+      }
     } catch (error) {
-      console.error('Failed to initialize browser:', error);
+      console.error("Failed to initialize browser:", error);
       throw error;
     }
   }
@@ -68,7 +75,7 @@ class BrowserType extends World {
         await this.browser.close();
       }
     } catch (error) {
-      console.error('Error during cleanup:', error);
+      console.error("Error during cleanup:", error);
     }
   }
 
@@ -77,10 +84,10 @@ class BrowserType extends World {
       try {
         return await this.page.screenshot({
           path: path,
-          fullPage: true
+          fullPage: true,
         });
       } catch (error) {
-        console.error('Failed to take screenshot:', error);
+        console.error("Failed to take screenshot:", error);
         return null;
       }
     }

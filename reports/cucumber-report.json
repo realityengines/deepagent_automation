@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 8533033799
+              "duration": 6091962999
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2086788399
+              "duration": 2136354700
             }
           },
           {
@@ -40,7 +40,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2070682000
+              "duration": 2311809799
             }
           },
           {
@@ -53,7 +53,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 828733299
+              "duration": 860607500
             }
           },
           {
@@ -66,7 +66,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3008991299
+              "duration": 2956124700
             }
           },
           {
@@ -79,7 +79,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 316424012600,
+              "duration": 314045492599,
               "error_message": "locator.waitFor: Target page, context or browser has been closed\n    at DeepAgentPage.waitforStopButtonInvisble (C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\pages\\deepAgent.page.js:97:27)\n    at BrowserType.<anonymous> (C:\\Users\\Admin\\Desktop\\abacurview\\deepagent_automation\\features\\step_definitions\\deeptAgent.steps.js:132:25)"
             }
           },
@@ -140,7 +140,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 3462499
+              "duration": 4147200
             }
           }
         ],
