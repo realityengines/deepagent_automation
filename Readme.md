@@ -7,6 +7,7 @@ This project contains automated tests using Playwright and Cucumber.js.
 Before running the tests, make sure you have the following installed:
 - Node.js (latest LTS version)
 - npm (comes with Node.js)
+- Cucumber (latest version)
 
 ## Installation
 
@@ -20,6 +21,10 @@ npm install
 npx playwright install
 ```
 
+3. Install Cucumber 
+ ```bash
+   npm install @cucumber/cucumber@latest   
+   ```     
 ## Running Tests
 
 ## To clean 
