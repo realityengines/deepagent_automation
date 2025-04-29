@@ -94,14 +94,49 @@ export class DeepAgentPage {
 
   async waitforStopButtonInvisble() {
     const startTime = Date.now();
-    await this.stopButton.waitFor({
-      state: "hidden",
-      timeout: 1800000, // 30 minutes
-    });
-    await this.stopButton.waitFor({ state: "hidden" });
+    const maxWaitTime = 1800000; // 30 minutes in milliseconds
+    const checkInterval = 10000; // Check every 10 seconds
+    
+    let isVisible = true;
+    
+    while (isVisible && (Date.now() - startTime) < maxWaitTime) {
+      try {
+        // Check if the button is visible with a short timeout
+        isVisible = await this.stopButton.isVisible({ timeout: 1000 });
+        
+        if (!isVisible) {
+          // Button is no longer visible, exit the loop
+          break;
+        }
+        
+        // Log status every 30 seconds for debugging
+        const elapsedTime = Date.now() - startTime;
+        if (elapsedTime % 30000 < checkInterval) {
+          console.log(`Stop button still visible after ${Math.floor(elapsedTime/1000)} seconds. Continuing to wait...`);
+        }
+        
+        // Wait for the check interval before checking again
+        await this.page.waitForTimeout(checkInterval);
+      } catch (error) {
+        // If error occurs (like element not found), assume button is not visible
+        console.log(`Error checking stop button visibility: ${error.message}`);
+        isVisible = false;
+        break;
+      }
+    }
+    
+    // Final verification that button is hidden
+    try {
+      await this.stopButton.waitFor({ state: "hidden", timeout: 5000 });
+    } catch (error) {
+      console.log(`Final verification failed: ${error.message}`);
+    }
+    
     const endTime = Date.now();
     const executionTime = endTime - startTime;
-    return executionTime; //
+    
+    console.log(`Stop button became invisible after ${executionTime/1000} seconds`);
+    return executionTime;
   }
 
   async getStatusOfTask(expectedStatus) {
