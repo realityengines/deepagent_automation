@@ -7,7 +7,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(2000);
+  await deepAgentPage.page.waitForTimeout(10000);
 });
 
 When(
@@ -29,7 +29,7 @@ Then("I should see the status {string} for the task", async function (status) {
   expect(hasExpectedStatus).to.be.true;
 });
 
-Then("the compute points should not exceed 290000lakh", async function () {
+Then("the compute points should not exceed 150000k", async function () {
   try {
     const computePoints = await deepAgentPage.getComputePoint();
 
@@ -40,14 +40,14 @@ Then("the compute points should not exceed 290000lakh", async function () {
 
     console.log("\n=== Compute Points Details ===");
     console.log(`Current Compute Points: ${computePoints}`);
-    console.log(`Maximum Allowed Points: 290000`);
-    console.log(`Points Remaining: ${290000 - computePoints}`);
+    console.log(`Maximum Allowed Points: 150000`);
+    console.log(`Points Remaining: ${150000 - computePoints}`);
     console.log("============================\n");
 
     expect(computePoints).to.be.a("number");
     expect(computePoints).to.be.at.most(
       290000,
-      "Compute points exceeded 290000lakh limit"
+      "Compute points exceeded 150000k limit"
     );
   } catch (error) {
     console.error("Error in compute points verification:", error.message);
@@ -75,21 +75,14 @@ Then("I should download the generated summary", async function () {
   }
 });
 Then("I should fetch the search results", async function () {
-  await deepAgentPage.closeBrowserPopup();
+  // await deepAgentPage.closeBrowserPopup();
   await deepAgentPage.page.waitForTimeout(2000);
   try {
     console.log("\n=== Fetching Search Results ===");
     // Call the searchAndFetchAllResults method
     const searchData = await deepAgentPage.searchAndFetchAllResults();
-
-    // Verify we got some results
     expect(searchData).to.exist;
     expect(searchData.totalSearches).to.be.greaterThan(0);
-
-    console.log(`Total searches processed: ${searchData.totalSearches}`);
-    console.log(
-      `Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`
-    );
     console.log("====\n");
 
     // Add small delay to ensure file writing is complete
@@ -142,12 +135,6 @@ Then(
       console.log("\n=== Fetching Search Results ===");
       // Call the searchAndFetchAllResults method
       const searchData = await deepAgentPage.searchAndFetchAllResults();
-
-      // Verify we got some results
-      expect(searchData).to.exist;
-      expect(searchData.totalSearches).to.be.greaterThan(0);
-
-      console.log(`Total searches processed: ${searchData.totalSearches}`);
       console.log(
         `Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`
       );

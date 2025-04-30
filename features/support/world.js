@@ -82,21 +82,20 @@ class BrowserType extends World {
 //     }
 //   }
 
-//   async takeScreenshot(path) {
-//     if (this.page) {
-//       try {
-//         return await this.page.screenshot({
-//           path: path,
-//           fullPage: true,
-//         });
-//       } catch (error) {
-//         console.error("Failed to take screenshot:", error);
-//         return null;
-//       }
-//     }
-//     return null;
-//   }
-// }
+  async takeScreenshot(path) {
+    if (this.page) {
+      try {
+        return await this.page.screenshot({
+          path: path,
+          fullPage: true,
+        });
+      } catch (error) {
+        console.error("Failed to take screenshot:", error);
+        return null;
+      }
+    }
+    return null;
+  }
 
 
 

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export const cleanupDirectories = () => {
-    const directories = ['downlaodfile', 'jsonreader'];
+    const directories = ['downlaodfile', 'jsonReport'];
     
     directories.forEach(dir => {
         const dirPath = path.join(process.cwd(), dir);
