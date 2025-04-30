@@ -71,6 +71,8 @@ export class DeepAgentPage {
     this.folderIcon = page.locator('[data-state="open"] [data-icon*="folder"]');
 
     this.zipIcon = page.locator('[data-icon*="download"]+span');
+
+    this.systemcommands = page.locator('[class*="break-words break-word"]');
   }
 
   async clickCheckoutButton() {
@@ -96,25 +98,29 @@ export class DeepAgentPage {
     const startTime = Date.now();
     const maxWaitTime = 1800000; // 30 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
-    
+
     let isVisible = true;
-    
-    while (isVisible && (Date.now() - startTime) < maxWaitTime) {
+
+    while (isVisible && Date.now() - startTime < maxWaitTime) {
       try {
         // Check if the button is visible with a short timeout
         isVisible = await this.stopButton.isVisible({ timeout: 1000 });
-        
+
         if (!isVisible) {
           // Button is no longer visible, exit the loop
           break;
         }
-        
+
         // Log status every 30 seconds for debugging
         const elapsedTime = Date.now() - startTime;
         if (elapsedTime % 30000 < checkInterval) {
-          console.log(`Stop button still visible after ${Math.floor(elapsedTime/1000)} seconds. Continuing to wait...`);
+          console.log(
+            `Stop button still visible after ${Math.floor(
+              elapsedTime / 1000
+            )} seconds. Continuing to wait...`
+          );
         }
-        
+
         // Wait for the check interval before checking again
         await this.page.waitForTimeout(checkInterval);
       } catch (error) {
@@ -124,19 +130,21 @@ export class DeepAgentPage {
         break;
       }
     }
-    
+
     // Final verification that button is hidden
     try {
       await this.stopButton.waitFor({ state: "hidden", timeout: 5000 });
     } catch (error) {
       console.log(`Final verification failed: ${error.message}`);
     }
-    
+
     const endTime = Date.now();
-    const executionTime = endTime - startTime;
-    
-    console.log(`Stop button became invisible after ${executionTime/1000} seconds`);
-    return executionTime;
+    const executionTime = (endTime - startTime) / 1000; // Convert to seconds
+
+    console.log(
+      `Stop button became invisible after ${executionTime / 1000} seconds`
+    );
+    return executionTime; // Return time in seconds for JSON report
   }
 
   async getStatusOfTask(expectedStatus) {
@@ -374,6 +382,7 @@ export class DeepAgentPage {
 
       const searchEndTime = new Date().getTime();
       const totalExecutionTime = searchEndTime - searchStartTime;
+      const totalExecutionTimeInMinutes = totalExecutionTime / 1000; // Convert to minutes
 
       let computePointsUsed = 0;
       try {
@@ -410,7 +419,7 @@ export class DeepAgentPage {
 
       const jsonFilePath = path.join(
         __dirname,
-        "../jsonReader",
+        "../jsonReport",
         `${sanitizedFileName}.json`
       );
 
@@ -461,7 +470,6 @@ export class DeepAgentPage {
         }
 
         // Try to get response text if available
-
         try {
           await this.ResponseSearchedText.first().waitFor({
             state: "visible",
@@ -489,7 +497,6 @@ export class DeepAgentPage {
           console.log("No response text found");
         }
 
-        //new changes
         let reasonText = "";
         try {
           await this.monoTextpropamt.waitFor({
@@ -502,20 +509,14 @@ export class DeepAgentPage {
           console.log("No reasoning text found from monoTextpropamt");
         }
 
-        if (!hasSearchTasks) {
-          // Handle case when no search tasks are present
-          const sources = [];
-          const responses = [];
-        } //ended
-
         searchResults.push({
           searchNumber: 1,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(),
           totalSources: sources.length,
           sources: sources,
           responses: {
             totalParagraphs: responses.length,
-            captureDate: new Date().toISOString(),
+            captureDate: new Date(),
             paragraphs: responses,
           },
         });
@@ -570,10 +571,9 @@ export class DeepAgentPage {
               });
             }
           }
-
           searchResults.push({
             searchNumber: i + 1,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
             totalSources: sources.length,
             sources: sources,
           });
@@ -605,7 +605,7 @@ export class DeepAgentPage {
 
           searchResults[i].responses = {
             totalParagraphs: responseCount,
-            captureDate: new Date().toISOString(),
+            captureDate: new Date(),
             paragraphs: responses,
           };
         }
@@ -613,27 +613,135 @@ export class DeepAgentPage {
 
       await this.waitforStopButtonInvisble();
 
-      const jsonData = {
-        searchedName: searchedName,
-        Date: new Date().toISOString(),
-        computePointsUsed: computePointsUsed,
-        totalExecutionTimeMs: totalExecutionTime,
-        processingTimeMs: processingTime,
-        totalSearches: searchResults.length,
-        searchResults: searchResults,
-      };
-
-      await fs.mkdir(path.join(__dirname, "../jsonReader"), {
+      // Create directory if it doesn't exist
+      await fs.mkdir(path.join(__dirname, "../jsonReport"), {
         recursive: true,
       });
+
+      // Prepare response array - FIXED: Remove duplicates by using a Set
+      const responseArray = [];
+      const uniqueResponses = new Set();
+
+      searchResults.forEach((result) => {
+        if (result.responses && result.responses.paragraphs) {
+          result.responses.paragraphs.forEach((paragraph) => {
+            // Only add unique content
+            if (!uniqueResponses.has(paragraph.content)) {
+              uniqueResponses.add(paragraph.content);
+              responseArray.push(paragraph.content);
+            }
+          });
+        }
+      });
+
+      // Prepare search array - FIXED: Remove duplicates by using a Set
+      const searchArray = [];
+      const uniqueSearches = new Set();
+
+      searchResults.forEach((result) => {
+        if (result.sources) {
+          result.sources.forEach((source) => {
+            if (source.content && !uniqueSearches.has(source.content)) {
+              uniqueSearches.add(source.content);
+              searchArray.push(source.content);
+            }
+          });
+        }
+      });
+      const commandsArray = [];
+      let systemprompt = {};
+      let userprompt = {};
+      try {
+        await this.systemcommands.first().waitFor({
+          state: "visible",
+          timeout: 5000,
+        });
+
+        const commandsCount = await this.systemcommands.count();
+        console.log(`Found ${commandsCount} system commands`);
+
+        // Assuming first command is system prompt and second is user prompt
+        if (commandsCount >= 1) {
+          try {
+            const firstCommand = await this.systemcommands.nth(0).textContent();
+            if (firstCommand && firstCommand.trim()) {
+              commandsArray.push(firstCommand.trim());
+              systemprompt = firstCommand.trim();
+            }
+          } catch (err) {
+            console.error(`Error capturing first command:`, err.message);
+          }
+        }
+
+        if (commandsCount >= 2) {
+          try {
+            const secondCommand = await this.systemcommands
+              .nth(1)
+              .textContent();
+            if (secondCommand && secondCommand.trim()) {
+              commandsArray.push(secondCommand.trim());
+              userprompt = secondCommand.trim();
+            }
+          } catch (err) {
+            console.error(`Error capturing second command:`, err.message);
+          }
+        }
+
+        // Add any remaining commands to the commandsArray
+        for (let i = 2; i < commandsCount; i++) {
+          try {
+            const commandText = await this.systemcommands.nth(i).textContent();
+            if (commandText && commandText.trim()) {
+              commandsArray.push(commandText.trim());
+            }
+          } catch (err) {
+            console.error(`Error capturing command ${i + 1}:`, err.message);
+          }
+        }
+      } catch (err) {
+        console.log("No system commands found");
+      }
+      // Format the report data as requested
+      const reportData = {
+        prompt: searchedName,
+        date: new Date(),
+        computeused: computePointsUsed,
+        timetaken: totalExecutionTimeInMinutes,
+        response: responseArray,
+        search: searchArray,
+        systemprompt: systemprompt,
+        userprompt: userprompt,
+      };
+
+      // Create the file name
+      const fileName = `SerachDeepAgentjsonReport.json`;
+      const filePath = path.join(__dirname, "../jsonReport", fileName);
+
+      // Read existing file if it exists
+      let existingData = [];
+      try {
+        const existingContent = await fs.readFile(filePath, "utf8");
+        existingData = JSON.parse(existingContent);
+        if (!Array.isArray(existingData)) {
+          existingData = [existingData];
+        }
+      } catch (error) {
+        // File doesn't exist or is invalid, start with empty array
+        console.log("Creating new report file");
+      }
+
+      // Add new report to existing data
+      existingData.push(reportData);
+
+      // Write the updated data back to the file
       await fs.writeFile(
-        jsonFilePath,
-        JSON.stringify(jsonData, null, 2),
+        filePath,
+        JSON.stringify(existingData, null, 2),
         "utf8"
       );
 
-      console.log(`All search results and responses saved to: ${jsonFilePath}`);
-      return jsonData;
+      console.log(`All search results and responses saved to: ${filePath}`);
+      return reportData;
     } catch (error) {
       console.error("Error in searchAndFetchAllResults:", error.message);
       throw error;

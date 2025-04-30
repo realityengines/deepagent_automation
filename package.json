@@ -28,8 +28,11 @@
     "@playwright/test": "^1.35.0",
     "cross-env": "^7.0.3",
     "cucumber-html-reporter": "^7.2.0",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.5.0",
+    "fs": "^0.0.1-security",
     "multiple-cucumber-html-reporter": "^3.9.2",
+    "node-fetch": "^3.3.2",
+    "path": "^0.12.7",
     "playwright": "^1.35.0",
     "rimraf": "^5.0.0"
   },

@@ -20,7 +20,7 @@ Feature: Dashboard Functionality
     Given I click the check out from the welcome window
     When I search for a default sample task and enter "your call"
     And I should see the status "Completed" for the task
-    And the compute points should not exceed 290000lakh
+    And the compute points should not exceed 150000k
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
@@ -29,8 +29,8 @@ Feature: Dashboard Functionality
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
-    And the compute points should not exceed 290000lakh
-    And I should download the generated summary
+    And the compute points should not exceed 150000k
+     And I should download the generated summary
     And I should fetch the search results
 
     Examples:
@@ -40,19 +40,19 @@ Feature: Dashboard Functionality
   @DeepAgentDefaultAllSampleTask @regression
   Scenario Outline: Search a single default sample task from deep Agent
     Given I click the check out from the welcome window
-    When I search for all default sample task "<sampleTaskName>" and enter "<Specify_the_prompat>"
+     When I search for all default sample task "<sampleTaskName>" and enter "<Specify_the_prompat>"
     And I should see the status "Completed" for the task
-    And the compute points should not exceed 290000lakh
-    And I should download the generated summary
+    And the compute points should not exceed 150000k
+     And I should download the generated summary
     Then I should see the search results for the default sample task
 
     Examples:
-      | sampleTaskName                        | Specify_the_prompat                                                                                                 |
+       | sampleTaskName                        | Specify_the_prompat                                                                                                 |
       | Technical Report About MCP            | Model Context Protocol technical professional, 15 pages with detailed structure                                     |
-      | Presentation On LLM Benchmarks        | General audience                                                                                                    |
-      | Bookclub Website                      | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
+        | Presentation On LLM Benchmarks        | General audience                                                                                                    |
+        | Bookclub Website                      | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
       | Build A Game                          | your call                                                                                                           |
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
-      | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
+       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
       | Dinner Reservations                   | Sunday lunch for 5                                                                                                  |
       | Connect To Gmail And Automate Work    | Any                                                                                                                 |
