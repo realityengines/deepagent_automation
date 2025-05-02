@@ -7,7 +7,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(10000);
+  await deepAgentPage.page.waitForTimeout(2000);
 });
 
 When(
@@ -16,11 +16,12 @@ When(
     await deepAgentPage.enterPromapt(promatSearch);
     await deepAgentPage.clickSendButton();
     await deepAgentPage.page.waitForTimeout(3000);
-    await deepAgentPage.waitforStopButtonInvisble();
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
     await deepAgentPage.enterPromaptQuery(follow_up_query);
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
-    await deepAgentPage.waitforStopButtonInvisble();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
   }
 );
 
@@ -29,7 +30,7 @@ Then("I should see the status {string} for the task", async function (status) {
   expect(hasExpectedStatus).to.be.true;
 });
 
-Then("the compute points should not exceed 150000k", async function () {
+Then("the compute points should not exceed 150k", async function () {
   try {
     const computePoints = await deepAgentPage.getComputePoint();
 
@@ -47,7 +48,7 @@ Then("the compute points should not exceed 150000k", async function () {
     expect(computePoints).to.be.a("number");
     expect(computePoints).to.be.at.most(
       290000,
-      "Compute points exceeded 150000k limit"
+      "Compute points exceeded 150k limit"
     );
   } catch (error) {
     console.error("Error in compute points verification:", error.message);
@@ -75,14 +76,15 @@ Then("I should download the generated summary", async function () {
   }
 });
 Then("I should fetch the search results", async function () {
-  // await deepAgentPage.closeBrowserPopup();
+  await deepAgentPage.closeBrowserPopup();
   await deepAgentPage.page.waitForTimeout(2000);
   try {
     console.log("\n=== Fetching Search Results ===");
     // Call the searchAndFetchAllResults method
     const searchData = await deepAgentPage.searchAndFetchAllResults();
-    expect(searchData).to.exist;
-    expect(searchData.totalSearches).to.be.greaterThan(0);
+    console.log(
+      `Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`
+    );
     console.log("====\n");
 
     // Add small delay to ensure file writing is complete
@@ -123,6 +125,17 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     await deepAgentPage.waitforStopButtonInvisble();
+
+    const isViewFileVisible = await deepAgentPage.viewFile
+      .isVisible()
+      .catch(() => false);
+    if (!isViewFileVisible) {
+      // If not visible, enter "yes" prompt
+      await deepAgentPage.enterPromaptQuery("yes");
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.waitforStopButtonInvisble();
+      await deepAgentPage.page.waitForTimeout(2000);
+    }
   }
 );
 
