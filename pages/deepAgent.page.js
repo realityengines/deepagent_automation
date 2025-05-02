@@ -30,6 +30,11 @@ export class DeepAgentPage {
       '[role="dialog"] [data-icon*="download"]'
     );
 
+    this.selectOptionDropDown = page.locator('button[role*="combobox"]');
+    this.AllSampleTaskDefault = page
+      .locator('button[role*="combobox"] + select option')
+      .first();
+
     this.browserPopup = page.locator(
       '[data-state="open"] [data-icon*="xmark"]'
     );
@@ -73,6 +78,8 @@ export class DeepAgentPage {
     this.zipIcon = page.locator('[data-icon*="download"]+span');
 
     this.systemcommands = page.locator('[class*="break-words break-word"]');
+
+    this.elapsedTime = 0;
   }
 
   async clickCheckoutButton() {
@@ -98,53 +105,48 @@ export class DeepAgentPage {
     const startTime = Date.now();
     const maxWaitTime = 1800000; // 30 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
-
     let isVisible = true;
-
+    // let elapsedTime = 0;
     while (isVisible && Date.now() - startTime < maxWaitTime) {
       try {
         // Check if the button is visible with a short timeout
         isVisible = await this.stopButton.isVisible({ timeout: 1000 });
-
         if (!isVisible) {
           // Button is no longer visible, exit the loop
+          this.elapsedTime = Date.now() - startTime;
           break;
         }
-
         // Log status every 30 seconds for debugging
-        const elapsedTime = Date.now() - startTime;
-        if (elapsedTime % 30000 < checkInterval) {
+        this.elapsedTime = Date.now() - startTime;
+        if (this.elapsedTime % 30000 < checkInterval) {
           console.log(
             `Stop button still visible after ${Math.floor(
-              elapsedTime / 1000
+              this.elapsedTime / 1000
             )} seconds. Continuing to wait...`
           );
         }
-
         // Wait for the check interval before checking again
         await this.page.waitForTimeout(checkInterval);
       } catch (error) {
         // If error occurs (like element not found), assume button is not visible
         console.log(`Error checking stop button visibility: ${error.message}`);
         isVisible = false;
+        this.elapsedTime = Date.now() - startTime;
         break;
       }
     }
-
     // Final verification that button is hidden
     try {
       await this.stopButton.waitFor({ state: "hidden", timeout: 5000 });
     } catch (error) {
       console.log(`Final verification failed: ${error.message}`);
     }
-
-    const endTime = Date.now();
-    const executionTime = (endTime - startTime) / 1000; // Convert to seconds
-
+    // Convert elapsedTime to seconds
+    const elapsedTimeInSeconds = this.elapsedTime / 1000;
     console.log(
-      `Stop button became invisible after ${executionTime / 1000} seconds`
+      `Stop button became invisible after ${elapsedTimeInSeconds} seconds`
     );
-    return executionTime; // Return time in seconds for JSON report
+    return elapsedTimeInSeconds; // Return elapsed time in seconds for JSON report
   }
 
   async getStatusOfTask(expectedStatus) {
@@ -375,14 +377,7 @@ export class DeepAgentPage {
         { state: "visible" }
       );
 
-      const stopButtonStartTime = new Date().getTime();
-      await this.waitforStopButtonInvisble();
-      const stopButtonEndTime = new Date().getTime();
-      const processingTime = stopButtonEndTime - stopButtonStartTime;
-
-      const searchEndTime = new Date().getTime();
-      const totalExecutionTime = searchEndTime - searchStartTime;
-      const totalExecutionTimeInMinutes = totalExecutionTime / 1000; // Convert to minutes
+      // const stopButtonInvisibleTime = await this.waitforStopButtonInvisble();
 
       let computePointsUsed = 0;
       try {
@@ -611,7 +606,7 @@ export class DeepAgentPage {
         }
       }
 
-      await this.waitforStopButtonInvisble();
+      // await this.waitforStopButtonInvisble();
 
       // Create directory if it doesn't exist
       await fs.mkdir(path.join(__dirname, "../jsonReport"), {
@@ -649,8 +644,8 @@ export class DeepAgentPage {
         }
       });
       const commandsArray = [];
-      let systemprompt = {};
-      let userprompt = {};
+      let promptSearch = {};
+      let followUpQuery = {};
       try {
         await this.systemcommands.first().waitFor({
           state: "visible",
@@ -666,7 +661,7 @@ export class DeepAgentPage {
             const firstCommand = await this.systemcommands.nth(0).textContent();
             if (firstCommand && firstCommand.trim()) {
               commandsArray.push(firstCommand.trim());
-              systemprompt = firstCommand.trim();
+              promptSearch = firstCommand.trim();
             }
           } catch (err) {
             console.error(`Error capturing first command:`, err.message);
@@ -680,7 +675,7 @@ export class DeepAgentPage {
               .textContent();
             if (secondCommand && secondCommand.trim()) {
               commandsArray.push(secondCommand.trim());
-              userprompt = secondCommand.trim();
+              followUpQuery = secondCommand.trim();
             }
           } catch (err) {
             console.error(`Error capturing second command:`, err.message);
@@ -703,14 +698,14 @@ export class DeepAgentPage {
       }
       // Format the report data as requested
       const reportData = {
-        prompt: searchedName,
+        taskDescription: searchedName,
         date: new Date(),
         computeused: computePointsUsed,
-        timetaken: totalExecutionTimeInMinutes,
+        timetaken: `${Number(this.elapsedTime.toFixed(2))} sec`,
         response: responseArray,
         search: searchArray,
-        systemprompt: systemprompt,
-        userprompt: userprompt,
+        promptSearch: promptSearch,
+        followUpQuery: followUpQuery,
       };
 
       // Create the file name
@@ -751,7 +746,7 @@ export class DeepAgentPage {
   async openSampelTaskWindow() {
     try {
       const elements = await this.sampleTaskDeafaultElement.all();
-      for (let i = 0; i < elements.length; i++) {
+      for (let i = 1; i < elements.length; i++) {
         await elements[i].click();
         break; // Break after clicking first element
       }
