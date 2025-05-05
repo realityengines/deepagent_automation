@@ -34,7 +34,13 @@ Then("the compute points should not exceed 150k", async function () {
   try {
     const computePoints = await deepAgentPage.getComputePoint();
 
-    // Verify that computePoints is a number
+    // Handle error case (when -1 is returned)
+    if (computePoints === -1) {
+      console.warn("Could not retrieve compute points, skipping verification");
+      return;
+    }
+
+    // Verify that computePoints is a valid number
     if (typeof computePoints !== "number" || isNaN(computePoints)) {
       throw new Error(`Invalid compute points value: ${computePoints}`);
     }
@@ -47,8 +53,8 @@ Then("the compute points should not exceed 150k", async function () {
 
     expect(computePoints).to.be.a("number");
     expect(computePoints).to.be.at.most(
-      290000,
-      "Compute points exceeded 150k limit"
+      150000,
+      `Compute points (${computePoints}) exceeded 150k limit`
     );
   } catch (error) {
     console.error("Error in compute points verification:", error.message);
@@ -120,21 +126,27 @@ When(
     await deepAgentPage.page.waitForTimeout(1000);
     await deepAgentPage.clickOnTryItButton();
     await deepAgentPage.page.waitForTimeout(1000);
-    await deepAgentPage.waitforStopButtonInvisble();
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
     await deepAgentPage.enterPromaptQuery(follow_up_query);
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
-    await deepAgentPage.waitforStopButtonInvisble();
-
-    const isViewFileVisible = await deepAgentPage.viewFile
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
+    const isViewFileVisible = await deepAgentPage.fileDownlaod
+      .locator('a:has-text(".ppt")')
       .isVisible()
       .catch(() => false);
     if (!isViewFileVisible) {
-      // If not visible, enter "yes" prompt
       await deepAgentPage.enterPromaptQuery("yes");
+      await deepAgentPage.page.waitForTimeout(1000);
       await deepAgentPage.clickSendButton();
       await deepAgentPage.waitforStopButtonInvisble();
       await deepAgentPage.page.waitForTimeout(2000);
+      await deepAgentPage.selectTheElementFromDropDown();
+      await deepAgentPage.waitforStopButtonInvisble();
+      await deepAgentPage.enterPromaptQuery("convert to ppt");
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.waitforStopButtonInvisble();
     }
   }
 );

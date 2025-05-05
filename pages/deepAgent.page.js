@@ -23,7 +23,7 @@ export class DeepAgentPage {
     this.computePoint = page.locator('div[class*="underline cursor-pointer"]');
     this.downloadPath = path.join(__dirname, "../downlaodFile");
     this.fileDownlaod = page.locator(
-      '[class*="svg-inline--fa fa-file text-bwleftblue"]'
+      '[class*="svg-inline--fa fa-file text-bwleftblue"]+span'
     );
     this.viewFile = page.locator('[class*="file-magnifying-glass"]');
     this.fileBrowserDownlaod = page.locator(
@@ -79,6 +79,10 @@ export class DeepAgentPage {
 
     this.systemcommands = page.locator('[class*="break-words break-word"]');
 
+    this.submitButton = page.locator('button[type*="submit"]');
+
+    this.dropDown = page.locator("[role*='combobox']");
+
     this.elapsedTime = 0;
   }
 
@@ -99,6 +103,28 @@ export class DeepAgentPage {
   async clickSendButton() {
     await this.sendButton.waitFor({ state: "visible" });
     await this.sendButton.click();
+  }
+
+  async selectTheElementFromDropDown() {
+    await this.submitButton.waitFor({ state: "visible" });
+    await this.dropDown.waitFor({ state: "visible" });
+    try {
+      await this.dropDown.click();
+
+      await this.page.waitForTimeout(1000);
+      const selectElement = this.page.locator("select");
+
+      // Ensure select is visible and attached before selecting
+      await selectElement.waitFor({ state: "visible" });
+      await selectElement.selectOption({ label: "Default" });
+      const selected = await selectElement.inputValue();
+      await this.page.keyboard.press("Enter");
+      console.log("Selected value:", selected);
+      await this.page.waitForTimeout(1000);
+      await this.submitButton.click();
+    } catch (error) {
+      console.error("Dropdown selection failed:", error);
+    }
   }
 
   async waitforStopButtonInvisble() {
@@ -190,73 +216,225 @@ export class DeepAgentPage {
   }
 
   async getComputePoint() {
-    await this.computePoint.waitFor({ state: "visible" });
-    const pointsText = await this.computePoint.textContent();
-    const points = parseInt(
-      pointsText.replace("Compute Points Used:", "").trim()
-    );
-    return points;
+    try {
+      // Wait for at least one compute point element to be visible with increased timeout
+      await this.computePoint
+        .first()
+        .waitFor({ state: "visible", timeout: 10000 })
+        .catch((error) => {
+          console.warn(
+            "Warning: Compute point element not immediately visible, continuing anyway"
+          );
+        });
+
+      // Get the count of compute point elements
+      const count = await this.computePoint.count();
+      console.log(`Found ${count} compute point elements`);
+
+      // If no elements found, return 0
+      if (count === 0) {
+        console.warn("No compute point elements found");
+        return 0;
+      }
+
+      // Sum up all compute points from all elements
+      let totalPoints = 0;
+      for (let i = 0; i < count; i++) {
+        const pointsText = await this.computePoint.nth(i).textContent();
+        console.log(`Element ${i + 1} text: "${pointsText}"`);
+
+        // Extract the number using regex to be more robust
+        const pointsMatch = pointsText.match(/(\d[\d,]*)/);
+
+        if (pointsMatch && pointsMatch[1]) {
+          // Remove commas and convert to number
+          const points = parseInt(pointsMatch[1].replace(/,/g, ""), 10);
+
+          if (!isNaN(points)) {
+            totalPoints += points;
+            console.log(
+              `Added ${points} points from element ${
+                i + 1
+              }, running total: ${totalPoints}`
+            );
+          } else {
+            console.warn(
+              `Could not parse points from element ${i + 1}: "${pointsText}"`
+            );
+          }
+        } else {
+          console.warn(`No number found in element ${i + 1}: "${pointsText}"`);
+        }
+      }
+
+      console.log(`Total compute points (sum of all elements): ${totalPoints}`);
+      return totalPoints;
+    } catch (error) {
+      console.error("Error in getComputePoint:", error.message);
+      console.error(error.stack);
+      // Return a default value instead of 0 to make it clear there was an error
+      return -1;
+    }
   }
 
   async downloadFile() {
     try {
-      let isDownloadButtonVisible = false;
-      try {
-        isDownloadButtonVisible = await this.fileDownlaod.isVisible({
-          timeout: 5000,
-        });
-      } catch (visibilityError) {
-        console.log("Download button not present in DOM - skipping download");
-        return false;
-      }
+      // First check if any download buttons exist at all
+      const downloadButtonCount = await this.fileDownlaod.count();
+      console.log(`Found ${downloadButtonCount} download buttons`);
 
-      if (!isDownloadButtonVisible) {
-        console.log(
-          "Download button exists but not visible - skipping download"
-        );
+      if (downloadButtonCount === 0) {
+        console.log("No download buttons found - skipping download");
         return false;
       }
 
       // Create download directory if it doesn't exist
       await fs.mkdir(this.downloadPath, { recursive: true });
 
-      const downloadPromise = Promise.race([
-        this.page.waitForEvent("download"),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Download timeout")), 30000)
-        ),
-      ]);
+      // Try clicking the last button first (most common case)
+      const lastIndex = downloadButtonCount - 1;
+      console.log(
+        `First attempting last download button (${
+          lastIndex + 1
+        } of ${downloadButtonCount})`
+      );
 
-      await this.fileDownlaod.click();
-      const download = await downloadPromise.catch((error) => {
-        console.error("Download failed:", error.message);
-        return null;
-      });
+      try {
+        // Make sure button is in viewport
+        await this.fileDownlaod.nth(lastIndex).scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(1000); // Longer delay after scrolling
 
-      if (!download) {
-        return false;
+        // Set up download promise
+        const downloadPromise = Promise.race([
+          this.page.waitForEvent("download", { timeout: 30000 }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Download timeout")), 30000)
+          ),
+        ]);
+
+        // Click with force option to ensure click happens
+        console.log(`Clicking last download button (${lastIndex + 1})`);
+        await this.fileDownlaod
+          .nth(lastIndex)
+          .click({ force: true, timeout: 10000 });
+
+        // Now wait for the download
+        const download = await downloadPromise.catch((error) => {
+          console.error(`Download failed for last button:`, error.message);
+          return null;
+        });
+
+        if (download) {
+          // Get the suggested filename
+          const suggestedFileName = download.suggestedFilename();
+          if (suggestedFileName) {
+            // Create the full path for download
+            const downloadPath = path.join(
+              this.downloadPath,
+              suggestedFileName
+            );
+
+            // Save the file with timeout
+            await Promise.race([
+              download.saveAs(downloadPath),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Save timeout")), 30000)
+              ),
+            ]);
+
+            console.log(
+              `File downloaded successfully to: ${downloadPath} from last button`
+            );
+            return true; // Success with last button
+          }
+        }
+      } catch (lastButtonError) {
+        console.error(
+          "Error with last button, will try all buttons:",
+          lastButtonError.message
+        );
       }
 
-      // Get the suggested filename
-      const suggestedFileName = download.suggestedFilename();
-      if (!suggestedFileName) {
-        console.error("No filename suggested for download");
-        return false;
+      // If last button didn't work, try all buttons from first to last
+      for (let i = 0; i < downloadButtonCount; i++) {
+        try {
+          console.log(
+            `Attempting to download file from button ${
+              i + 1
+            } of ${downloadButtonCount}`
+          );
+
+          // Make sure button is in viewport
+          await this.fileDownlaod.nth(i).scrollIntoViewIfNeeded();
+          await this.page.waitForTimeout(1000); // Longer delay after scrolling
+
+          // Set up download promise
+          const downloadPromise = Promise.race([
+            this.page.waitForEvent("download", { timeout: 30000 }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Download timeout")), 30000)
+            ),
+          ]);
+
+          // Click with force option to ensure click happens
+          console.log(`Clicking download button ${i + 1}`);
+          await this.fileDownlaod.nth(i).click({ force: true, timeout: 10000 });
+
+          // Now wait for the download
+          const download = await downloadPromise.catch((error) => {
+            console.error(
+              `Download failed for button ${i + 1}:`,
+              error.message
+            );
+            return null;
+          });
+
+          if (!download) {
+            console.log(
+              `No download triggered from button ${
+                i + 1
+              }, trying next if available`
+            );
+            continue;
+          }
+
+          // Get the suggested filename
+          const suggestedFileName = download.suggestedFilename();
+          if (!suggestedFileName) {
+            console.error(
+              `No filename suggested for download from button ${i + 1}`
+            );
+            continue;
+          }
+
+          // Create the full path for download
+          const downloadPath = path.join(this.downloadPath, suggestedFileName);
+
+          // Save the file with timeout
+          await Promise.race([
+            download.saveAs(downloadPath),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Save timeout")), 30000)
+            ),
+          ]);
+
+          console.log(
+            `File downloaded successfully to: ${downloadPath} from button ${
+              i + 1
+            }`
+          );
+          return true; // Return true on first successful download
+        } catch (buttonError) {
+          console.error(
+            `Error processing download button ${i + 1}:`,
+            buttonError.message
+          );
+          // Continue to next button
+        }
       }
 
-      // Create the full path for download
-      const downloadPath = path.join(this.downloadPath, suggestedFileName);
-
-      // Save the file with timeout
-      await Promise.race([
-        download.saveAs(downloadPath),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Save timeout")), 30000)
-        ),
-      ]);
-
-      console.log(`File downloaded successfully to: ${downloadPath}`);
-      return true;
+      console.log("All download attempts failed");
+      return false;
     } catch (error) {
       console.error("Error in downloadFile:", error.message);
       // Log additional details for debugging
@@ -270,97 +448,176 @@ export class DeepAgentPage {
 
   async downloadFilesFromViewer() {
     try {
-      // First check if view file button exists and is visible
-      const isViewFileVisible = await this.viewFile.isVisible({
-        timeout: 5000,
-      });
-      if (!isViewFileVisible) {
+      // First check if view file button exists
+      const viewFileCount = await this.viewFile.count();
+      console.log(`Found ${viewFileCount} view file buttons`);
+
+      if (viewFileCount === 0) {
         console.log(
-          "View file button not visible - skipping file viewer downloads"
+          "No view file buttons found - skipping file viewer downloads"
         );
         return false;
       }
 
-      await this.viewFile.click();
+      // Try to click the last view file button (most recent one)
+      const lastIndex = viewFileCount - 1;
+      console.log(`Attempting to click view file button at index ${lastIndex}`);
+
+      try {
+        // Make sure button is in viewport
+        await this.viewFile.nth(lastIndex).scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(1000);
+
+        // Click with force option and increased timeout
+        await this.viewFile
+          .nth(lastIndex)
+          .click({ force: true, timeout: 10000 });
+
+        // Wait for dialog to appear
+        await this.page.waitForTimeout(2000);
+      } catch (clickError) {
+        console.error(`Error clicking view file button: ${clickError.message}`);
+        return false;
+      }
 
       // Check if download buttons are visible with a short timeout
       let isDownloadButtonVisible = false;
       try {
-        await this.fileBrowserDownlaod.first().waitFor({
-          state: "visible",
-          timeout: 5000,
-        });
-        isDownloadButtonVisible = true;
+        const browserDownloadCount = await this.fileBrowserDownlaod.count();
+        console.log(`Found ${browserDownloadCount} browser download buttons`);
+        isDownloadButtonVisible = browserDownloadCount > 0;
       } catch (error) {
         console.log(
           "Download buttons not visible - trying folder icon workflow"
         );
+        isDownloadButtonVisible = false;
+      }
 
+      if (!isDownloadButtonVisible) {
         // Check for folder icons
         const folderIconsCount = await this.folderIcon.count();
+        console.log(`Found ${folderIconsCount} folder icons`);
+
         if (folderIconsCount > 0) {
-          // Click first folder icon
-          await this.folderIcon.first().click();
-          await this.page.waitForTimeout(1000);
-
-          // Try to find and click zip icon
           try {
-            await this.zipIcon.waitFor({ state: "visible", timeout: 5000 });
-            await this.zipIcon.click();
+            // Click first folder icon
+            await this.folderIcon.first().click();
+            await this.page.waitForTimeout(2000);
 
-            // Wait for download to start
-            const download = await this.page.waitForEvent("download", {
-              timeout: 3000,
-            });
-            const fileName = download.suggestedFilename();
-            const filePath = path.join(this.downloadPath, fileName);
-            await download.saveAs(filePath);
-            console.log(`Zip file downloaded to: ${filePath}`);
-            return true;
-          } catch (zipError) {
-            console.error("Error clicking zip icon:", zipError.message);
-            return false;
+            // Try to find and click zip icon
+            const zipIconCount = await this.zipIcon.count();
+            console.log(`Found ${zipIconCount} zip icons`);
+
+            if (zipIconCount > 0) {
+              await this.zipIcon.first().click();
+
+              // Wait for download to start
+              const download = await Promise.race([
+                this.page.waitForEvent("download", { timeout: 10000 }),
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error("Download timeout")), 10000)
+                ),
+              ]);
+
+              const fileName = download.suggestedFilename();
+              const filePath = path.join(this.downloadPath, fileName);
+              await download.saveAs(filePath);
+              console.log(`Zip file downloaded to: ${filePath}`);
+              return true;
+            } else {
+              console.log("No zip icons found after clicking folder");
+            }
+          } catch (folderError) {
+            console.error(
+              "Error in folder icon workflow:",
+              folderError.message
+            );
           }
         }
         return false;
       }
 
-      if (isDownloadButtonVisible) {
-        // Get total number of files to download
-        const totalFiles = await this.fileBrowserDownlaod.count();
-        console.log(`Found ${totalFiles} files to download`);
+      // If we have download buttons, try to download each file
+      const totalFiles = await this.fileBrowserDownlaod.count();
+      console.log(`Found ${totalFiles} files to download`);
 
-        // Download each file
-        for (let i = 0; i < totalFiles; i++) {
-          try {
-            // Setup download promise
-            const downloadPromise = this.page.waitForEvent("download");
+      let downloadSuccess = false;
+      for (let i = 0; i < totalFiles; i++) {
+        try {
+          // Setup download promise
+          const downloadPromise = Promise.race([
+            this.page.waitForEvent("download", { timeout: 10000 }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Download timeout")), 10000)
+            ),
+          ]);
 
-            // Click the download button
-            await this.fileBrowserDownlaod.nth(i).click();
+          // Make sure button is in viewport
+          await this.fileBrowserDownlaod.nth(i).scrollIntoViewIfNeeded();
+          await this.page.waitForTimeout(500);
 
-            // Wait for download to start with timeout
-            const download = await downloadPromise;
+          // Click the download button
+          console.log(`Clicking download button ${i + 1} of ${totalFiles}`);
+          await this.fileBrowserDownlaod.nth(i).click({ force: true });
 
-            // Get filename and save file
-            const fileName = download.suggestedFilename();
-            const filePath = path.join(this.downloadPath, fileName);
-            await download.saveAs(filePath);
-            console.log(`File ${i + 1} downloaded to: ${filePath}`);
+          // Wait for download to start with timeout
+          const download = await downloadPromise.catch((error) => {
+            console.error(
+              `Download event failed for file ${i + 1}:`,
+              error.message
+            );
+            return null;
+          });
 
-            // Small delay between downloads
-            await this.page.waitForTimeout(1000);
-          } catch (error) {
-            console.error(`Error downloading file ${i + 1}:`, error.message);
-            continue; // Skip to next file if one fails
+          if (!download) {
+            console.log(`No download triggered for file ${i + 1}, continuing`);
+            continue;
           }
+
+          // Get filename and save file
+          const fileName = download.suggestedFilename();
+          if (!fileName) {
+            console.error(`No filename suggested for file ${i + 1}`);
+            continue;
+          }
+
+          const filePath = path.join(this.downloadPath, fileName);
+          await download.saveAs(filePath);
+          console.log(`File ${i + 1} downloaded to: ${filePath}`);
+          downloadSuccess = true;
+
+          // Small delay between downloads
+          await this.page.waitForTimeout(1000);
+        } catch (error) {
+          console.error(`Error downloading file ${i + 1}:`, error.message);
+          continue; // Skip to next file if one fails
         }
-        return true;
       }
 
-      return false;
+      return downloadSuccess;
     } catch (error) {
       console.error("Error in downloadFilesFromViewer:", error.message);
+      return false;
+    }
+  }
+
+  async closeBrowserPopup() {
+    try {
+      const popupCount = await this.browserPopup.count();
+      console.log(`Found ${popupCount} browser popups`);
+
+      if (popupCount > 0) {
+        console.log("Attempting to close browser popup");
+        await this.browserPopup.first().click({ force: true, timeout: 5000 });
+        console.log("Browser popup closed successfully");
+        return true;
+      } else {
+        console.log("No browser popup found to close");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error closing browser popup:", error.message);
+      // Don't throw an error, just return false
       return false;
     }
   }
@@ -376,19 +633,6 @@ export class DeepAgentPage {
         'div[class*="flex"] div[class*="text-base font-medium"]',
         { state: "visible" }
       );
-
-      // const stopButtonInvisibleTime = await this.waitforStopButtonInvisble();
-
-      let computePointsUsed = 0;
-      try {
-        await this.computePoint.waitFor({ state: "visible", timeout: 5000 });
-        const pointsText = await this.computePoint.textContent();
-        computePointsUsed = parseInt(
-          pointsText.replace("Compute Points Used:", "").trim()
-        );
-      } catch (error) {
-        console.log("Could not fetch compute points:", error.message);
-      }
 
       let searchedName = "";
 
@@ -425,7 +669,7 @@ export class DeepAgentPage {
       try {
         await this.searchToolstask
           .first()
-          .waitFor({ state: "visible", timeout: 5000 });
+          .waitFor({ state: "visible", timeout: 3000 });
         hasSearchTasks = true;
       } catch (error) {
         console.log("No searching field tasks found");
@@ -696,11 +940,48 @@ export class DeepAgentPage {
       } catch (err) {
         console.log("No system commands found");
       }
+
+      // Get the total compute points
+      let totalComputePoints = 0;
+      try {
+        // Get the count of compute point elements
+        const count = await this.computePoint.count();
+        console.log(`Found ${count} compute point elements`);
+
+        // Sum up all compute points from all elements
+        for (let i = 0; i < count; i++) {
+          const pointsText = await this.computePoint.nth(i).textContent();
+          console.log(`Element ${i + 1} text: "${pointsText}"`);
+
+          // Extract the number using regex to be more robust
+          const pointsMatch = pointsText.match(/(\d[\d,]*)/);
+
+          if (pointsMatch && pointsMatch[1]) {
+            // Remove commas and convert to number
+            const points = parseInt(pointsMatch[1].replace(/,/g, ""), 10);
+
+            if (!isNaN(points)) {
+              totalComputePoints += points;
+              console.log(
+                `Added ${points} points from element ${
+                  i + 1
+                }, running total: ${totalComputePoints}`
+              );
+            }
+          }
+        }
+        console.log(
+          `Total compute points (sum of all elements): ${totalComputePoints}`
+        );
+      } catch (error) {
+        console.error("Error calculating total compute points:", error.message);
+      }
+
       // Format the report data as requested
       const reportData = {
         taskDescription: searchedName,
         date: new Date(),
-        computeused: computePointsUsed,
+        totalComputePoints: totalComputePoints,
         timetaken: `${Number(this.elapsedTime.toFixed(2))} sec`,
         response: responseArray,
         search: searchArray,

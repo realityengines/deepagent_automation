@@ -18,7 +18,7 @@ Feature: Dashboard Functionality
   @DeepAgentDefaultSingleSampleTaskPPT @smoke
   Scenario Outline: Search a single default sample task from deep Agent
     Given I click the check out from the welcome window
-    When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
+     When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should download the generated summary
@@ -54,4 +54,4 @@ Feature: Dashboard Functionality
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
       | Dinner Reservations                   | Sunday lunch for 5                                                                                                  |
-      | Connect To Gmail And Automate Work    | Any                                                                                                                 |
+      | Connect To Gmail And Automate Work    | I want a brief summary or a more detailed breakdown of My  activity and create pdf file                             |

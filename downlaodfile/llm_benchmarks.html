@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmarking Large Language Models</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/serif.min.css">
+  <style>
+    :root {
+      --standard-gap: 20px;
+      --standard-padding: 20px;
+      --card-bg-color: rgba(255, 255, 255, 0.8);
+      --border-color: rgba(0, 0, 0, 0.2);
+      --border-radius: 5px;
+      --accent-color: #4a6b8a;
+      --header-color: #2a3f54;
+    }
+
+    .reveal {
+      font-size: 28px;
+    }
+
+    .slide-content {
+      width: 1200px; /* VERY IMPORTANT: Do not change this value. */
+      height: 700px; /* VERY IMPORTANT: Do not change this value. */
+      display: grid;
+      grid-template-rows: minmax(50px, auto) minmax(1fr, 80%) minmax(50px, auto); /* header, body, footer */
+      gap: var(--standard-gap);
+    }
+
+    .slide-body {
+      overflow: hidden;
+    }
+
+    .slide-number {
+      left: 12px !important;
+      right: unset !important;
+      bottom: 12px !important;
+      pointer-events: none !important;
+    }
+
+    /* Grid layouts */
+    .two-column {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .three-column {
+      display: grid;
+      grid-template-columns: 33% 33% 34%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .sidebar-main {
+      display: grid;
+      grid-template-columns: 33% 67%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .two-rows {
+      display: grid;
+      grid-template-rows: 50% 50%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .three-rows {
+      display: grid;
+      grid-template-rows: 33% 33% 34%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .topbar-main {
+      display: grid;
+      grid-template-rows: 33% 67%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .main-bottom {
+      display: grid;
+      grid-template-rows: 67% 33%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    .quadrant {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: 50% 50%;
+      gap: var(--standard-gap);
+      height: 100%;
+    }
+
+    /* Content containers */
+    .content-card {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      padding: var(--standard-padding);
+      background: var(--card-bg-color);
+      border-radius: var(--border-radius);
+      box-sizing: border-box;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .table-wrapper {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      padding: var(--standard-padding);
+      background: var(--card-bg-color);
+      border-radius: var(--border-radius);
+      box-sizing: border-box;
+    }
+
+    /* Table styles */
+    .table-wrapper .autofit > table {
+      border: 1px solid var(--border-color);
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .table-wrapper .autofit > table th,
+    .table-wrapper .autofit > table td {
+      border: 1px solid var(--border-color);
+      word-wrap: break-word;
+      padding: 8px;
+    }
+
+    .table-wrapper .autofit > table tr:last-child td {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .table-wrapper .autofit > table td:last-child {
+      border-right: 1px solid var(--border-color);
+    }
+
+    .table-wrapper .autofit > table th {
+      background-color: rgba(0,0,0,0.05);
+      font-weight: bold;
+    }
+
+    .table-wrapper .autofit > table tr:nth-child(even) {
+      background-color: rgba(0,0,0,0.02);
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      color: var(--header-color);
+      margin-top: 0;
+    }
+
+    .slide-header h1, .slide-header h2, .slide-header h3 {
+      margin: 0;
+      padding: 0;
+    }
+
+    ul {
+      margin-top: 0.5em;
+    }
+
+    li {
+      margin-bottom: 0.5em;
+    }
+
+    /* Image container */
+    .image-container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* Title slide styles */
+    .title-slide .slide-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .title-slide h1 {
+      font-size: 2.5em;
+      margin-bottom: 0.2em;
+      color: white;
+    }
+
+    .title-slide h2 {
+      font-size: 1.5em;
+      margin-top: 0;
+      color: white;
+    }
+
+    /* Chart container */
+    .chart-container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .centered {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <!-- Slide 1: Title Slide -->
+      <section data-background="https://i.ytimg.com/vi/Pt-wu5BdflU/maxresdefault.jpg">
+        <div class="slide-content title-slide">
+          <div class="slide-header"></div>
+          <div class="slide-body">
+            <h1>Benchmarking Large Language Models</h1>
+            <h2>A Comprehensive Overview of Evaluation Methods</h2>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 2: Introduction to LLM Benchmarks -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Introduction to LLM Benchmarks</h3>
+          </div>
+          <div class="slide-body two-column">
+            <div class="content-card">
+              <div class="autofit">
+                <ul>
+                  <li>What are LLM benchmarks?</li>
+                  <li>Why benchmarking matters</li>
+                  <li>Evolution of evaluation methods</li>
+                  <li>Key categories of benchmarks</li>
+                  <li>Role in advancing AI capabilities</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <p>LLM benchmarks are standardized tests designed to evaluate and compare the capabilities of large language models across various dimensions. They provide objective metrics for assessing model performance, tracking progress, and identifying areas for improvement.</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Major Benchmark Datasets -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Major Benchmark Datasets</h3>
+          </div>
+          <div class="slide-body three-column">
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Comprehensive Benchmarks</h4>
+                <ul>
+                  <li>MMLU (57 subjects across STEM, humanities, social sciences)</li>
+                  <li>HELM (Holistic evaluation across multiple scenarios)</li>
+                  <li>BIG-Bench (200+ diverse tasks)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Task-Specific Benchmarks</h4>
+                <ul>
+                  <li>GSM8K (Mathematical reasoning)</li>
+                  <li>ARC (Scientific knowledge)</li>
+                  <li>TruthfulQA (Factual accuracy)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Common Sense Benchmarks</h4>
+                <ul>
+                  <li>HellaSwag (Common sense reasoning)</li>
+                  <li>Winogrande (Pronoun resolution)</li>
+                  <li>BIG-Bench Hard (Challenging reasoning tasks)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 4: MMLU Benchmark Deep Dive -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>MMLU Benchmark Deep Dive</h3>
+          </div>
+          <div class="slide-body two-column">
+            <div class="content-card">
+              <div class="autofit">
+                <ul>
+                  <li>Massive Multitask Language Understanding</li>
+                  <li>57 diverse subjects across multiple disciplines</li>
+                  <li>Multiple-choice format testing knowledge and reasoning</li>
+                  <li>GPT-4 leads with 86.4% accuracy (approaching human expert level)</li>
+                  <li>Standard metric for comparing model capabilities</li>
+                </ul>
+              </div>
+            </div>
+            <div class="image-container">
+              <img src="https://static.wixstatic.com/media/491884_94c7c3e0102d4dba8790499ce4a0ff8d~mv2.jpg/v1/fill/w_940,h_534,al_c,q_85,enc_auto/491884_94c7c3e0102d4dba8790499ce4a0ff8d~mv2.jpg" alt="MMLU Benchmark visualization">
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 5: Capabilities Measured -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Capabilities Measured by Benchmarks</h3>
+          </div>
+          <div class="slide-body two-column">
+            <div class="content-card">
+              <div class="autofit">
+                <ul>
+                  <li>Knowledge & Factual Recall: MMLU, ARC, TruthfulQA</li>
+                  <li>Reasoning & Problem-Solving: GSM8K, BIG-Bench, HELM (Omni-MATH)</li>
+                  <li>Instruction Following: HELM (IFEval), BIG-Bench</li>
+                  <li>Safety & Ethics: HELM, TruthfulQA, RealToxicityPrompts</li>
+                  <li>Multimodal Capabilities: BIG-Bench Audio, WildBench</li>
+                </ul>
+              </div>
+            </div>
+            <div class="image-container">
+              <img src="https://thumbs.dreamstime.com/b/critical-thinking-components-diagram-outline-symbols-vector-illustration-reasoning-evaluating-positive-negative-problem-172885244.jpg" alt="Capabilities Measured Diagram">
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 6: Evaluation Methodologies -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Evaluation Methodologies</h3>
+          </div>
+          <div class="slide-body quadrant">
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Multiple-Choice</h4>
+                <ul>
+                  <li>MMLU, ARC (straightforward accuracy calculation)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Free-Form Generation</h4>
+                <ul>
+                  <li>GSM8K, BIG-Bench (comparing to reference solutions)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <h4>LLM-as-Judge</h4>
+                <ul>
+                  <li>HELM, BIG-Bench (using another LLM to evaluate responses)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="autofit">
+                <h4>Human Evaluation</h4>
+                <ul>
+                  <li>Chatbot Arena (human ratings compiled into Elo-like systems)</li>
+                  <li>Shot-Based Testing: Zero-shot, few-shot (testing generalization ability)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 7: Performance Comparison -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Performance Comparison</h3>
+          </div>
+          <div class="slide-body">
+            <div class="chart-container">
+              <img src="https://imagedelivery.net/ywtNy772PWwXecPtq2-tAQ/f4620c62-1b7b-4d6d-c2a6-3eb1a14c0300/quality=100" alt="Performance Comparison Chart">
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 8: Benchmark Limitations -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Benchmark Limitations</h3>
+          </div>
+          <div class="slide-body two-column">
+            <div class="content-card">
+              <div class="autofit">
+                <ul>
+                  <li>Benchmark Exploitation: Models fine-tuned specifically for tests</li>
+                  <li>Dataset Contamination: Test data in training data</li>
+                  <li>Static Evaluation: Fixed datasets that don't evolve</li>
+                  <li>Limited Domain Coverage: Lack of specialized evaluation</li>
+                  <li>English-Centric Bias: Insufficient multilingual testing</li>
+                </ul>
+              </div>
+            </div>
+            <div class="image-container">
+              <img src="https://vroc.ai/wp-content/uploads/2022/04/limitations-of-ai.png" alt="Benchmark Limitations">
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 9: Recent Developments -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Recent Developments in LLM Evaluation</h3>
+          </div>
+          <div class="slide-body two-column">
+            <div class="content-card">
+              <div class="autofit">
+                <ul>
+                  <li>Adaptive Benchmarks: MMLU-Pro, evolving evaluation metrics</li>
+                  <li>Comprehensive Frameworks: DeepEval, MLFlow LLM Evaluate</li>
+                  <li>Multi-Dimensional Metrics: Beyond accuracy to relevancy, hallucination detection</li>
+                  <li>Comparative Evaluation: ChatArena, LMSYS Chatbot Arena</li>
+                  <li>Specialized Evaluation: RAGAs, domain-specific benchmarks</li>
+                </ul>
+              </div>
+            </div>
+            <div class="image-container">
+              <img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXe8S5HmTaoWsGMTXFPuHtvCIYLiFftrl0DVPKKYLb_C7xBUFcYX7twcDbEHeLbsNusgLvduY7hK-IsFDoLc3JbX1aexlHngyrNRfMiqaGBQtCkb5hYzV3SzcQ6zD5_VUZ-veUIiWaLwOLbvH_E4AkFt2lCC?key=Ooyd1Cc3xbXPj2QesVPAWA" alt="Recent Developments">
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+
+      <!-- Slide 10: Conclusion & Future Directions -->
+      <section>
+        <div class="slide-content">
+          <div class="slide-header">
+            <h3>Conclusion & Future Directions</h3>
+          </div>
+          <div class="slide-body">
+            <div class="content-card">
+              <div class="autofit centered">
+                <ul style="list-style-type: none; padding-left: 0;">
+                  <li>Benchmarks continue to evolve with model capabilities</li>
+                  <li>Gap between proprietary and open-source models is narrowing</li>
+                  <li>Future focus on dynamic, comprehensive, domain-specific assessment</li>
+                  <li>Need for benchmarks that better reflect real-world utility</li>
+                  <li>Importance of ethical considerations in evaluation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="slide-footer"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1200,
+      height: 700,
+      margin: 0.07,
+      minScale: 0.2,
+      maxScale: 1.5,
+      center: false,
+      slideNumber: 'c/t',
+      controls: true,
+      progress: true,
+      hash: true
+    });
+  </script>
+  <script>
+    function isOverflown(el) {
+      return el.scrollHeight > el.clientHeight + 1;
+    }
+
+    // Font size adjustment function
+    function shrinkTextIfNeeded(el, options = {}) {
+      const minFont = options.minFontSize || 8;
+      let originalFont = parseFloat(window.getComputedStyle(el).fontSize) || 16;
+
+      if (!isOverflown(el.parentElement) && !isOverflown(el)) {
+        return;
+      }
+
+      let left = minFont;
+      let right = originalFont;
+      let bestFit = right;
+
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        el.style.fontSize = mid + 'px';
+
+        if (isOverflown(el.parentElement) || isOverflown(el)) {
+          right = mid - 1;
+        } else {
+          bestFit = mid;
+          left = mid + 1;
+        }
+      }
+      el.style.fontSize = bestFit + 'px';
+    }
+
+    function applyCustomShrink() {
+      const tableWrappers = document.querySelectorAll('.table-wrapper .autofit');
+      tableWrappers.forEach(el => {
+        shrinkTextIfNeeded(el);
+      });
+
+      const autofitEls = document.querySelectorAll('.autofit');
+      autofitEls.forEach(el => {
+        if (!el.closest('.table-wrapper')) {
+          shrinkTextIfNeeded(el);
+        }
+      });
+    }
+
+    Reveal.on('ready', function () {
+      setTimeout(applyCustomShrink, 500);
+    });
+    Reveal.on('slidechanged', function () {
+      setTimeout(applyCustomShrink, 500);
+    });
+    Reveal.on('resize', function () {
+      setTimeout(applyCustomShrink, 500);
+    });
+  </script>
+</body>
+</html>
