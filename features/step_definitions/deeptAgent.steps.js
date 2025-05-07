@@ -21,7 +21,16 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
-    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
+    // deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
+
+    deepAgentPage.elapsedTime =
+    firstElapsedTime +
+    secondElapsdTime;
+
+  console.log(
+    "Total elapsed time after follow up prompt:",
+    deepAgentPage.elapsedTime
+  );
   }
 );
 
@@ -89,7 +98,7 @@ Then("I should fetch the search results", async function () {
     // Call the searchAndFetchAllResults method
     const searchData = await deepAgentPage.searchAndFetchAllResults();
     console.log(
-      `Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`
+      `Results saved to: ${process.cwd()}/jsonReport/allSearchResults.json`
     );
     console.log("====\n");
 
@@ -132,22 +141,90 @@ When(
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
     deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
-    const isViewFileVisible = await deepAgentPage.fileDownlaod
-      .locator('a:has-text(".ppt")')
-      .isVisible()
-      .catch(() => false);
+
+    // Initial check
+    let pptxTextList = await deepAgentPage.fileDownlaod.allTextContents();
+    let isViewFileVisible = pptxTextList.some(
+      (text) =>
+        text.trim().toLowerCase().endsWith(".pptx") ||
+        text.trim().toLowerCase().endsWith(".ppt")
+    );
+
     if (!isViewFileVisible) {
+      // Step 1: Try "yes"
       await deepAgentPage.enterPromaptQuery("yes");
       await deepAgentPage.page.waitForTimeout(1000);
       await deepAgentPage.clickSendButton();
-      await deepAgentPage.waitforStopButtonInvisble();
+      const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+
       await deepAgentPage.page.waitForTimeout(2000);
       await deepAgentPage.selectTheElementFromDropDown();
-      await deepAgentPage.waitforStopButtonInvisble();
-      await deepAgentPage.enterPromaptQuery("convert to ppt");
-      await deepAgentPage.clickSendButton();
-      await deepAgentPage.waitforStopButtonInvisble();
+      const fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+
+      deepAgentPage.elapsedTime =
+        firstElapsedTime +
+        secondElapsdTime +
+        thirdElapsedTime +
+        fourthElapsedTime;
+
+      console.log(
+        "Total elapsed time after 'yes' prompt:",
+        deepAgentPage.elapsedTime
+      );
+
+      // Step 2: Re-check after "yes"
+      pptxTextList = await deepAgentPage.fileDownlaod.allTextContents();
+      isViewFileVisible = pptxTextList.some(
+        (text) =>
+          text.trim().toLowerCase().endsWith(".pptx") ||
+          text.trim().toLowerCase().endsWith(".ppt")
+      );
+
+      // Step 3: If still not found, try "convert to ppt"
+      if (!isViewFileVisible) {
+        await deepAgentPage.enterPromaptQuery("convert to ppt");
+        await deepAgentPage.clickSendButton();
+        const fifthElapsedTime =
+          await deepAgentPage.waitforStopButtonInvisble();
+        deepAgentPage.elapsedTime =
+        firstElapsedTime +
+        secondElapsdTime +
+        thirdElapsedTime +
+        fourthElapsedTime+
+        fifthElapsedTime;
+
+        console.log(
+          "Total elapsed time after 'convert to ppt':",
+          deepAgentPage.elapsedTime
+        );
+
+        // Final check
+        pptxTextList = await deepAgentPage.fileDownlaod
+          .locator("span.aafont-mono")
+          .allTextContents();
+
+        isViewFileVisible = pptxTextList.some(
+          (text) =>
+            text.trim().toLowerCase().endsWith(".pptx") ||
+            text.trim().toLowerCase().endsWith(".ppt")
+        );
+
+        if (!isViewFileVisible) {
+          console.warn("⚠️ PPTX file was NOT found even after all retries.");
+          this.pptxGenerated = false;
+          return; // Don't throw!
+        }
+      } else {
+        console.log(
+          "✅ PPTX file found after 'yes' — no need to run 'convert to ppt'"
+        );
+      }
+    } else {
+      console.log(
+        "✅ PPTX file found on initial check — no interaction needed"
+      );
     }
+    this.pptxGenerated = true;
   }
 );
 
@@ -161,7 +238,7 @@ Then(
       // Call the searchAndFetchAllResults method
       const searchData = await deepAgentPage.searchAndFetchAllResults();
       console.log(
-        `Results saved to: ${process.cwd()}/jsonReader/allSearchResults.json`
+        `Results saved to: ${process.cwd()}/jsonReport/allSearchResults.json`
       );
       console.log("====\n");
 
@@ -223,10 +300,19 @@ When(
     await deepAgentPage.page.waitForTimeout(1000);
     await deepAgentPage.clickOnTryItButton();
     await deepAgentPage.page.waitForTimeout(1000);
-    await deepAgentPage.waitforStopButtonInvisble();
+    // await deepAgentPage.waitforStopButtonInvisble();
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
     await deepAgentPage.enterPromaptQuery(Specify_the_prompat);
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
-    await deepAgentPage.waitforStopButtonInvisble();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime =
+    firstElapsedTime +
+    secondElapsdTime;
+
+  console.log(
+    "Total elapsed time after follow up prompt:",
+    deepAgentPage.elapsedTime
+  );
   }
 );

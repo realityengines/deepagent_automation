@@ -66,22 +66,6 @@ class BrowserType extends World {
     }
   }
 
-//   async cleanup() {
-//     try {
-//       if (this.page) {
-//         await this.page.close();
-//       }
-//       if (this.context) {
-//         await this.context.close();
-//       }
-//       if (this.browser) {
-//         await this.browser.close();
-//       }
-//     } catch (error) {
-//       console.error("Error during cleanup:", error);
-//     }
-//   }
-
   async takeScreenshot(path) {
     if (this.page) {
       try {

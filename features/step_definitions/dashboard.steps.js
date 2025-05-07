@@ -5,7 +5,7 @@ let dashboardPage;
 
 When("I click the deep Agent option", { timeout: 10000 }, async function () {
   dashboardPage = new DashboardPage(this.page);
-  await dashboardPage.clickOnDeeAgent();
+  await dashboardPage.clickOnDeepAgent();
 
   // Handle new tab opening
   const [newPage] = await Promise.all([

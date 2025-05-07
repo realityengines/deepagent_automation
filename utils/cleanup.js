@@ -3,7 +3,7 @@ import path from 'path';
 
 export const cleanupDirectories = () => {
     // const directories = ['downlaodfile', 'jsonReport'];
-    const directories = ['downlaodfile','jsonReport','llm-judge/results'];
+    const directories = ['downloadfile','jsonReport','llm-judge/results'];
     
     directories.forEach(dir => {
         const dirPath = path.join(process.cwd(), dir);

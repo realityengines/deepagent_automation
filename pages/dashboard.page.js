@@ -4,7 +4,7 @@ export class DashboardPage {
     this.deepAgentTextName = page.locator('//div[contains(text(), "DeepAgent")]');
   }
 
-  async clickOnDeeAgent() {
+  async clickOnDeepAgent() {
     await this.deepAgentTextName.click();
   }
 }

@@ -21,7 +21,7 @@ export class DeepAgentPage {
     );
     this.statusOftask = page.locator('//div[contains(text(), "Completed")]');
     this.computePoint = page.locator('div[class*="underline cursor-pointer"]');
-    this.downloadPath = path.join(__dirname, "../downlaodFile");
+    this.downloadPath = path.join(__dirname, "../downloadfile");
     this.fileDownlaod = page.locator(
       '[class*="svg-inline--fa fa-file text-bwleftblue"]+span'
     );
