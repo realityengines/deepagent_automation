@@ -52,7 +52,7 @@ jobs:
         path: |
           test-results/
           playwright-report/
-          cucumber-report/
+          reports/
         retention-days: 30
         if-no-files-found: warn
         
