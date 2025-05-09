@@ -1,0 +1,9 @@
+{
+  "metadata": {
+    "query": "priority = High AND (created >= -7d OR updated >= -7d)",
+    "timestamp": "2025-05-09T05:43:39.588822",
+    "user": "udaysingh@abacus.ai",
+    "total_issues": 0
+  },
+  "issues": []
+}
