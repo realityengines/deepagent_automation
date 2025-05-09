@@ -15,7 +15,7 @@ const staging = {
     baseUrl: "https://staging-apps.abacus.ai/chatllm/",
     ENV: "staging"
 };
-const ENV = process.env.TEST_ENV || "staging";
+const ENV = process.env.TEST_ENV || "stagingLatest";
 const environmentConfig = {
     prod,
     preprod,
