@@ -1,4 +1,4 @@
-name: Deep Agent Suit
+name: Deep Agent Suite
 
 on:
   schedule:
@@ -9,6 +9,12 @@ on:
     branches: [ "master" ]
   workflow_dispatch:
     inputs:
+      Environment:
+        description: "Which environment will be executed"
+        required: true
+        type: "choice"
+        default: "prod"
+        options: ["preprod", "staging", "stagingLatest", "prod"]
       tags:
         description: 'Test tag to run (without @)'
         required: false
@@ -17,6 +23,8 @@ on:
 jobs:
   test:
     runs-on: windows-latest
+    env:
+      TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -25,42 +33,57 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
-        
+    
+    - name: Debug - Environment Variables
+      run: |
+        echo "Selected Environment: %TEST_ENV%"
+      shell: cmd
+    
     - name: Install dependencies
       run: |
         npm ci
         npx playwright install --with-deps
-        
+      shell: cmd
+    
     - name: Run all tests
       if: github.event.inputs.tags == ''
-      run: npm run test
+      run: |
+        npm run test
+        npm run report
       env:
         CI: true
-      
+        TEST_ENV: ${{ env.TEST_ENV }}
+      shell: cmd
+    
     - name: Run tests with specific tag
       if: github.event.inputs.tags != ''
-      run: npm run test:tag "@${{ github.event.inputs.tags }}"
+      run: |
+        npm run test:tag "@${{ github.event.inputs.tags }}"
+        npm run report
       env:
         CI: true
-      
+        TEST_ENV: ${{ env.TEST_ENV }}
+      shell: cmd
+    
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ github.run_id }}
+        name: test-results-${{ github.run_id }}-${{ env.TEST_ENV }}
         path: |
-          test-results/
-          playwright-report/
           reports/
+          cucumber-report.html
+          cucumber-report.json
         retention-days: 30
         if-no-files-found: warn
-        
+    
     - name: Upload Playwright traces on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-traces-${{ github.run_id }}
-        path: test-results/traces
+        name: playwright-traces-${{ github.run_id }}-${{ env.TEST_ENV }}
+        path: |
+          reports/traces/
+          reports/screenshots/
         retention-days: 30
         if-no-files-found: ignore
