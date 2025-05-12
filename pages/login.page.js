@@ -6,7 +6,7 @@ export class LoginPage {
     this.usernameInput = page.locator('[name="email"]');
     this.passwordInput = page.locator('[type="password"]');
     this.loginButton = page.locator('[type="submit"]');
-    this.dashboardElement = page.locator('a[href*="chatllm"]');
+    this.dashboardElement = page.locator('a[href="/chatllm/"]');
   }
 
   async navigate() {
