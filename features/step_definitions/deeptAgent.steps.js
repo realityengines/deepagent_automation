@@ -41,7 +41,8 @@ Then("I should see the status {string} for the task", async function (status) {
 
 Then("the compute points should not exceed 150k", async function () {
   try {
-    const computePoints = await deepAgentPage.getComputePoint();
+   // const computePoints = await deepAgentPage.getComputePoint();
+    const computePoints = (await deepAgentPage.getComputePoint()) * 100;
 
     // Handle error case (when -1 is returned)
     if (computePoints === -1) {
@@ -82,17 +83,19 @@ Then("I should download the generated summary", async function () {
 
   try {
     const downloadViewSuccess = await deepAgentPage.downloadFilesFromViewer();
-
-    // Add wait to ensure download completes
     await this.page.waitForTimeout(2000);
   } catch (error) {
     console.error("Error in downloading summary:", error.message);
     throw error;
   }
-});
-Then("I should fetch the search results", async function () {
+
+  // Close browser popup after all downloads are completed
   await deepAgentPage.closeBrowserPopup();
   await deepAgentPage.page.waitForTimeout(2000);
+});
+Then("I should fetch the search results", async function () {
+  // await deepAgentPage.closeBrowserPopup();
+  // await deepAgentPage.page.waitForTimeout(2000);
   try {
     console.log("\n=== Fetching Search Results ===");
     // Call the searchAndFetchAllResults method
@@ -231,8 +234,6 @@ When(
 Then(
   "I should see the search results for the default sample task",
   async function () {
-    await deepAgentPage.closeBrowserPopup();
-    await deepAgentPage.page.waitForTimeout(2000);
     try {
       console.log("\n=== Fetching Search Results ===");
       // Call the searchAndFetchAllResults method

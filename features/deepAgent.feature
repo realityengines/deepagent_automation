@@ -53,5 +53,5 @@ Feature: Dashboard Functionality
       | Build A Game                          | your call                                                                                                           |
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
-      | Dinner Reservations                   | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?                                                                                                 |
+      | Dinner Reservations                   | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file                                                                                               |
       | Connect To Gmail And Automate Work    | I want a brief summary or a more detailed breakdown of My  activity and create pdf file                             |
