@@ -15,7 +15,7 @@ const config = {
         username: process.env.LT_USERNAME,
         accessKey: process.env.LT_ACCESS_KEY,
         buildName: `${process.env.BUILD_NAME}:- ${environmentConfig.ENV || 'prod'}`,
-        platformName: process.env.PLATFORM_NAME || 'Windows 10',
+        platformName: process.env.PLATFORM_NAME || 'Windows 11',
         browserName: process.env.BROWSER_NAME || 'Chrome',
         browserVersion: process.env.BROWSER_VERSION || 'latest',
         hubUrl: 'https://hub.lambdatest.com/wd/hub',

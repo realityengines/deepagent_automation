@@ -1,7 +1,7 @@
-Feature: Dashboard Functionality
-  As a logged in user
-  I want to access and view my dashboard
-  So that I can see my personalized information and overview
+Feature: Deep Agent Default and Search Prompt Functionality Test
+    As a logged-in user
+    I want to access and view my dashboard and the Deep Agent search and overview
+    So that I can explore available search prompts and understand the Deep Agent's capabilities
 
   Background:
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
@@ -18,7 +18,7 @@ Feature: Dashboard Functionality
   @DeepAgentDefaultSingleSampleTaskPPT @smoke
   Scenario Outline: Search a single default sample task from deep Agent
     Given I click the check out from the welcome window
-     When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
+    When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should download the generated summary
@@ -53,5 +53,5 @@ Feature: Dashboard Functionality
       | Build A Game                          | your call                                                                                                           |
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
-      | Dinner Reservations                   | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file                                                                                               |
+      | Dinner Reservations                   | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file    |
       | Connect To Gmail And Automate Work    | I want a brief summary or a more detailed breakdown of My  activity and create pdf file                             |
