@@ -185,7 +185,7 @@ When(
 
       // Step 3: If still not found, try "convert to ppt"
       if (!isViewFileVisible) {
-        await deepAgentPage.enterPromaptQuery("convert to ppt");
+        await deepAgentPage.enterPromaptQuery("convert to pptx");
         await deepAgentPage.clickSendButton();
         const fifthElapsedTime =
           await deepAgentPage.waitforStopButtonInvisble();
