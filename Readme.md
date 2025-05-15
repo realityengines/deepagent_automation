@@ -23,7 +23,8 @@ npx playwright install
 
 3. Install Cucumber 
  ```bash
-   npm install @cucumber/cucumber@latest   
+   npm install @cucumber/cucumber@latest 
+   npm install --save-dev multiple-cucumber-html-reporter  
 ```
 
 4. Running Tests in Different Environments:

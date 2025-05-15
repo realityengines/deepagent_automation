@@ -12,8 +12,8 @@ on:
       Environment:
         description: "Which environment will be executed"
         required: true
-        type: "choice"
-        default: "prod"
+        type: choice
+        default: prod
         options: ["preprod", "staging", "stagingLatest", "prod"]
       tags:
         description: 'Test tag to run (without @)'
@@ -25,65 +25,74 @@ jobs:
     runs-on: windows-latest
     env:
       TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-    
-    - name: Debug - Environment Variables
-      run: |
-        echo "Selected Environment: %TEST_ENV%"
-      shell: cmd
-    
-    - name: Install dependencies
-      run: |
-        npm ci
-        npx playwright install --with-deps
-      shell: cmd
-    
-    - name: Run all tests
-      if: github.event.inputs.tags == ''
-      run: |
-        npm run test
-        npm run report
-      env:
-        CI: true
-        TEST_ENV: ${{ env.TEST_ENV }}
-      shell: cmd
-    
-    - name: Run tests with specific tag
-      if: github.event.inputs.tags != ''
-      run: |
-        npm run test:tag "@${{ github.event.inputs.tags }}"
-        npm run report
-      env:
-        CI: true
-        TEST_ENV: ${{ env.TEST_ENV }}
-      shell: cmd
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ github.run_id }}-${{ env.TEST_ENV }}
-        path: |
-          reports/
-          cucumber-report.html
-          cucumber-report.json
-        retention-days: 30
-        if-no-files-found: warn
-    
-    - name: Upload Playwright traces on failure
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-traces-${{ github.run_id }}-${{ env.TEST_ENV }}
-        path: |
-          reports/traces/
-          reports/screenshots/
-        retention-days: 30
-        if-no-files-found: ignore
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Debug - Environment Variables
+        shell: pwsh
+        run: |
+          echo "Selected Environment: $env:TEST_ENV"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run all tests
+        if: github.event.inputs.tags == ''
+        shell: pwsh
+        run: |
+          npm run test
+          $exitCode = $LASTEXITCODE
+          npm run report
+          exit $exitCode
+        env:
+          CI: true
+          TEST_ENV: ${{ env.TEST_ENV }}
+
+      - name: Run tests with specific tag
+        if: github.event.inputs.tags != ''
+        shell: pwsh
+        run: |
+          npm run test:tag "@${{ github.event.inputs.tags }}"
+          $exitCode = $LASTEXITCODE
+          npm run report
+          exit $exitCode
+        env:
+          CI: true
+          TEST_ENV: ${{ env.TEST_ENV }}
+
+      - name: Debug - List report files
+        shell: pwsh
+        run: |
+          Write-Host "Listing all files in reports/"
+          Get-ChildItem -Recurse reports
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: |
+            reports/**
+            cucumber-report.html
+            cucumber-report.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: |
+            reports/traces/
+            reports/screenshots/
+          retention-days: 30
+          if-no-files-found: ignore
