@@ -49,7 +49,7 @@ Feature: Deep Agent Default and Search Prompt Functionality Test
     Examples:
       | sampleTaskName                        | Specify_the_prompat                                                                                                 |
       | Technical Report About MCP            | Model Context Protocol technical professional, 15 pages with detailed structure                                     |
-      | Bookclub Website                      | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
+      | Website                      | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
       | Build A Game                          | your call                                                                                                           |
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
