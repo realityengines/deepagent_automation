@@ -14,6 +14,10 @@ if (!fs.existsSync('reports/html')) {
     fs.mkdirSync('reports/html', { recursive: true });
 }
 
+// Get current date and time
+const currentDate = new Date();
+const dateTimeString = currentDate.toLocaleString();
+
 try {
     generate({
         jsonDir: 'reports',
@@ -36,7 +40,8 @@ try {
             title: 'Execution Info',
             data: [
                 { label: 'Build', value: `${process.env.BUILD_NAME || 'N/A'} :- ${process.env.TEST_ENV || 'prod'}` },
-                { label: 'Execution Mode', value: process.env.EXECUTION_MODE || 'Local' }
+                { label: 'Execution Mode', value: process.env.EXECUTION_MODE || 'Local' },
+                { label: 'Execution Date & Time', value: dateTimeString }
             ]
         }
     });
