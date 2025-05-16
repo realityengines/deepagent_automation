@@ -8,11 +8,11 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "clean": "node -e \"const fs=require('fs'); const path=require('path'); ['reports', 'test-results'].forEach(dir => {try {fs.rmSync(path.join(__dirname, dir), {recursive: true, force: true}); fs.mkdirSync(path.join(__dirname, dir), {recursive: true});} catch (e) {console.error(e)}});\"",
-    "test": "cucumber-js --config cucumber.js --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format summary",
-    "test:tag": "cucumber-js --config cucumber.js --tags",
-    "ci-test": "node -e \"const fs=require('fs'); const path=require('path'); ['reports', 'test-results'].forEach(dir => {try {fs.rmSync(path.join(__dirname, dir), {recursive: true, force: true}); fs.mkdirSync(path.join(__dirname, dir), {recursive: true});} catch (e) {console.error(e)}});\" && cucumber-js --config cucumber.js",
-    "report": "node multipleCucumberReports.js"
+    "clean": "node -e \"import('fs').then(fs => { import('path').then(path => { ['reports', 'test-results'].forEach(dir => { try { fs.rmSync(path.join(process.cwd(), dir), {recursive: true, force: true}); fs.mkdirSync(path.join(process.cwd(), dir), {recursive: true}); } catch (e) { console.error(e) } }); }); });\"",
+    "test": "cucumber-js --config cucumber.js --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format summary && node config/reporter.js",
+    "test:tag": "cucumber-js --config cucumber.js --tags %1 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format summary && node config/reporter.js",
+    "ci-test": "node -e \"import('fs').then(fs => { import('path').then(path => { ['reports', 'test-results'].forEach(dir => { try { fs.rmSync(path.join(process.cwd(), dir), {recursive: true, force: true}); fs.mkdirSync(path.join(process.cwd(), dir), {recursive: true}); } catch (e) { console.error(e) } }); }); });\" && cucumber-js --config cucumber.js && node config/reporter.js",
+    "report": "node config/reporter.js && node multipleCucumberReports.js"
   },
   "keywords": [
     "playwright",

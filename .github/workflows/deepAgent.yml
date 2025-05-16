@@ -74,6 +74,15 @@ jobs:
           Write-Host "Listing all files in reports/"
           Get-ChildItem -Recurse reports
 
+      - name: Publish Test Results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Results Summary
+          path: cucumber-report.json
+          reporter: cucumber-json
+          fail-on-error: false
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
