@@ -36,6 +36,7 @@ Feature: Deep Agent Default and Search Prompt Functionality Test
     Examples:
       | promat_user_search                   | follow_up_query                       |
       | search Elon Musk and create pdf file | Elon Musk's life or career in the PDf |
+      | Connect To Gmail And Automate Work|I want a brief summary or a more detailed breakdown of My  activity and create pdf file|
 
   @DeepAgentDefaultAllSampleTask @regression
   Scenario Outline: Search a single default sample task from deep Agent
@@ -49,9 +50,13 @@ Feature: Deep Agent Default and Search Prompt Functionality Test
     Examples:
       | sampleTaskName                        | Specify_the_prompat                                                                                                 |
       | Technical Report About MCP            | Model Context Protocol technical professional, 15 pages with detailed structure                                     |
-      | Website                      | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
+      | Website                               | Make sure it has a nice, cool pastel color palette and focuses on classic romance                                   |
       | Build A Game                          | your call                                                                                                           |
       | On-The-Fly Interactive Jira Dashboard | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       | Luxury Trip To Bali                   | Luxury mid-range budget relaxation for next month                                                                   |
       | Dinner Reservations                   | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file    |
-      | Connect To Gmail And Automate Work    | I want a brief summary or a more detailed breakdown of My  activity and create pdf file                             |
+      # | Connect To Gmail And Automate Work    | I want a brief summary or a more detailed breakdown of My  activity and create pdf file                             |
+      |Custom RAG chatbot|I want to name the chatbot DeepAgent and use calm colors like soft blue and green.|
+      |Hot or Not - hollywood edition|Your call with limited functionality.|
+      |Personal AI assistant|Your call with limited functionality.|
+      |DeepAgent + Slack to improve productivity|Your call with limited functionality.|

@@ -1048,7 +1048,7 @@ export class DeepAgentPage {
       const text = await element.textContent();
       console.log(`Checking task text: ${text}`);
 
-      if (text.includes(taskName)) {
+      if (text.toLowerCase().includes(taskName.toLowerCase())) {
         console.log(`Found matching task: ${taskName}`);
         await element.click();
         await this.page.waitForTimeout(1000);
