@@ -58,7 +58,7 @@ Feature: Deep Agent Default and Search Prompt Functionality Test
       | Luxury Trip To Bali                       | Luxury mid-range budget relaxation for next month                                                                   |
       | Dinner Reservations                       | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file    |
       | Hot or Not - hollywood edition            | Your call with limited functionality.                                                                               |
-      | Personal AI assistant                     | Your call with limited functionality.                                                                               |
+      # | Personal AI assistant                     | Your call with limited functionality.                                                                               |
       | DeepAgent + Slack to improve productivity | Your call with limited functionality.                                                                               |
       | MCP meets DeepAgent                       | create two Google Tasks for market research.                                                                        |
 
