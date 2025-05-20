@@ -105,7 +105,7 @@ export class DeepAgentPage {
     await this.sendButton.click();
   }
 
-  async selectTheElementFromDropDown() {
+  async selectTheElementFromDropDown(label) {
     await this.submitButton.waitFor({ state: "visible" });
     await this.dropDown.waitFor({ state: "visible" });
     try {
@@ -116,7 +116,7 @@ export class DeepAgentPage {
 
       // Ensure select is visible and attached before selecting
       await selectElement.waitFor({ state: "visible" });
-      await selectElement.selectOption({ label: "Default" });
+      await selectElement.selectOption({ label: label });
       const selected = await selectElement.inputValue();
       await this.page.keyboard.press("Enter");
       console.log("Selected value:", selected);
@@ -942,7 +942,7 @@ export class DeepAgentPage {
       }
 
       // Get the total compute points
-      let totalComputePoints = 0;
+      let totalCreditPoints = 0;
       try {
         // Get the count of compute point elements
         const count = await this.computePoint.count();
@@ -961,17 +961,17 @@ export class DeepAgentPage {
             const points = parseInt(pointsMatch[1].replace(/,/g, ""), 10);
 
             if (!isNaN(points)) {
-              totalComputePoints += points;
+              totalCreditPoints += points;
               console.log(
                 `Added ${points} points from element ${
                   i + 1
-                }, running total: ${totalComputePoints}`
+                }, running total: ${totalCreditPoints}`
               );
             }
           }
         }
         console.log(
-          `Total compute points (sum of all elements): ${totalComputePoints}`
+          `Total compute points (sum of all elements): ${totalCreditPoints}`
         );
       } catch (error) {
         console.error("Error calculating total compute points:", error.message);
@@ -981,7 +981,7 @@ export class DeepAgentPage {
       const reportData = {
         taskDescription: searchedName,
         date: new Date(),
-        totalComputePoints: totalComputePoints,
+        totalCreditPoints: totalCreditPoints,
         timetaken: `${Number(this.elapsedTime.toFixed(2))} sec`,
         response: responseArray,
         search: searchArray,

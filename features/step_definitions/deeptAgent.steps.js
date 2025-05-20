@@ -171,7 +171,7 @@ When(
       const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
 
       await deepAgentPage.page.waitForTimeout(2000);
-      await deepAgentPage.selectTheElementFromDropDown();
+      await deepAgentPage.selectTheElementFromDropDown("Default");
       const fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
 
       deepAgentPage.elapsedTime =
