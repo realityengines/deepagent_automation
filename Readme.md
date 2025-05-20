@@ -25,6 +25,7 @@ npx playwright install
  ```bash
    npm install @cucumber/cucumber@latest 
    npm install --save-dev multiple-cucumber-html-reporter  
+   
 ```
 
 4. Running Tests in Different Environments:
@@ -79,6 +80,8 @@ Example:
 npm run test:tag "@smoke"
 ```
 
+3. Run parallel tests:
+ $env:TEST_ENV="ENV Name"; npx cucumber-js --tags "@smoke or @regression" --parallel 4
 ## Additional Commands
 
 - To generate test report:
