@@ -1,12 +1,12 @@
 name: Deep Agent Suite
 
 on:
-  schedule:
-    - cron: '0 15 * * *'  # 10 AM EST (15:00 UTC)
+  #schedule:
+  # - cron: '0 15 * * *'  # 10 AM EST (15:00 UTC)
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
   workflow_dispatch:
     inputs:
       Environment:
@@ -16,7 +16,7 @@ on:
         default: prod
         options: ["preprod", "staging", "stagingLatest", "prod"]
       tags:
-        description: 'Test tag to run (without @)'
+        description: "Test tag to run (without @)"
         required: false
         type: string
 
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
 
       - name: Debug - Environment Variables
         shell: pwsh

@@ -31,7 +31,9 @@ When(
     "Total elapsed time after follow up prompt:",
     deepAgentPage.elapsedTime
   );
+  await deepAgentPage.getConvoId();
   }
+  
 );
 
 Then("I should see the status {string} for the task", async function (status) {
@@ -104,8 +106,6 @@ Then("I should download the generated summary", async function () {
   await deepAgentPage.page.waitForTimeout(2000);
 });
 Then("I should fetch the search results", async function () {
-  // await deepAgentPage.closeBrowserPopup();
-  // await deepAgentPage.page.waitForTimeout(2000);
   try {
     console.log("\n=== Fetching Search Results ===");
     // Call the searchAndFetchAllResults method
@@ -238,6 +238,7 @@ When(
       );
     }
     this.pptxGenerated = true;
+    await deepAgentPage.getConvoId();
   }
 );
 
@@ -325,5 +326,7 @@ When(
     "Total elapsed time after follow up prompt:",
     deepAgentPage.elapsedTime
   );
+  await deepAgentPage.getConvoId();
   }
 );
+
