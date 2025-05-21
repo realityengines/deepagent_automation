@@ -87,7 +87,13 @@ export class DeepAgentPage {
   }
 
   async clickCheckoutButton() {
-    await this.chekoutButton.waitFor({ state: "visible" });
+    // await this.chekoutButton.waitFor({ state: "visible" });
+    // await this.chekoutButton.click();
+    await this.chekoutButton.waitFor({ state: "visible", timeout: 10000 });
+    const isEnabled = await this.chekoutButton.isEnabled();
+    if (!isEnabled) {
+      throw new Error("Checkout button is visible but not enabled");
+    }
     await this.chekoutButton.click();
   }
 
@@ -1168,4 +1174,33 @@ export class DeepAgentPage {
       }
     }
   }
+
+
+async getConvoId() {
+  try {
+    // Get the current URL
+    const currentUrl = await this.page.url();
+    
+    // Create directory if it doesn't exist
+    await fs.mkdir(path.join(__dirname, "../urlData"), { recursive: true });
+    
+    // Create file path
+    const filePath = path.join(__dirname, "../urlData/conversation_urls.txt");
+    
+    // Get current timestamp
+    const timestamp = new Date().toISOString();
+    
+    // Format the data to be written
+    const urlData = `${timestamp}\nURL: ${currentUrl}\n\n`;
+    
+    // Append the URL to the file
+    await fs.appendFile(filePath, urlData, 'utf8');
+    
+    console.log(`URL data saved to: ${filePath}`);
+    return currentUrl;
+  } catch (error) {
+    console.error("Error saving conversation URL:", error.message);
+    throw error;
+  }
+}
 }
