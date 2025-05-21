@@ -312,7 +312,6 @@ When(
     await deepAgentPage.page.waitForTimeout(1000);
     await deepAgentPage.clickOnTryItButton();
     await deepAgentPage.page.waitForTimeout(1000);
-    // await deepAgentPage.waitforStopButtonInvisble();
     const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
     await deepAgentPage.enterPromaptQuery(Specify_the_prompat);
     await deepAgentPage.page.waitForTimeout(3000);
