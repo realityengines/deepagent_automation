@@ -74,7 +74,7 @@ Feature: Deep Agent Default and Search Prompt Functionality Test
   @DeepAgentChatBot @smoke
   Scenario Outline: create Ai chat Bot DeepAgent prompt
     Given I click the check out from the welcome window
-    When I search the chat bot prompt "<promat_user_search >" with follow-up query "<follow_up_query>"
+    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
     Then Then I can see the custom chat and perform some action
 
