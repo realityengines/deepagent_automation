@@ -83,6 +83,9 @@ export class DeepAgentPage {
 
     this.dropDown = page.locator("[role*='combobox']");
 
+
+    this.CreatedChatBotlink=page.locator("a[href*='https://staging-latest-apps.abacus.ai/chatllm/']");
+
     this.elapsedTime = 0;
   }
 
@@ -1202,5 +1205,9 @@ async getConvoId() {
     console.error("Error saving conversation URL:", error.message);
     throw error;
   }
+}
+
+async clickOnChatBotLink() {
+  await this.CreatedChatBotlink.click();
 }
 }

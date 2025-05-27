@@ -23,17 +23,14 @@ When(
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
     // deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
 
-    deepAgentPage.elapsedTime =
-    firstElapsedTime +
-    secondElapsdTime;
+    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
 
-  console.log(
-    "Total elapsed time after follow up prompt:",
-    deepAgentPage.elapsedTime
-  );
-  await deepAgentPage.getConvoId();
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    await deepAgentPage.getConvoId();
   }
-  
 );
 
 Then("I should see the status {string} for the task", async function (status) {
@@ -43,7 +40,7 @@ Then("I should see the status {string} for the task", async function (status) {
 
 Then("the compute points should not exceed 150k", async function () {
   try {
-   // const computePoints = await deepAgentPage.getComputePoint();
+    // const computePoints = await deepAgentPage.getComputePoint();
     const computePoints = (await deepAgentPage.getComputePoint()) * 100;
 
     // Handle error case (when -1 is returned)
@@ -66,8 +63,12 @@ Then("the compute points should not exceed 150k", async function () {
     try {
       expect(computePoints).to.be.a("number");
       if (computePoints > 150000) {
-        console.warn(`⚠️ WARNING: Compute points (${computePoints}) exceeded 150k limit`);
-        console.warn("Continuing test execution despite high compute points...");
+        console.warn(
+          `⚠️ WARNING: Compute points (${computePoints}) exceeded 150k limit`
+        );
+        console.warn(
+          "Continuing test execution despite high compute points..."
+        );
         // Log but don't fail the test
         return true;
       }
@@ -200,11 +201,11 @@ When(
         const fifthElapsedTime =
           await deepAgentPage.waitforStopButtonInvisble();
         deepAgentPage.elapsedTime =
-        firstElapsedTime +
-        secondElapsdTime +
-        thirdElapsedTime +
-        fourthElapsedTime+
-        fifthElapsedTime;
+          firstElapsedTime +
+          secondElapsdTime +
+          thirdElapsedTime +
+          fourthElapsedTime +
+          fifthElapsedTime;
 
         console.log(
           "Total elapsed time after 'convert to ppt':",
@@ -317,15 +318,68 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
-    deepAgentPage.elapsedTime =
-    firstElapsedTime +
-    secondElapsdTime;
+    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
 
-  console.log(
-    "Total elapsed time after follow up prompt:",
-    deepAgentPage.elapsedTime
-  );
-  await deepAgentPage.getConvoId();
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    await deepAgentPage.getConvoId();
   }
 );
 
+When(
+  "I search the chat bot prompt {string} with follow-up query {string}",
+  async function (promatSearch, follow_up_query) {
+    await deepAgentPage.enterPromapt(promatSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery(follow_up_query);
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery("your choice");
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const ThirdElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime =
+      firstElapsedTime + secondElapsdTime + ThirdElapsdTime;
+
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    await deepAgentPage.getConvoId();
+  }
+);
+
+Then(
+  "Then I can see the custom chat and perform some action",
+  async function () {
+    deepAgentPage.clickOnChatBotLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    deepAgentPage = new DeepAgentPage(newPage);
+    this.page = newPage;
+    try {
+    await deepAgentPage.enterPromapt("what is playwright");
+    await this.page.waitForTimeout(2000);    
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = firstElapsedTime;
+
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+  
+} catch (error) {
+  console.error("Error performing actions on new page:", error.message);
+  throw error;
+}
+}
+);
