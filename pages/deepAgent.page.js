@@ -88,7 +88,7 @@ export class DeepAgentPage {
 
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
     this.dataBase= page.locator("[data-icon*='database']")
-    this.datBaseVisible= page.locator("[role*='grid']")
+    this.datBaseVisible= page.locator("//span[text()='Export CSV']")
 
     this.agentTitle = page.locator("#complex_agent__title");
 
