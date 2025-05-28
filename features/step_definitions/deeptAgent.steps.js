@@ -383,3 +383,110 @@ Then(
 }
 }
 );
+
+
+When(
+  "I search the prompt {string} with follow-up query {string} to generate a website",
+  async function (promatSearch, follow_up_query) {
+    await deepAgentPage.enterPromapt(promatSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery(follow_up_query);
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    let thirdElapsedTime = 0
+    let fourthElapsedTime=0
+    let PreviewPageVisible =false
+    PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
+    if(!PreviewPageVisible)
+    {
+      await deepAgentPage.enterPromapt("create a website");
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.page.waitForTimeout(3000);
+      thirdElapsedTime =await deepAgentPage.waitforStopButtonInvisble();
+      PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
+      if(!PreviewPageVisible)
+      {
+        await deepAgentPage.enterPromapt("Your call");
+        await deepAgentPage.clickSendButton();
+        await deepAgentPage.page.waitForTimeout(3000);
+        fourthElapsedTime=await deepAgentPage.waitforStopButtonInvisble();
+        PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
+      }
+    }
+    let dataBaseVisible=false
+    dataBaseVisible = await deepAgentPage.dataBase.isVisible();
+    if(dataBaseVisible)
+    {
+      await deepAgentPage.dataBase.click();
+      await deepAgentPage.datBaseVisible.isVisible()
+    }
+    deepAgentPage.elapsedTime =
+    firstElapsedTime +
+    secondElapsdTime+
+    thirdElapsedTime+
+    fourthElapsedTime;
+  console.log(
+    "Total elapsed time after follow up prompt:",
+    deepAgentPage.elapsedTime
+  );
+  await deepAgentPage.getConvoId();
+  }
+);
+
+When(
+  "I search a prompt {string} with follow-up query {string}",
+  async function (promptSearch, follow_up_query) {
+    await deepAgentPage.enterPromapt(promptSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery(follow_up_query);
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    let thirdElapsedTime = 0
+    let fourthElapsedTime = 0
+    let fifthElapsedTime=0
+    let titleVisible=false
+    titleVisible = await deepAgentPage.agentTitle.isVisible();
+    if(titleVisible)
+    {
+      await deepAgentPage.selectTheElementFromDropDown("Default");
+      thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    }
+    else{
+      await deepAgentPage.enterPromapt('proceed');
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.page.waitForTimeout(3000);
+      fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+      await deepAgentPage.page.waitForTimeout(3000);
+      await deepAgentPage.selectTheElementFromDropDown("Default");
+      fifthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    }
+    deepAgentPage.elapsedTime =
+    firstElapsedTime +
+    secondElapsdTime+
+    thirdElapsedTime+
+    fourthElapsedTime+
+    fifthElapsedTime;
+  console.log(
+    "Total elapsed time after follow up prompt:",
+    deepAgentPage.elapsedTime
+  );
+  await deepAgentPage.getConvoId();
+  }
+);
+
+Then("I should deploy the website", async function () {
+  const randomDeploymentName = `webtest-${Math.random().toString(36).substring(2, 8)}`;
+  
+  await deepAgentPage.deployOption.click();
+  await deepAgentPage.deploymentName.fill(randomDeploymentName); 
+  await deepAgentPage.deployButton.click();
+  await deepAgentPage.deploySuccessMessage.waitFor(); 
+  await expect(deepAgentPage.deploySuccessMessage).toBeVisible();
+  await expect(deepAgentPage.deploySuccessMessage).toContainText("Deployment successful");
+});

@@ -86,7 +86,18 @@ export class DeepAgentPage {
 
     this.CreatedChatBotlink=page.locator("a[href*='https://staging-latest-apps.abacus.ai/chatllm/']");
 
+    this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
+    this.dataBase= page.locator("[data-icon*='database']")
+    this.datBaseVisible= page.locator("[role*='grid']")
+
+    this.agentTitle = page.locator("#complex_agent__title");
+
+    this.deployOption=page.locator("//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')]");
+    this.deploymentName=page.locator("input[class*='flex-1 text-darkcolor']");
+    this.deployButton=page.locator("//button[contains(@class, 'inline-flex') and contains(@class, 'bg-bwleftblue') and contains(text(), 'Deploy')]");
+    this.deploysucessmessage = page.locator("//div[contains(text(), 'Deployment successful')]");
     this.elapsedTime = 0;
+
   }
 
   async clickCheckoutButton() {
