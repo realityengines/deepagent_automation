@@ -487,6 +487,8 @@ Then("I should deploy the website", async function () {
   await deepAgentPage.deploymentName.fill(randomDeploymentName); 
   await deepAgentPage.deployButton.click();
   await deepAgentPage.deploysucessmessage.waitFor({ state: "visible", timeout: 10000 }); 
-  await expect(deepAgentPage.deploysucessmessage).toBeVisible();
-  await expect(deepAgentPage.deploysucessmessage).toContainText("Deployment successful");
+  const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
+  expect(isVisible).to.be.true;
+  const messageText = await deepAgentPage.deploysucessmessage.textContent();
+  expect(messageText).to.include("Deployment successful!");
 });
