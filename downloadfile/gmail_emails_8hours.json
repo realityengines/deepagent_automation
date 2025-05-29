@@ -1,0 +1,110 @@
+[
+  {
+    "sender_email": "udaysingh@abacus.ai",
+    "sender_name": "udaysingh",
+    "subject": "High Priority Jira Tickets Summary - Next Week Label",
+    "received_time": "Thu, 29 May 2025 07:38:45 -0400",
+    "content_preview": "Dear Uday, I have completed a search for high priority Jira tickets with the &quot;next-week&quot; label as requested. **Search Results:** No high priority tickets with the &quot;next-week&quot; label",
+    "message_id": "",
+    "thread_id": "1971bd669940385b",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "udaysingh@abacus.ai",
+    "sender_name": "udaysingh",
+    "subject": "Production Releases Summary - 2025-05-29",
+    "received_time": "Thu, 29 May 2025 04:26:19 -0700",
+    "content_preview": "Dear Uday, Please find attached the requested summary of production releases from the #prod-releases channel for the last 4 hours (07:25 - 11:25 AM, May 29, 2025). Key highlights from this period: •",
+    "message_id": "",
+    "thread_id": "1971bcb04fe45684",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "udaysingh@abacus.ai",
+    "sender_name": "udaysingh",
+    "subject": "Production Releases Summary - Last 4 Hours",
+    "received_time": "Thu, 29 May 2025 06:56:14 -0400",
+    "content_preview": "Hi Uday, Please find attached the PDF summary of production releases from the #prod-releases channel for the last 4 hours. **Summary Overview:** - Time Period: May 29, 2025, 06:55 UTC to 10:55 UTC (4",
+    "message_id": "",
+    "thread_id": "1971baf7aeab1bb6",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "udaysingh@abacus.ai",
+    "sender_name": "udaysingh",
+    "subject": "Slack Activity Summary - prod-releases Channel (Past 4 Hours)",
+    "received_time": "Thu, 29 May 2025 06:52:38 -0400",
+    "content_preview": "Dear Uday, Please find below the Slack activity summary for the prod-releases channel covering the past 4 hours (06:52 UTC - 10:52 UTC on 2025-05-29). ## Key Highlights: **Production Releases &amp;",
+    "message_id": "",
+    "thread_id": "1971bac300913e52",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "abacusUday <notifications@github.com>",
+    "sender_name": "abacusUday <notifications",
+    "subject": "[realityengines/deepagent_automation] Run failed: Deep Agent  Parallel Suite - master (41e65cb)",
+    "received_time": "Thu, 29 May 2025 00:18:18 -0700",
+    "content_preview": "[realityengines/deepagent_automation] Deep Agent Parallel Suite workflow run Deep Agent Parallel Suite: All jobs have failed View workflow run Deep Agent Parallel Suite / test Failed in 52 minutes and",
+    "message_id": "",
+    "thread_id": "1971ae7f814597b2",
+    "to": "\"realityengines/deepagent_automation\" <deepagent_automation@noreply.github.com>",
+    "cc": "Ci activity <ci_activity@noreply.github.com>",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "udaysingh@abacus.ai",
+    "sender_name": "udaysingh",
+    "subject": "High Priority Jira Tickets Summary - Next Week",
+    "received_time": "Thu, 29 May 2025 00:11:04 -0700",
+    "content_preview": "Dear Uday, I hope this email finds you well. I&#39;ve compiled a summary of high priority Jira tickets labeled &quot;next-week&quot; from our Jira workspace. Below are the details of the 7 tickets",
+    "message_id": "",
+    "thread_id": "1971ae15460448e1",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "\"Yuvraj Singh (Jira)\" <jira@abacusai.atlassian.net>",
+    "sender_name": "\"Yuvraj Singh (Jira)\" <jira",
+    "subject": "[JIRA] (PI-21536) Update color coding for 'Accept' and 'Reject' buttons",
+    "received_time": "Thu, 29 May 2025 07:09:28 +0000",
+    "content_preview": "Yuvraj Singh made 1 update. Product Issues/PI-21536 Update color coding for &#39;Accept&#39; and &#39;Reject&#39; buttons ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌",
+    "message_id": "<010101971adfdf87-5801427e-9a49-486d-acd3-ff5b703baa8e-000000@us-west-2.amazonses.com>",
+    "thread_id": "195ccda804c7decd",
+    "to": "\"\\\\\\\"Uday Singh\\\\\\\"\" <udaysingh@abacus.ai>",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "no-reply@lambdatest.com",
+    "sender_name": "no-reply",
+    "subject": "Automation Daily Test Summary",
+    "received_time": "Thu, 29 May 2025 06:28:31 +0000",
+    "content_preview": "Automation Daily Test Summary Hi Team, Here is the summary of your team&#39;s Builds/Tests Run in the last 24 hours Web Automation 538 Total Tests 17 Total Builds 92h 12m 40s Total Time ● Completed 460",
+    "message_id": "<010001971aba6108-8c14af6c-1fb9-48df-8a86-3da33ade6279-000000@email.amazonses.com>",
+    "thread_id": "1971aba63899445a",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  },
+  {
+    "sender_email": "David from Notion <team@hello.notion.so>",
+    "sender_name": "David from Notion <team",
+    "subject": "Introducing Notion AI for Work Live Webinar",
+    "received_time": "Wed, 28 May 2025 23:01:50 -0500 (CDT)",
+    "content_preview": "Last chance to register ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌ ‌",
+    "message_id": "<942241997.40213094.1748491310808@sjmktmail-batch1h.marketo.org>",
+    "thread_id": "1971a341bdc3f9b2",
+    "to": "udaysingh@abacus.ai",
+    "cc": "",
+    "importance_level": "normal"
+  }
+]
