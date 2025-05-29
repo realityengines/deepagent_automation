@@ -84,7 +84,7 @@ export class DeepAgentPage {
     this.dropDown = page.locator("[role*='combobox']");
 
 
-    this.CreatedChatBotlink=page.locator("a[href*='https://staging-latest-apps.abacus.ai/chatllm/']");
+    this.CreatedChatBotlink=page.locator("a[href*='apps.abacus.ai']");
 
     this.elapsedTime = 0;
   }
