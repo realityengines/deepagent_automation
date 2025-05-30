@@ -84,10 +84,11 @@ export class DeepAgentPage {
     this.dropDown = page.locator("[role*='combobox']");
 
 
-    this.CreatedChatBotlink=page.locator("a[href*='https://staging-latest-apps.abacus.ai/chatllm/']");
+    this.CreatedChatBotlink=page.locator("a[href*='https://apps.']");
 
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
     this.dataBase= page.locator("[data-icon*='database']")
+    this.previewButton= page.locator("[data-icon='play']")
     this.datBaseVisible= page.locator("//span[text()='Export CSV']")
 
     this.agentTitle = page.locator("#complex_agent__title");
@@ -96,6 +97,13 @@ export class DeepAgentPage {
     this.deploymentName=page.locator("input[class*='flex-1 text-darkcolor']");
     this.deployButton=page.locator("//button[contains(@class, 'inline-flex') and contains(@class, 'bg-bwleftblue') and contains(text(), 'Deploy')]");
     this.deploysucessmessage = page.locator("//div[contains(text(), 'Deployment successful')]");
+
+    this.analyticsLink= page.locator("[href*='/analytics']")
+    this.calculator= page.locator("[href='/calculator']")
+    this.calender=page.locator("[href='/calendar']")
+    this.setting=page.locator("[href='/settings']")
+    this.deployLink= page.locator("//span[contains(text(),'Deployed URL')]/..//a");
+    this.chatImage=page.locator("(//canvas[@role='img'])[1]")
     this.elapsedTime = 0;
 
   }
@@ -1220,5 +1228,10 @@ async getConvoId() {
 
 async clickOnChatBotLink() {
   await this.CreatedChatBotlink.click();
+}
+
+async clickOnDeployLink() {
+  await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
+  await this.deployLink.click({ force: true, timeout: 10000 });
 }
 }

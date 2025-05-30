@@ -20,6 +20,9 @@ Feature: 30 prompts search
 
     Examples:
       | promat_user_search                                                                                                                                                                               | follow_up_query                                                                                                                                                          |
+      | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai.                                                           | Your Call                                                                                                                                                                |
+      | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview                                                                                                          | your call                                                                                                                                                                |
+      | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai                                                                                          | your call                                                                                                                                                                |
       | search Elon Musk and create pdf file                                                                                                                                                             | Elon Musk's life or career in the PDf                                                                                                                                    |
       | Connect To Gmail And Automate Work                                                                                                                                                               | Find sent emails with no replies                                                                                                                                         |
       | Slack to improve productivity                                                                                                                                                                    | Your call with limited functionality.                                                                                                                                    |
@@ -94,3 +97,18 @@ Feature: 30 prompts search
     Examples:
       | promat_user_search                                                                                                                 | follow_up_query                              |
       | Create a comprehensive project management system for launching a new product using google tasks. Include tasks for market research | create two Google Tasks for market research. |
+
+  @PromptForWebSiteCreation
+  Scenario Outline: Search DeepAgent prompt
+    Given I click the check out from the welcome window
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>" to generate a website
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should download the generated summary
+    And I should fetch the search results
+    And I should deploy the website
+    And the website should display correct tabs, graphs, and navigation bar
+
+    Examples:
+      | promat_user_search                                                                                                                                                                                                                       | follow_up_query                                                                                                                            |
+      | Build a responsive data dashboard website with sample graphs, left nav tabs for Dashboard, Analytics, Calculator, Calendar, and Settings; include a basic arithmetic calculator, an interactive calendar, and demo data for all visuals. | Use general demo data with a modern color scheme, include line, bar, and pie charts; the calendar should support viewing and adding events |

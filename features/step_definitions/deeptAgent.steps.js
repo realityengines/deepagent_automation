@@ -492,3 +492,56 @@ Then("I should deploy the website", async function () {
   const messageText = await deepAgentPage.deploysucessmessage.textContent();
   expect(messageText).to.include("Deployment successful!");
 });
+
+Then("the website should display correct tabs, graphs, and navigation bar", async function () {
+  await deepAgentPage.previewButton.click();
+   deepAgentPage.clickOnDeployLink();
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page"),
+  ]);
+  await newPage.waitForLoadState();
+  deepAgentPage = new DeepAgentPage(newPage);
+  this.page = newPage;
+
+  try{
+    await newPage.waitForTimeout(3000);
+    
+    // Wait for each element to be visible before checking
+    console.log("Checking analytics link...");
+    await deepAgentPage.analyticsLink.waitFor({ state: "visible", timeout: 10000 });
+    const analyticsLinkIsVisible = await deepAgentPage.analyticsLink.isVisible();
+    console.log(`Analytics link visible: ${analyticsLinkIsVisible}`);
+    expect(analyticsLinkIsVisible).to.be.true;
+    
+    console.log("Checking calculator link...");
+    await deepAgentPage.calculator.waitFor({ state: "visible", timeout: 10000 });
+    const calculatorLinkIsVisible = await deepAgentPage.calculator.isVisible();
+    console.log(`Calculator link visible: ${calculatorLinkIsVisible}`);
+    expect(calculatorLinkIsVisible).to.be.true;
+    
+    console.log("Checking calendar link...");
+    await deepAgentPage.calender.waitFor({ state: "visible", timeout: 10000 });
+    const calenderLinkIsVisible = await deepAgentPage.calender.isVisible();
+    console.log(`Calendar link visible: ${calenderLinkIsVisible}`);
+    expect(calenderLinkIsVisible).to.be.true;
+    
+    console.log("Checking settings link...");
+    await deepAgentPage.setting.waitFor({ state: "visible", timeout: 10000 });
+    const settingLinkIsVisible = await deepAgentPage.setting.isVisible();
+    console.log(`Settings link visible: ${settingLinkIsVisible}`);
+    expect(settingLinkIsVisible).to.be.true;
+    
+    console.log("Checking chat image...");
+    await deepAgentPage.chatImage.waitFor({ state: "visible", timeout: 10000 });
+    const chatImgIsVisible = await deepAgentPage.chatImage.isVisible();
+    console.log(`Chat image visible: ${chatImgIsVisible}`);
+    expect(chatImgIsVisible).to.be.true;
+    
+    console.log("All elements verified successfully!");
+  }
+  catch (error) {
+    console.error("Error performing actions on new page:", error.message);
+    throw error;
+  }
+  
+});
