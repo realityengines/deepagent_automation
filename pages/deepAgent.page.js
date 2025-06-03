@@ -84,11 +84,12 @@ export class DeepAgentPage {
     this.dropDown = page.locator("[role*='combobox']");
 
     this.CreatedChatBotlink = page.locator("a[href*='https://apps.']");
-
+    this.CreatedChatBotlink=page.locator("a[href*='apps.abacus.ai']");
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
     this.dataBase = page.locator("[data-icon*='database']");
     this.previewButton = page.locator("[data-icon='play']");
     this.datBaseVisible = page.locator("//span[text()='Export CSV']");
+
 
     this.agentTitle = page.locator("#complex_agent__title");
 
@@ -1240,3 +1241,5 @@ export class DeepAgentPage {
     await this.deployLink.click({ force: true, timeout: 10000 });
   }
 }
+}
+
