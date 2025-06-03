@@ -1,7 +1,5 @@
 import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
-import { chromium } from '@playwright/test';
 import fs from 'fs';
-import path from 'path';
 import { cleanupDirectories } from '../../utils/cleanup.js';
 // Set default timeout to 30 minutes (1800000 milliseconds) for all steps
 setDefaultTimeout(1800000);

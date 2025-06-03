@@ -398,22 +398,22 @@ When(
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
     let thirdElapsedTime = 0
     let fourthElapsedTime=0
-    let PreviewPageVisible =false
-    PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
-    if(!PreviewPageVisible)
+    let deployOptionVisible =false
+    deployOptionVisible = await deepAgentPage.deployOption.isVisible();
+    if(!deployOptionVisible)
     {
       await deepAgentPage.enterPromapt("create a website");
       await deepAgentPage.clickSendButton();
       await deepAgentPage.page.waitForTimeout(3000);
       thirdElapsedTime =await deepAgentPage.waitforStopButtonInvisble();
-      PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
-      if(!PreviewPageVisible)
+      deployOptionVisible = await deepAgentPage.deployOption.isVisible();
+      if(!deployOptionVisible)
       {
         await deepAgentPage.enterPromapt("Your call");
         await deepAgentPage.clickSendButton();
         await deepAgentPage.page.waitForTimeout(3000);
         fourthElapsedTime=await deepAgentPage.waitforStopButtonInvisble();
-        PreviewPageVisible = await deepAgentPage.previewWebPage.isVisible();
+        deployOptionVisible = await deepAgentPage.deployOption.isVisible();
       }
     }
     let dataBaseVisible=false
