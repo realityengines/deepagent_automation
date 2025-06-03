@@ -29,7 +29,7 @@
     "@cucumber/pretty-formatter": "^1.0.0",
     "@playwright/test": "^1.35.0",
     "cross-env": "^7.0.3",
-    "cucumber-html-reporter": "^7.2.0",
+    "cucumber-html-reporter": "^6.0.0",
     "dotenv": "^16.5.0",
     "fs": "^0.0.1-security",
     "node-fetch": "^3.3.2",
