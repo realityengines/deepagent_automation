@@ -1,4 +1,4 @@
-@smoke @regression
+@regression
 Feature: 30 prompts search
   As a logged-in user
     I want to access and view my dashboard and the Deep Agent search and overview
@@ -87,7 +87,7 @@ Feature: 30 prompts search
       | fetch data about formula one drivers for 2025 season. Create a powerpoint presentation that talks about each team, the drivers, team principle etc. Give some fun facts. Add pictures | proceed               |
       | create a presentation on climate change. 10 slides                                                                                                                                    | make the best choices |
 
-  @DeepAgentMCPTask @regression
+  @DeepAgentMCPTask
   Scenario Outline: Search  default  mcp task from deep Agent
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
