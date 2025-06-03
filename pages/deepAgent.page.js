@@ -1241,5 +1241,3 @@ export class DeepAgentPage {
     await this.deployLink.click({ force: true, timeout: 10000 });
   }
 }
-}
-
