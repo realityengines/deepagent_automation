@@ -83,29 +83,35 @@ export class DeepAgentPage {
 
     this.dropDown = page.locator("[role*='combobox']");
 
-
-    this.CreatedChatBotlink=page.locator("a[href*='https://apps.']");
+    this.CreatedChatBotlink = page.locator("a[href*='https://apps.']");
 
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
-    this.dataBase= page.locator("[data-icon*='database']")
-    this.previewButton= page.locator("[data-icon='play']")
-    this.datBaseVisible= page.locator("//span[text()='Export CSV']")
+    this.dataBase = page.locator("[data-icon*='database']");
+    this.previewButton = page.locator("[data-icon='play']");
+    this.datBaseVisible = page.locator("//span[text()='Export CSV']");
 
     this.agentTitle = page.locator("#complex_agent__title");
 
-    this.deployOption=page.locator("//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')]");
-    this.deploymentName=page.locator("input[class*='flex-1 text-darkcolor']");
-    this.deployButton=page.locator("//button[contains(@class, 'inline-flex') and contains(@class, 'bg-bwleftblue') and contains(text(), 'Deploy')]");
-    this.deploysucessmessage = page.locator("//div[contains(text(), 'Deployment successful')]");
+    this.deployOption = page.locator(
+      "//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')]"
+    );
+    this.deploymentName = page.locator("input[class*='flex-1 text-darkcolor']");
+    this.deployButton = page.locator(
+      "//button[contains(@class, 'inline-flex') and contains(@class, 'bg-bwleftblue') and contains(text(), 'Deploy')]"
+    );
+    this.deploysucessmessage = page.locator(
+      "//div[contains(text(), 'Deployment successful')]"
+    );
 
-    this.analyticsLink= page.locator("[href*='/analytics']")
-    this.calculator= page.locator("[href='/calculator']")
-    this.calender=page.locator("[href='/calendar']")
-    this.setting=page.locator("[href='/settings']")
-    this.deployLink= page.locator("//span[contains(text(),'Deployed URL')]/..//a");
-    this.chatImage=page.locator("(//canvas[@role='img'])[1]")
+    this.analyticsLink = page.locator("[href*='/analytics']");
+    this.calculator = page.locator("[href='/calculator']");
+    this.calender = page.locator("[href='/calendar']");
+    this.setting = page.locator("[href='/settings']");
+    this.deployLink = page.locator(
+      "//span[contains(text(),'Deployed URL')]/..//a"
+    );
+    this.chatImage = page.locator("(//canvas[@role='img'])[1]");
     this.elapsedTime = 0;
-
   }
 
   async clickCheckoutButton() {
@@ -1197,41 +1203,40 @@ export class DeepAgentPage {
     }
   }
 
+  async getConvoId() {
+    try {
+      // Get the current URL
+      const currentUrl = await this.page.url();
 
-async getConvoId() {
-  try {
-    // Get the current URL
-    const currentUrl = await this.page.url();
-    
-    // Create directory if it doesn't exist
-    await fs.mkdir(path.join(__dirname, "../urlData"), { recursive: true });
-    
-    // Create file path
-    const filePath = path.join(__dirname, "../urlData/conversation_urls.txt");
-    
-    // Get current timestamp
-    const timestamp = new Date().toISOString();
-    
-    // Format the data to be written
-    const urlData = `${timestamp}\nURL: ${currentUrl}\n\n`;
-    
-    // Append the URL to the file
-    await fs.appendFile(filePath, urlData, 'utf8');
-    
-    console.log(`URL data saved to: ${filePath}`);
-    return currentUrl;
-  } catch (error) {
-    console.error("Error saving conversation URL:", error.message);
-    throw error;
+      // Create directory if it doesn't exist
+      await fs.mkdir(path.join(__dirname, "../urlData"), { recursive: true });
+
+      // Create file path
+      const filePath = path.join(__dirname, "../urlData/conversation_urls.txt");
+
+      // Get current timestamp
+      const timestamp = new Date().toISOString();
+
+      // Format the data to be written
+      const urlData = `${timestamp}\nURL: ${currentUrl}\n\n`;
+
+      // Append the URL to the file
+      await fs.appendFile(filePath, urlData, "utf8");
+
+      console.log(`URL data saved to: ${filePath}`);
+      return currentUrl;
+    } catch (error) {
+      console.error("Error saving conversation URL:", error.message);
+      throw error;
+    }
   }
-}
 
-async clickOnChatBotLink() {
-  await this.CreatedChatBotlink.click();
-}
+  async clickOnChatBotLink() {
+    await this.CreatedChatBotlink.click();
+  }
 
-async clickOnDeployLink() {
-  await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
-  await this.deployLink.click({ force: true, timeout: 10000 });
-}
+  async clickOnDeployLink() {
+    await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
+    await this.deployLink.click({ force: true, timeout: 10000 });
+  }
 }
