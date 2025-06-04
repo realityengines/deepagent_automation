@@ -7,7 +7,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(2000);
+  await deepAgentPage.page.waitForTimeout(3000);
 });
 
 When(
@@ -21,8 +21,6 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
-    // deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
-
     deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
 
     console.log(
@@ -365,25 +363,23 @@ Then(
     deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
     try {
-    await deepAgentPage.enterPromapt("what is playwright");
-    await this.page.waitForTimeout(2000);    
-    await deepAgentPage.clickSendButton();
-    await deepAgentPage.page.waitForTimeout(3000);
-    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-    deepAgentPage.elapsedTime = firstElapsedTime;
+      await deepAgentPage.enterPromapt("what is playwright");
+      await this.page.waitForTimeout(2000);
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.page.waitForTimeout(3000);
+      const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+      deepAgentPage.elapsedTime = firstElapsedTime;
 
-    console.log(
-      "Total elapsed time after follow up prompt:",
-      deepAgentPage.elapsedTime
-    );
-  
-} catch (error) {
-  console.error("Error performing actions on new page:", error.message);
-  throw error;
-}
-}
+      console.log(
+        "Total elapsed time after follow up prompt:",
+        deepAgentPage.elapsedTime
+      );
+    } catch (error) {
+      console.error("Error performing actions on new page:", error.message);
+      throw error;
+    }
+  }
 );
-
 
 When(
   "I search the prompt {string} with follow-up query {string} to generate a website",
@@ -396,43 +392,40 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
-    let thirdElapsedTime = 0
-    let fourthElapsedTime=0
-    let deployOptionVisible =false
+    let thirdElapsedTime = 0;
+    let fourthElapsedTime = 0;
+    let deployOptionVisible = false;
     deployOptionVisible = await deepAgentPage.deployOption.isVisible();
-    if(!deployOptionVisible)
-    {
+    if (!deployOptionVisible) {
       await deepAgentPage.enterPromapt("create a website");
       await deepAgentPage.clickSendButton();
       await deepAgentPage.page.waitForTimeout(3000);
-      thirdElapsedTime =await deepAgentPage.waitforStopButtonInvisble();
+      thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
       deployOptionVisible = await deepAgentPage.deployOption.isVisible();
-      if(!deployOptionVisible)
-      {
+      if (!deployOptionVisible) {
         await deepAgentPage.enterPromapt("Your call");
         await deepAgentPage.clickSendButton();
         await deepAgentPage.page.waitForTimeout(3000);
-        fourthElapsedTime=await deepAgentPage.waitforStopButtonInvisble();
+        fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
         deployOptionVisible = await deepAgentPage.deployOption.isVisible();
       }
     }
-    let dataBaseVisible=false
+    let dataBaseVisible = false;
     dataBaseVisible = await deepAgentPage.dataBase.isVisible();
-    if(dataBaseVisible)
-    {
+    if (dataBaseVisible) {
       await deepAgentPage.dataBase.click();
-      await deepAgentPage.datBaseVisible.isVisible()
+      await deepAgentPage.datBaseVisible.isVisible();
     }
     deepAgentPage.elapsedTime =
-    firstElapsedTime +
-    secondElapsdTime+
-    thirdElapsedTime+
-    fourthElapsedTime;
-  console.log(
-    "Total elapsed time after follow up prompt:",
-    deepAgentPage.elapsedTime
-  );
-  await deepAgentPage.getConvoId();
+      firstElapsedTime +
+      secondElapsdTime +
+      thirdElapsedTime +
+      fourthElapsedTime;
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    await deepAgentPage.getConvoId();
   }
 );
 
@@ -447,18 +440,16 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
-    let thirdElapsedTime = 0
-    let fourthElapsedTime = 0
-    let fifthElapsedTime=0
-    let titleVisible=false
+    let thirdElapsedTime = 0;
+    let fourthElapsedTime = 0;
+    let fifthElapsedTime = 0;
+    let titleVisible = false;
     titleVisible = await deepAgentPage.agentTitle.isVisible();
-    if(titleVisible)
-    {
+    if (titleVisible) {
       await deepAgentPage.selectTheElementFromDropDown("Default");
       thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-    }
-    else{
-      await deepAgentPage.enterPromapt('proceed');
+    } else {
+      await deepAgentPage.enterPromapt("proceed");
       await deepAgentPage.clickSendButton();
       await deepAgentPage.page.waitForTimeout(3000);
       fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
@@ -467,81 +458,103 @@ When(
       fifthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
     }
     deepAgentPage.elapsedTime =
-    firstElapsedTime +
-    secondElapsdTime+
-    thirdElapsedTime+
-    fourthElapsedTime+
-    fifthElapsedTime;
-  console.log(
-    "Total elapsed time after follow up prompt:",
-    deepAgentPage.elapsedTime
-  );
-  await deepAgentPage.getConvoId();
+      firstElapsedTime +
+      secondElapsdTime +
+      thirdElapsedTime +
+      fourthElapsedTime +
+      fifthElapsedTime;
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    await deepAgentPage.downloadComputeAgentFile();
+    await deepAgentPage.filePptisDisplayed();
+    await deepAgentPage.getConvoId();
   }
 );
 
 Then("I should deploy the website", async function () {
-  const randomDeploymentName = `webtest-${Math.random().toString(36).substring(2, 8)}`;
-  
+  const randomDeploymentName = `webtest-${Math.random()
+    .toString(36)
+    .substring(2, 8)}`;
+
   await deepAgentPage.deployOption.click();
-  await deepAgentPage.deploymentName.fill(randomDeploymentName); 
+  await deepAgentPage.deploymentName.fill(randomDeploymentName);
   await deepAgentPage.deployButton.click();
-  await deepAgentPage.deploysucessmessage.waitFor({ state: "visible", timeout: 10000 }); 
+  await deepAgentPage.deploysucessmessage.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
   const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
   expect(isVisible).to.be.true;
   const messageText = await deepAgentPage.deploysucessmessage.textContent();
   expect(messageText).to.include("Deployment successful!");
 });
 
-Then("the website should display correct tabs, graphs, and navigation bar", async function () {
-  await deepAgentPage.previewButton.click();
-   deepAgentPage.clickOnDeployLink();
-  const [newPage] = await Promise.all([
-    this.page.context().waitForEvent("page"),
-  ]);
-  await newPage.waitForLoadState();
-  deepAgentPage = new DeepAgentPage(newPage);
-  this.page = newPage;
+Then(
+  "the website should display correct tabs, graphs, and navigation bar",
+  async function () {
+    await deepAgentPage.previewButton.click();
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    deepAgentPage = new DeepAgentPage(newPage);
+    this.page = newPage;
 
-  try{
-    await newPage.waitForTimeout(3000);
-    
-    // Wait for each element to be visible before checking
-    console.log("Checking analytics link...");
-    await deepAgentPage.analyticsLink.waitFor({ state: "visible", timeout: 10000 });
-    const analyticsLinkIsVisible = await deepAgentPage.analyticsLink.isVisible();
-    console.log(`Analytics link visible: ${analyticsLinkIsVisible}`);
-    expect(analyticsLinkIsVisible).to.be.true;
-    
-    console.log("Checking calculator link...");
-    await deepAgentPage.calculator.waitFor({ state: "visible", timeout: 10000 });
-    const calculatorLinkIsVisible = await deepAgentPage.calculator.isVisible();
-    console.log(`Calculator link visible: ${calculatorLinkIsVisible}`);
-    expect(calculatorLinkIsVisible).to.be.true;
-    
-    console.log("Checking calendar link...");
-    await deepAgentPage.calender.waitFor({ state: "visible", timeout: 10000 });
-    const calenderLinkIsVisible = await deepAgentPage.calender.isVisible();
-    console.log(`Calendar link visible: ${calenderLinkIsVisible}`);
-    expect(calenderLinkIsVisible).to.be.true;
-    
-    console.log("Checking settings link...");
-    await deepAgentPage.setting.waitFor({ state: "visible", timeout: 10000 });
-    const settingLinkIsVisible = await deepAgentPage.setting.isVisible();
-    console.log(`Settings link visible: ${settingLinkIsVisible}`);
-    expect(settingLinkIsVisible).to.be.true;
-    
-    console.log("Checking chat image...");
-    await deepAgentPage.chatImage.waitFor({ state: "visible", timeout: 10000 });
-    const chatImgIsVisible = await deepAgentPage.chatImage.isVisible();
-    console.log(`Chat image visible: ${chatImgIsVisible}`);
-    expect(chatImgIsVisible).to.be.true;
-    
-    console.log("All elements verified successfully!");
+    try {
+      await newPage.waitForTimeout(3000);
+
+      // Wait for each element to be visible before checking
+      console.log("Checking analytics link...");
+      await deepAgentPage.analyticsLink.waitFor({
+        state: "visible",
+        timeout: 10000,
+      });
+      const analyticsLinkIsVisible =
+        await deepAgentPage.analyticsLink.isVisible();
+      console.log(`Analytics link visible: ${analyticsLinkIsVisible}`);
+      expect(analyticsLinkIsVisible).to.be.true;
+
+      console.log("Checking calculator link...");
+      await deepAgentPage.calculator.waitFor({
+        state: "visible",
+        timeout: 10000,
+      });
+      const calculatorLinkIsVisible =
+        await deepAgentPage.calculator.isVisible();
+      console.log(`Calculator link visible: ${calculatorLinkIsVisible}`);
+      expect(calculatorLinkIsVisible).to.be.true;
+
+      console.log("Checking calendar link...");
+      await deepAgentPage.calender.waitFor({
+        state: "visible",
+        timeout: 10000,
+      });
+      const calenderLinkIsVisible = await deepAgentPage.calender.isVisible();
+      console.log(`Calendar link visible: ${calenderLinkIsVisible}`);
+      expect(calenderLinkIsVisible).to.be.true;
+
+      console.log("Checking settings link...");
+      await deepAgentPage.setting.waitFor({ state: "visible", timeout: 10000 });
+      const settingLinkIsVisible = await deepAgentPage.setting.isVisible();
+      console.log(`Settings link visible: ${settingLinkIsVisible}`);
+      expect(settingLinkIsVisible).to.be.true;
+
+      console.log("Checking chat image...");
+      await deepAgentPage.chatImage.waitFor({
+        state: "visible",
+        timeout: 10000,
+      });
+      const chatImgIsVisible = await deepAgentPage.chatImage.isVisible();
+      console.log(`Chat image visible: ${chatImgIsVisible}`);
+      expect(chatImgIsVisible).to.be.true;
+
+      console.log("All elements verified successfully!");
+    } catch (error) {
+      console.error("Error performing actions on new page:", error.message);
+      throw error;
+    }
   }
-  catch (error) {
-    console.error("Error performing actions on new page:", error.message);
-    throw error;
-  }
-  
-});
+);

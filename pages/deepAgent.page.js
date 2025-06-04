@@ -84,12 +84,11 @@ export class DeepAgentPage {
     this.dropDown = page.locator("[role*='combobox']");
 
     this.CreatedChatBotlink = page.locator("a[href*='https://apps.']");
-    this.CreatedChatBotlink=page.locator("a[href*='apps.abacus.ai']");
+    this.CreatedChatBotlink = page.locator("a[href*='apps.abacus.ai']");
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
     this.dataBase = page.locator("[data-icon*='database']");
     this.previewButton = page.locator("[data-icon='play']");
     this.datBaseVisible = page.locator("//span[text()='Export CSV']");
-
 
     this.agentTitle = page.locator("#complex_agent__title");
 
@@ -111,6 +110,25 @@ export class DeepAgentPage {
     this.deployLink = page.locator(
       "//span[contains(text(),'Deployed URL')]/..//a"
     );
+
+    // downalod button from agent computer
+
+    this.flexTypeFile = page.locator("[id*='rc'] [role='combobox']");
+
+    this.fileTypeOptions = page.locator("[role='option']");
+
+    this.computerFileDownloadOption = page.locator(
+      "[id*='rc:'] [data-icon*='download']"
+    );
+    this.spinLoadForFile = page.locator("[class*='block pointer']");
+
+    // this.fileTypeforPPT = page.locator("[data-icon='file-powerpoint']");
+    this.fileTypeforPPT = page.locator(
+      "//*[@data-icon='file-powerpoint']//following::p[contains(@class, 'text-sm font-medium')]"
+    );
+
+    this.fileTypeforPdf = page.locator("[data-icon='file-pdf']");
+
     this.chatImage = page.locator("(//canvas[@role='img'])[1]");
     this.elapsedTime = 0;
   }
@@ -506,7 +524,7 @@ export class DeepAgentPage {
         // Click with force option and increased timeout
         await this.viewFile
           .nth(lastIndex)
-          .click({ force: true, timeout: 10000 });
+          .click({ force: true, timeout: 2000 });
 
         // Wait for dialog to appear
         await this.page.waitForTimeout(2000);
@@ -548,9 +566,9 @@ export class DeepAgentPage {
 
               // Wait for download to start
               const download = await Promise.race([
-                this.page.waitForEvent("download", { timeout: 10000 }),
+                this.page.waitForEvent("download", { timeout: 2000 }),
                 new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error("Download timeout")), 10000)
+                  setTimeout(() => reject(new Error("Download timeout")), 2000)
                 ),
               ]);
 
@@ -581,9 +599,9 @@ export class DeepAgentPage {
         try {
           // Setup download promise
           const downloadPromise = Promise.race([
-            this.page.waitForEvent("download", { timeout: 10000 }),
+            this.page.waitForEvent("download", { timeout: 2000 }),
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error("Download timeout")), 10000)
+              setTimeout(() => reject(new Error("Download timeout")), 2000)
             ),
           ]);
 
@@ -1239,5 +1257,42 @@ export class DeepAgentPage {
   async clickOnDeployLink() {
     await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
     await this.deployLink.click({ force: true, timeout: 10000 });
+  }
+
+  async downloadComputeAgentFile() {
+    await fs.mkdir(this.downloadPath, { recursive: true });
+    // await this.flexTypeFile.click();
+    // await this.page.waitForTimeout(2000);
+    // const optionCount = await this.fileTypeOptions.count();
+    // for (let i = 0; i < optionCount; i++) {
+    //   const option = this.fileTypeOptions.nth(i);
+    //   const text = await option.innerText();
+    //   if (text.includes("PPTX")) {
+    //     const isSelected =
+    //       (await option.getAttribute("data-state")) === "checked";
+    //     if (!isSelected) {
+    //       await option.click(); // Select PPTX only if not already selected
+    //     }
+    //     break;
+    //   }
+    // }
+    await this.computerFileDownloadOption.click();
+    await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
+    await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
+    const download = await this.page.waitForEvent("download", {
+      timeout: 30000,
+    });
+    const suggestedFileName = await download.suggestedFilename();
+    const fullPath = path.join(this.downloadPath, suggestedFileName);
+    await download.saveAs(fullPath);
+  }
+  async filePptisDisplayed() {
+    await this.fileTypeforPPT.waitFor({ state: "visible" });
+    const text = await this.fileTypeforPPT.textContent();
+    if (text && text.includes(".pptx")) {
+      return true;
+    } else {
+      throw new Error("File type does not contain .pptx");
+    }
   }
 }

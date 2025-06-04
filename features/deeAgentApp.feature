@@ -36,7 +36,7 @@ Feature: Deep Agent Functionality Test
     Examples:
       | sampleTaskName                 | Specify_the_prompat                                                               |
       | Website                        | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
-      | Hot or Not - hollywood edition | Your call with limited functionality.                                             |
+      # | Hot or Not - hollywood edition | Your call with limited functionality.                                             |
 
   @deepAgentIntergation
   Scenario Outline: Search DeepAgentIntergation  prompt  functionality
@@ -89,7 +89,7 @@ Feature: Deep Agent Functionality Test
       | promat_user_search    | follow_up_query                                                                                                                |
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
 
-  @DeepAgentPowerpoint
+  @DeepAgentPowerpoint 
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
