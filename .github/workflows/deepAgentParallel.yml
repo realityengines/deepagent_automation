@@ -70,6 +70,12 @@ jobs:
           CI: true
           TEST_ENV: ${{ env.TEST_ENV }}
 
+      - name: Generate Test Summary Report
+        if: always()
+        shell: pwsh
+        run: |
+          node scripts/generate-summary.js
+
       - name: Debug - List report files
         shell: pwsh
         run: |
