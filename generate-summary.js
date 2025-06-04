@@ -26,7 +26,7 @@ try {
   });
 
   // Round total duration (already in seconds)
-  const durationInSeconds = totalDuration.toFixed(2);
+  const durationInSeconds = (totalDuration / 1_000_000_000).toFixed(2);
 
   const summary = `
 ### 🧪 Result Test Summary
