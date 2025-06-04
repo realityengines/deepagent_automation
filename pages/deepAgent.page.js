@@ -163,8 +163,7 @@ export class DeepAgentPage {
     await this.dropDown.waitFor({ state: "visible" });
     try {
       await this.dropDown.click();
-
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(4000);
       const selectElement = this.page.locator("select");
 
       // Ensure select is visible and attached before selecting
