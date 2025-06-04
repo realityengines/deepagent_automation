@@ -1,4 +1,4 @@
-name: Deep Agent  Parallel Suite
+name: Deep Agent Smoke Suite
 
 on:
   schedule:
