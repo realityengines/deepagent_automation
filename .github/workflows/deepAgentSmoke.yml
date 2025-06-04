@@ -2,7 +2,7 @@ name: Deep Agent Smoke Suite
 
 on:
   schedule:
-    - cron: "0 15 * * *" # 8 AM EST (15:00 UTC)
+    - cron: "0 14 * * *" 
   push:
     branches: ["master"]
   pull_request:
