@@ -74,7 +74,7 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          node scripts/generate-summary.js
+          node generate-summary.js
 
       - name: Debug - List report files
         shell: pwsh
