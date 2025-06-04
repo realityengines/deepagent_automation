@@ -12,9 +12,9 @@ try {
       let failed = false;
       scenario.steps?.forEach(step => {
         const status = step.result?.status;
-        const duration = step.result?.duration || 0;
+        const duration = step.result?.duration || 0; // assumed to be in seconds
         totalDuration += duration;
-        
+
         if (status === "passed") stepsPassed++;
         else if (status === "failed") {
           stepsFailed++;
@@ -25,11 +25,11 @@ try {
     });
   });
 
-  // Convert nanoseconds to seconds and format
-  const durationInSeconds = (totalDuration / 1000000000).toFixed(2);
+  // Round total duration (already in seconds)
+  const durationInSeconds = totalDuration.toFixed(2);
 
   const summary = `
-### 🧪 Cucumber Test Summary
+### 🧪 Result Test Summary
 
 **Scenarios:**  
 🟩 ${scenariosPassed} passed  
@@ -38,19 +38,20 @@ try {
 **Steps:**  
 🟩 ${stepsPassed} passed  
 🟥 ${stepsFailed} failed  
-🟧 ${stepsSkipped} skipped
+🟧 ${stepsSkipped} skipped  
 
-**⏱ Duration:** ${durationInSeconds}s
+**⏱ Total Step Duration:** ${durationInSeconds} seconds  
+📌 _Note: This is the sum of step durations (may exceed actual wall-clock time in parallel tests)._
 `;
 
   if (process.env.GITHUB_STEP_SUMMARY) {
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
-    console.log("Test summary added to GitHub step summary");
+    console.log("✅ Test summary added to GitHub step summary");
   } else {
-    console.log("Test Summary:");
+    console.log("✅ Test Summary:");
     console.log(summary);
   }
 } catch (error) {
-  console.error("Error generating test summary:", error.message);
+  console.error("❌ Error generating test summary:", error.message);
   process.exit(1);
 }
