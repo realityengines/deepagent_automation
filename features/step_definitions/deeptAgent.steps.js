@@ -7,7 +7,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(15000);
+  await deepAgentPage.page.waitForTimeout(3000);
 });
 
 When(

@@ -22,7 +22,6 @@ Feature: 30 prompts search
       | promat_user_search                                                                                                                                                                               | follow_up_query                                                                                                                                                          |
       | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai.                                                           | Your Call                                                                                                                                                                |
       | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview                                                                                                          | your call                                                                                                                                                                |
-      | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai                                                                                          | your call                                                                                                                                                                |
       | search Elon Musk and create pdf file                                                                                                                                                             | Elon Musk's life or career in the PDf                                                                                                                                    |
       | Connect To Gmail And Automate Work                                                                                                                                                               | Find sent emails with no replies                                                                                                                                         |
       | Slack to improve productivity                                                                                                                                                                    | Your call with limited functionality.                                                                                                                                    |
@@ -35,6 +34,15 @@ Feature: 30 prompts search
       | Luxury Trip To Bali                                                                                                                                                                              | Luxury mid-range budget relaxation for next month                                                                                                                        |
       | Dinner Reservations                                                                                                                                                                              | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
       | Hot or Not - hollywood edition                                                                                                                                                                   | Your call with limited functionality.                                                                                                                                    |
+
+  @DeepAgentSearchPromptForEmailSend
+  Scenario Outline: Search DeepAgent prompt
+    Given I click the check out from the welcome window
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    Examples:
+      | promat_user_search                                                                                      | follow_up_query |
+      | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
   @DeepAgentChatBot
   Scenario Outline: create Ai chat Bot DeepAgent prompt
@@ -73,7 +81,7 @@ Feature: 30 prompts search
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
-  @DeepAgentPowerpoint
+  @DeepAgentPowerpoint @test
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"

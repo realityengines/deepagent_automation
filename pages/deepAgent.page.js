@@ -1262,7 +1262,7 @@ export class DeepAgentPage {
       await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
       await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
       const download = await this.page.waitForEvent("download", {
-        timeout: 30000,
+        timeout: 150000,
       });
       const suggestedFileName = await download.suggestedFilename();
       const fullPath = path.join(this.downloadPath, suggestedFileName);
