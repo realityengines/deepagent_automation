@@ -1259,16 +1259,16 @@ export class DeepAgentPage {
       }
       await this.computerFileDownloadOption.waitFor({ state: "visible" });
       await this.computerFileDownloadOption.click();
+      const downloadPromise = this.page.waitForEvent("download", { timeout: 150000 });
       await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
       await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
-      const download = await this.page.waitForEvent("download", {
-        timeout: 150000,
-      });
+      const download = await downloadPromise;
       const suggestedFileName = await download.suggestedFilename();
       const fullPath = path.join(this.downloadPath, suggestedFileName);
       await download.saveAs(fullPath);
-    }
+   
   }
+}
 
   async verifyDownloadedFilesPptxandPdf() {
     const texts = await this.page.locator("p[class*='text-ellipsis']").allTextContents();
@@ -1283,5 +1283,7 @@ export class DeepAgentPage {
     if (hasPPTX && hasPDF) return true;
     if (!hasPPTX) throw new Error("PPTX file not found.");
     if (!hasPDF) throw new Error("PDF file not found.");
+    await this.page.waitForTimeout(2000); 
   }
+     
 }

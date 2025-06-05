@@ -81,7 +81,7 @@ Feature: 30 prompts search
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
-  @DeepAgentPowerpoint 
+  @DeepAgentPowerpoint @test
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
