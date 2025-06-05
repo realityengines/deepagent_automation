@@ -113,7 +113,7 @@ export class DeepAgentPage {
 
     // downalod button from agent computer
 
-    this.flexTypeFile = page.locator("[id*='rc'] [role='combobox']");
+    this.flexTypeFile = page.locator("[id*='rc'] [role='combobox'] span");
 
     this.fileTypeOptions = page.locator("[role='option']");
 
@@ -121,14 +121,6 @@ export class DeepAgentPage {
       "[id*='rc:'] [data-icon*='download']"
     );
     this.spinLoadForFile = page.locator("[class*='block pointer']");
-
-    // this.fileTypeforPPT = page.locator("[data-icon='file-powerpoint']");
-    this.fileTypeforPPT = page.locator(
-      "//*[@data-icon='file-powerpoint']//following::p[contains(@class, 'text-sm font-medium')]"
-    );
-
-    this.fileTypeforPdf = page.locator("[data-icon='file-pdf']");
-
     this.chatImage = page.locator("(//canvas[@role='img'])[1]");
     this.elapsedTime = 0;
   }
@@ -163,9 +155,8 @@ export class DeepAgentPage {
     await this.dropDown.waitFor({ state: "visible" });
     try {
       await this.dropDown.click();
-      await this.page.waitForTimeout(4000);
+      await this.page.waitForTimeout(2000);
       const selectElement = this.page.locator("select");
-
       // Ensure select is visible and attached before selecting
       await selectElement.waitFor({ state: "visible" });
       await selectElement.selectOption({ label: label });
@@ -1223,24 +1214,12 @@ export class DeepAgentPage {
 
   async getConvoId() {
     try {
-      // Get the current URL
       const currentUrl = await this.page.url();
-
-      // Create directory if it doesn't exist
       await fs.mkdir(path.join(__dirname, "../urlData"), { recursive: true });
-
-      // Create file path
       const filePath = path.join(__dirname, "../urlData/conversation_urls.txt");
-
-      // Get current timestamp
       const timestamp = new Date().toISOString();
-
-      // Format the data to be written
       const urlData = `${timestamp}\nURL: ${currentUrl}\n\n`;
-
-      // Append the URL to the file
       await fs.appendFile(filePath, urlData, "utf8");
-
       console.log(`URL data saved to: ${filePath}`);
       return currentUrl;
     } catch (error) {
@@ -1260,38 +1239,49 @@ export class DeepAgentPage {
 
   async downloadComputeAgentFile() {
     await fs.mkdir(this.downloadPath, { recursive: true });
-    // await this.flexTypeFile.click();
-    // await this.page.waitForTimeout(2000);
-    // const optionCount = await this.fileTypeOptions.count();
-    // for (let i = 0; i < optionCount; i++) {
-    //   const option = this.fileTypeOptions.nth(i);
-    //   const text = await option.innerText();
-    //   if (text.includes("PPTX")) {
-    //     const isSelected =
-    //       (await option.getAttribute("data-state")) === "checked";
-    //     if (!isSelected) {
-    //       await option.click(); // Select PPTX only if not already selected
-    //     }
-    //     break;
-    //   }
-    // }
-    await this.computerFileDownloadOption.click();
-    await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
-    await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
-    const download = await this.page.waitForEvent("download", {
-      timeout: 30000,
-    });
-    const suggestedFileName = await download.suggestedFilename();
-    const fullPath = path.join(this.downloadPath, suggestedFileName);
-    await download.saveAs(fullPath);
-  }
-  async filePptisDisplayed() {
-    await this.fileTypeforPPT.waitFor({ state: "visible" });
-    const text = await this.fileTypeforPPT.textContent();
-    if (text && text.includes(".pptx")) {
-      return true;
-    } else {
-      throw new Error("File type does not contain .pptx");
+    const fileTypes = ["PDF", "PPTX"];
+    for (const type of fileTypes) {
+      await this.flexTypeFile.click();
+      await this.page.waitForTimeout(1000);
+      const optionCount = await this.fileTypeOptions.count();
+      for (let i = 0; i < optionCount; i++) {
+        const option = this.fileTypeOptions.nth(i);
+        const text = await option.innerText();
+        if (text.includes(type)) {
+          const isSelected =
+            (await option.getAttribute("data-state")) === "checked";
+          if (!isSelected) {
+            await option.click();
+            await this.page.waitForTimeout(1000);
+          }
+          break;
+        }
+      }
+      await this.computerFileDownloadOption.waitFor({ state: "visible" });
+      await this.computerFileDownloadOption.click();
+      await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
+      await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
+      const download = await this.page.waitForEvent("download", {
+        timeout: 30000,
+      });
+      const suggestedFileName = await download.suggestedFilename();
+      const fullPath = path.join(this.downloadPath, suggestedFileName);
+      await download.saveAs(fullPath);
     }
+  }
+
+  async verifyDownloadedFilesPptxandPdf() {
+    const texts = await this.page.locator("p[class*='text-ellipsis']").allTextContents();
+    let hasPPTX = false;
+    let hasPDF = false;
+  
+    for (const text of texts) {
+      if (text.includes(".pptx")) hasPPTX = true;
+      if (text.includes(".pdf")) hasPDF = true;
+    }
+  
+    if (hasPPTX && hasPDF) return true;
+    if (!hasPPTX) throw new Error("PPTX file not found.");
+    if (!hasPDF) throw new Error("PDF file not found.");
   }
 }

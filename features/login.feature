@@ -11,6 +11,6 @@ Feature: Login Functionality
     And I click the login button
     Then I should be logged in successfully
 
-  @Login  @smoke
+  @Login
   Scenario: Login to the application
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"

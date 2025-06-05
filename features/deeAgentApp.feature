@@ -89,7 +89,7 @@ Feature: Deep Agent Functionality Test
       | promat_user_search    | follow_up_query                                                                                                                |
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
 
-  @DeepAgentPowerpoint @test
+  @DeepAgentPowerpoint
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
@@ -100,4 +100,4 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | promat_user_search                                 | follow_up_query       |
-      | create a presentation on climate change. 10 slides | make the best choices |
+      | create a presentation on climate change. 5 slides | Simplify the wording, keep key facts only, and make it visually clean. |

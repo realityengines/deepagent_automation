@@ -7,7 +7,7 @@ let deepAgentPage;
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
   await deepAgentPage.clickCheckoutButton();
-  await deepAgentPage.page.waitForTimeout(3000);
+  await deepAgentPage.page.waitForTimeout(15000);
 });
 
 When(
@@ -444,7 +444,15 @@ When(
     let fourthElapsedTime = 0;
     let fifthElapsedTime = 0;
     let titleVisible = false;
-    titleVisible = await deepAgentPage.agentTitle.isVisible();
+    try {
+      await deepAgentPage.agentTitle.waitFor({
+        state: "visible",
+        timeout: 5000,
+      });
+      titleVisible = await deepAgentPage.agentTitle.isVisible();
+    } catch (error) {
+      console.log("Agent title not visible within timeout.");
+    }
     if (titleVisible) {
       await deepAgentPage.selectTheElementFromDropDown("Default");
       thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
@@ -468,7 +476,7 @@ When(
       deepAgentPage.elapsedTime
     );
     await deepAgentPage.downloadComputeAgentFile();
-    await deepAgentPage.filePptisDisplayed();
+    await deepAgentPage.verifyDownloadedFilesPptxandPdf();
     await deepAgentPage.getConvoId();
   }
 );
