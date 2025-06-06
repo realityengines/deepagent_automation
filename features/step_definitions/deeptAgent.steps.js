@@ -86,7 +86,7 @@ Then("the compute points should not exceed 150k", async function () {
 Then("I should download the generated summary", async function () {
   try {
     const downloadSuccess = await deepAgentPage.downloadFile();
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(3000);
   } catch (error) {
     console.error("Error in downloading summary:", error.message);
     throw error;
