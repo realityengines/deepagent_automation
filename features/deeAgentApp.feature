@@ -34,8 +34,8 @@ Feature: Deep Agent Functionality Test
     Then I should see the search results for the default sample task
 
     Examples:
-      | sampleTaskName                 | Specify_the_prompat                                                               |
-      | Website                        | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
+      | sampleTaskName | Specify_the_prompat                                                               |
+      | Website        | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
       # | Hot or Not - hollywood edition | Your call with limited functionality.                                             |
 
   @deepAgentIntergation
@@ -89,7 +89,7 @@ Feature: Deep Agent Functionality Test
       | promat_user_search    | follow_up_query                                                                                                                |
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
 
-  @DeepAgentPowerpoint @test
+  @DeepAgentPowerpoint @pptx
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
@@ -99,5 +99,5 @@ Feature: Deep Agent Functionality Test
     And I should fetch the search results
 
     Examples:
-      | promat_user_search                                 | follow_up_query       |
-      | create a presentation on climate change. 5 slides | Simplify the wording, keep key facts only, and make it visually clean. |
+      | promat_user_search                                                                                  | follow_up_query                                                                       |
+      | Create a 5-slide pitch on entering the U.S. skincare market with an affordable, clean beauty brand. | Can you add recent data (2024/2025) on affordable skincare market growth in the U.S.? |

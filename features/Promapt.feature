@@ -40,6 +40,7 @@ Feature: 30 prompts search
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
+
     Examples:
       | promat_user_search                                                                                      | follow_up_query |
       | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
@@ -81,7 +82,7 @@ Feature: 30 prompts search
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
-  @DeepAgentPowerpoint @test
+  @DeepAgentPowerpoint @pptx
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"

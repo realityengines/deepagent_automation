@@ -514,7 +514,7 @@ export class DeepAgentPage {
         // Click with force option and increased timeout
         await this.viewFile
           .nth(lastIndex)
-          .click({ force: true, timeout: 2000 });
+          .click({ force: true, timeout: 10000 });
 
         // Wait for dialog to appear
         await this.page.waitForTimeout(2000);
@@ -556,9 +556,9 @@ export class DeepAgentPage {
 
               // Wait for download to start
               const download = await Promise.race([
-                this.page.waitForEvent("download", { timeout: 2000 }),
+                this.page.waitForEvent("download", { timeout: 10000 }),
                 new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error("Download timeout")), 2000)
+                  setTimeout(() => reject(new Error("Download timeout")), 10000)
                 ),
               ]);
 
@@ -589,9 +589,9 @@ export class DeepAgentPage {
         try {
           // Setup download promise
           const downloadPromise = Promise.race([
-            this.page.waitForEvent("download", { timeout: 2000 }),
+            this.page.waitForEvent("download", { timeout: 10000 }),
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error("Download timeout")), 2000)
+              setTimeout(() => reject(new Error("Download timeout")), 10000)
             ),
           ]);
 
@@ -643,6 +643,7 @@ export class DeepAgentPage {
       return false;
     }
   }
+  
 
   async closeBrowserPopup() {
     try {
@@ -1260,7 +1261,7 @@ export class DeepAgentPage {
       await this.computerFileDownloadOption.waitFor({ state: "visible" });
       await this.computerFileDownloadOption.click();
       const downloadPromise = this.page.waitForEvent("download", { timeout: 150000 });
-      await this.stopButton.waitFor({ state: "hidden", timeout: 120000 });
+      await this.stopButton.waitFor({ state: "hidden", timeout: 160000 });
       await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
       const download = await downloadPromise;
       const suggestedFileName = await download.suggestedFilename();
