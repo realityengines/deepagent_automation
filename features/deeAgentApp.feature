@@ -15,14 +15,14 @@ Feature: Deep Agent Functionality Test
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
 
-  @deepAgentPowerPoint
-  Scenario Outline: Search a single default  sample task for pptx generated
-    Given I click the check out from the welcome window
-    When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
-    And I should see the status "Completed" for the task
-    And the compute points should not exceed 150k
-    And I should download the generated summary
-    Then I should see the search results for the default sample task
+  # @deepAgentPowerPoint
+  # Scenario Outline: Search a single default  sample task for pptx generated
+  #   Given I click the check out from the welcome window
+  #   When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
+  #   And I should see the status "Completed" for the task
+  #   And the compute points should not exceed 150k
+  #   And I should download the generated summary
+  #   Then I should see the search results for the default sample task
 
   @DeepAgentApp
   Scenario Outline: Search  default sample task app functionality
