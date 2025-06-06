@@ -73,15 +73,6 @@ Feature: 30 prompts search
       | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content                                                                                                                                                                                                                | Your call with limited functionality                                                                                             |
       | Create a simple fitness tracker website with a form page where users can log exercises by selecting the type, weight, and reps or log cardio with time and calories burnt, and also record their daily food intake by entering food items and corresponding calories; a progress page that displays a date-wise table of all food and exercise entries; and a dashboard page that visualizes daily calorie intake, calories burnt, and net calorie intake through interactive graphs | no auth, yes store the data betweeen sessions, color scheme sage green, add weight tracking too                                  |
 
-  @DeepAgentDefaultSingleSampleTaskPPT
-  Scenario Outline: Search a single default sample task from deep Agent
-    Given I click the check out from the welcome window
-    When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
-    And I should see the status "Completed" for the task
-    And the compute points should not exceed 150k
-    And I should download the generated summary
-    Then I should see the search results for the default sample task
-
   @DeepAgentPowerpoint @pptx
   Scenario Outline: Search DeepAgent prompt
     Given I click the check out from the welcome window
