@@ -1,0 +1,100 @@
+name: Smoke Test Automation
+
+on:
+  workflow_call:
+    inputs:
+      Environment:
+        description: "Which environment will be executed"
+        required: true
+        type: "string"
+      GitTag:
+        required: false
+        type: string
+        default: ''
+      Project:
+        required: false
+        type: string
+        default: smoke-test-details
+      SlackChannelId:
+        required: false
+        type: string
+        default: "C0189FJRC9E"
+      FailureSlackChannelId:
+        required: false
+        type: string
+        default: ''
+      InitialSlackInfo:
+        required: false
+        type: string
+        default: ''
+      isClusterValidation:
+        required: false
+        type: string
+        default: "false"
+
+jobs:
+  smoke-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL_ID: ${{ inputs.SlackChannelId }}
+      FAILURE_SLACK_CHANNEL_ID: ${{ inputs.FailureSlackChannelId }}
+      INITIAL_SLACK_INFO: ${{ inputs.InitialSlackInfo }}
+      IS_CLUSTER_VALIDATION: ${{ inputs.isClusterValidation }}
+    steps:
+      - name: Echo Git Tag
+        if: ${{ inputs.GitTag != '' }}
+        run: echo "Git Tag - ${{ inputs.GitTag }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Echo initial slack info
+        if: ${{ inputs.InitialSlackInfo != '' }}
+        run: echo "Initial Slack Info - ${{ inputs.InitialSlackInfo }}" >> $GITHUB_STEP_SUMMARY
+
+      - run: echo "Running Smoke Tests for ${{inputs.Environment}}" >> $GITHUB_STEP_SUMMARY
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Create playwright-report directory
+        if: always()
+        run: mkdir -p playwright-report
+      - name: Send initial Slack message
+        run: |
+          echo "Sending Slack message for GitHub user: ${{ github.actor }}"
+          node helpers/sendInitialSlackMessage.js "${{ github.actor }}" "${{ inputs.Environment }}" "Enterprise Smoke Tests"
+        id: slack
+
+      - name: Run Smoke Tests
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          SLACK_THREAD_TS: ${{ steps.slack.outputs.thread_ts }}
+          SLACK_CHANNEL_ID: ${{ inputs.SlackChannelId }}
+
+        run: |
+          url=${{ inputs.Environment }} npx playwright test -c ./configs/config.js --project=${{ inputs.Project }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-results-${{github.run_id}}
+          path: smoke-playwright-report
+          retention-days: 14
+
+      - name: Post success status to Slack
+        if: success()
+        run: node helpers/postBuildStatus.js success ${{ steps.slack.outputs.thread_ts }}
+
+      - name: Post failure status to Slack
+        if: failure()
+        run: node helpers/postBuildStatus.js failure ${{ steps.slack.outputs.thread_ts }}
+      - name: Summarize test results
+        if: always()
+        run: |
+          node helpers/summarizeResults.js smoke-playwright-report/smoke-report.json

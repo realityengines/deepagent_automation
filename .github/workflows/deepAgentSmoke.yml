@@ -26,6 +26,9 @@ jobs:
     env:
       # fallback for TEST_ENV if not set from manual dispatch
       TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
+      SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_CHANNEL_ID: "C07FJG27D2L"
+      FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,6 +37,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
+          
+      - name: Send initial Slack notification
+        id: slack-initial
+        shell: pwsh
+        run: |
+          npm ci
+          $githubActor = "${{ github.actor }}"
+          $environment = "${{ env.TEST_ENV }}"
+          $buildName = "Deep Agent Smoke Tests"
+          $threadTs = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: "C07FJG27D2L"
 
       - name: Debug - Environment Variables
         shell: pwsh
@@ -104,3 +121,32 @@ jobs:
             reports/screenshots/
           retention-days: 30
           if-no-files-found: ignore
+          
+      - name: Send success Slack notification
+        if: success()
+        shell: pwsh
+        run: |
+          node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          
+      - name: Send failure Slack notification
+        if: failure()
+        shell: pwsh
+        run: |
+          node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}

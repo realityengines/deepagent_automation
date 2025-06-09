@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import environmentConfig from './environment.js';
+import path from 'path';
 const config = {
     // baseUrl: process.env.BASE_URL || 'https://apps.abacus.ai/chatllm',
     baseUrl: environmentConfig.baseUrl,
@@ -10,6 +11,12 @@ const config = {
         slowMo: parseInt(process.env.SLOW_MO || '0'),
         timeout: parseInt(process.env.TIMEOUT || '1800000')
     },
+    reporter: [
+        ['list'],
+        [path.resolve(__dirname, '../helpers/smokeReporter'), {}],
+        ['html', { outputFolder: path.resolve(__dirname, '../smoke-playwright-report') }],
+        ['json', { outputFile: path.resolve(__dirname, '../smoke-playwright-report/smoke-report.json') }]
+    ],
     // LambdaTest configuration
     lambdaTest: {
         username: process.env.LT_USERNAME,
