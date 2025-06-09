@@ -24,9 +24,9 @@ function checkSlackConfig() {
   if (!slackToken) {
     if (isGitHubActions) {
       console.error('ERROR: SLACK_TOKEN environment variable is not set in GitHub Actions');
-      console.error('Please ensure the SLACK_BOT_TOKEN secret is properly configured in your repository settings.');
+      console.error('Please ensure the SLACK_TOKEN secret is properly configured in your repository settings.');
       console.error('Go to your repository -> Settings -> Secrets and variables -> Actions -> Repository secrets');
-      console.error('Add a secret named SLACK_BOT_TOKEN with your Slack bot token value');
+      console.error('Add a secret named SLACK_TOKEN with your Slack bot token value');
     } else {
       console.error('WARNING: SLACK_TOKEN environment variable is not set for local execution');
       console.error('Slack notifications will not work without a valid token.');

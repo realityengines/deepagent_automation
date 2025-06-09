@@ -26,7 +26,7 @@ jobs:
     env:
       # fallback for TEST_ENV if not set from manual dispatch
       TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
-      SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       SLACK_CHANNEL_ID: "C07FJG27D2L"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
     steps:
@@ -49,7 +49,7 @@ jobs:
           }
           Write-Host "✅ Slack token is configured"
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           GITHUB_ACTIONS: "true"
 
       - name: Send initial Slack notification
@@ -162,7 +162,7 @@ jobs:
           }
           node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -182,7 +182,7 @@ jobs:
           }
           node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"
           FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
           GITHUB_SERVER_URL: ${{ github.server_url }}
