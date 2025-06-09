@@ -68,7 +68,7 @@ jobs:
           $threadTs = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
           echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"
           GITHUB_ACTIONS: "true"
 

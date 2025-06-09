@@ -28,7 +28,7 @@ if (!slackToken) {
     console.error('  - For Windows PowerShell: $env:SLACK_TOKEN="your-slack-token"');
     console.error('  - For Windows CMD: set SLACK_TOKEN=your-slack-token');
     console.error('  - For Linux/macOS: export SLACK_TOKEN=your-slack-token');
-    console.error('In GitHub Actions, this is set via secrets.SLACK_BOT_TOKEN');
+    console.error('In GitHub Actions, this is set via secrets.SLACK_TOKEN');
   }
   process.exit(1);
 }
