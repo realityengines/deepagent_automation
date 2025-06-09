@@ -40,20 +40,14 @@ if (!fs.existsSync(path.join(__dirname, 'node_modules'))) {
   console.log('node_modules already exists.');
 }
 
-// Check if .env file exists and has SLACK_TOKEN
-const envPath = path.join(__dirname, '.env');
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, 'utf8');
-  if (!envContent.includes('SLACK_TOKEN=') || envContent.includes('# SLACK_TOKEN=')) {
-    console.log('\nNOTE: SLACK_TOKEN is not set in your .env file.');
-    console.log('If you want to test Slack integration locally, you need to set it.');
-    console.log('You can add it to your .env file or set it directly in your terminal:');
-    console.log('  - For Windows PowerShell: $env:SLACK_TOKEN="your-slack-token"');
-    console.log('  - For Windows CMD: set SLACK_TOKEN=your-slack-token');
-    console.log('  - For Linux/macOS: export SLACK_TOKEN=your-slack-token');
-  }
+// Check Slack configuration
+console.log('\nChecking Slack configuration...');
+try {
+  execSync('node helpers/checkSlackConfig.js', { stdio: 'inherit' });
+} catch (error) {
+  console.warn('Slack configuration check failed, but continuing setup.');
 }
 
-console.log('Project setup complete!');
+console.log('\nProject setup complete!');
 console.log('\nTo test the Slack integration, run:');
-console.log('  node helpers/testSlackIntegration.js');
+console.log('  npm run test-slack');

@@ -16,6 +16,16 @@ To use the Slack integration, you need:
 
 In GitHub Actions, the Slack token is stored as a secret named `SLACK_BOT_TOKEN`. This is automatically used by the workflow.
 
+### Adding the Secret to GitHub
+
+1. Go to your GitHub repository
+2. Click on "Settings" tab
+3. In the left sidebar, click on "Secrets and variables" → "Actions"
+4. Click on "New repository secret"
+5. Name: `SLACK_BOT_TOKEN`
+6. Value: Your Slack bot token (starts with `xoxb-`)
+7. Click "Add secret"
+
 ## Setting Up for Local Testing
 
 To test the Slack integration locally, you need to set the `SLACK_TOKEN` environment variable:
@@ -52,10 +62,16 @@ export SLACK_TOKEN=your-slack-token
 To verify your Slack integration is working correctly, run:
 
 ```bash
-node helpers/testSlackIntegration.js
+npm run test-slack
 ```
 
-This will:
+Or check just the configuration without sending messages:
+
+```bash
+npm run check-slack
+```
+
+The test will:
 1. Check if your Slack token is set
 2. Verify the channel exists and is accessible
 3. Send a test message to the channel
@@ -67,7 +83,8 @@ This will:
 ### Common Issues
 
 1. **"SLACK_TOKEN environment variable is not set"**
-   - Make sure you've set the token as described above
+   - In GitHub Actions: Check that the `SLACK_BOT_TOKEN` secret is properly set in your repository settings
+   - For local testing: Make sure you've set the token as described above
 
 2. **"Error accessing channel"**
    - Check that the channel ID is correct

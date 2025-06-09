@@ -21,11 +21,17 @@ const channelId = process.env.SLACK_CHANNEL_ID || "C07FJG27D2L";
 
 // Check if Slack token is set
 if (!slackToken) {
-  console.error('SLACK_TOKEN environment variable is not set');
-  console.error('Please set it in your .env file or directly in your terminal:');
-  console.error('  - For Windows PowerShell: $env:SLACK_TOKEN="your-slack-token"');
-  console.error('  - For Windows CMD: set SLACK_TOKEN=your-slack-token');
-  console.error('  - For Linux/macOS: export SLACK_TOKEN=your-slack-token');
+  // Check if we're running in GitHub Actions
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    console.error('SLACK_TOKEN environment variable is not set in GitHub Actions');
+    console.error('Please ensure the SLACK_BOT_TOKEN secret is properly configured in your repository settings.');
+  } else {
+    console.error('SLACK_TOKEN environment variable is not set for local execution');
+    console.error('Please set it in your .env file or directly in your terminal:');
+    console.error('  - For Windows PowerShell: $env:SLACK_TOKEN="your-slack-token"');
+    console.error('  - For Windows CMD: set SLACK_TOKEN=your-slack-token');
+    console.error('  - For Linux/macOS: export SLACK_TOKEN=your-slack-token');
+  }
   process.exit(1);
 }
 

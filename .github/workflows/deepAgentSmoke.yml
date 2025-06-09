@@ -37,12 +37,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-          
-      - name: Send initial Slack notification
+                - name: Check Slack configuration
+        shell: pwsh
+        run: |
+          npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
+          Write-Host "✅ Slack token is configured"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GITHUB_ACTIONS: "true"
+                - name: Send initial Slack notification
         id: slack-initial
         shell: pwsh
         run: |
           npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
           $githubActor = "${{ github.actor }}"
           $environment = "${{ env.TEST_ENV }}"
           $buildName = "Deep Agent Smoke Tests"
@@ -51,6 +68,7 @@ jobs:
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"
+          GITHUB_ACTIONS: "true"
 
       - name: Debug - Environment Variables
         shell: pwsh
@@ -135,6 +153,11 @@ jobs:
         if: success()
         shell: pwsh
         run: |
+          Write-Host "Sending success notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
           node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -144,11 +167,17 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
           
       - name: Send failure Slack notification
         if: failure()
         shell: pwsh
         run: |
+          Write-Host "Sending failure notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
           node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -159,3 +188,4 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
