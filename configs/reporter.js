@@ -1,5 +1,5 @@
-const reporter = require('cucumber-html-reporter');
-const dotenv = require('dotenv');
+import reporter from 'cucumber-html-reporter';
+import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
@@ -31,4 +31,5 @@ try {
   console.error('Error generating report:', err);
 }
 
-reporter.generate(options);
+// Remove duplicate call
+// reporter.generate(options);
