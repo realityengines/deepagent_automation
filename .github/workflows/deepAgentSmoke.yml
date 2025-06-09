@@ -132,6 +132,26 @@ jobs:
             Write-Host "Warning: reports/cucumber-report.json not found. Skipping summary generation."
           }
 
+      - name: Report Location Information
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "\n=============================================" -ForegroundColor Green
+          Write-Host "TEST REPORT LOCATIONS:" -ForegroundColor Green
+          Write-Host "=============================================" -ForegroundColor Green
+          Write-Host "HTML Report: $PWD/test-reports/index.html" -ForegroundColor Cyan
+          Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
+          Write-Host "=============================================\n" -ForegroundColor Green
+          
+          # Create a marker file with report locations for easy reference
+          @"
+          TEST REPORT LOCATIONS:
+          =============================================
+          HTML Report: $PWD/test-reports/index.html
+          JSON Report: $PWD/reports/cucumber-report.json
+          =============================================
+          "@ | Out-File -FilePath "report-locations.txt"
+
       - name: Debug - List report files
         shell: pwsh
         run: |
@@ -145,10 +165,20 @@ jobs:
           name: test-results-${{ github.run_id }}-${{ env.TEST_ENV }}
           path: |
             reports/**
+            test-reports/**
             cucumber-report.html
             cucumber-report.json
           retention-days: 30
           if-no-files-found: warn
+          
+      - name: Upload report locations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-locations-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: report-locations.txt
+          retention-days: 30
+          if-no-files-found: ignore
 
       - name: Upload Playwright traces on failure
         if: failure()
