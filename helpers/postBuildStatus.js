@@ -1,5 +1,14 @@
 import { WebClient } from '@slack/web-api';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 //import testData from '../configs/testData.json' assert { type: 'json' };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from .env file
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const slackToken = process.env.SLACK_TOKEN;
 const mainChannelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E"; // Replace with your main channel ID Prod_release = C0189FJRC9E , Automation_regression_build= C07FJG27D2L
