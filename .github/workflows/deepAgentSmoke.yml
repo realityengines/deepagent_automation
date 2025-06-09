@@ -42,8 +42,7 @@ jobs:
         id: slack-initial
         shell: pwsh
         run: |
-          npm ci
-          npm install @slack/web-api
+          npm install
           $githubActor = "${{ github.actor }}"
           $environment = "${{ env.TEST_ENV }}"
           $buildName = "Deep Agent Smoke Tests"
@@ -61,7 +60,12 @@ jobs:
       - name: Install dependencies
         shell: pwsh
         run: |
-          npm ci
+          # First run npm install to generate package-lock.json if it doesn't exist
+          if (-not (Test-Path -Path "package-lock.json")) {
+            npm install
+          } else {
+            npm ci
+          }
           npx playwright install --with-deps
 
       - name: Run all tests (no tag specified)
@@ -131,7 +135,6 @@ jobs:
         if: success()
         shell: pwsh
         run: |
-          npm install @slack/web-api
           node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -146,7 +149,6 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
-          npm install @slack/web-api
           node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
