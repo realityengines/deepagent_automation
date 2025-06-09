@@ -88,8 +88,10 @@ async function sendInitialMessage(githubUsername, environment, buildName) {
     if (response.ok) {
       console.log('Initial message posted to Slack');
       console.log(`Message sent: ${message}`);
-      // Use the new GitHub Actions output syntax
+      // Output the thread_ts in a format that GitHub Actions can capture
       console.log(`thread_ts=${response.ts}`);
+      // Also print it directly for debugging
+      console.log(`Thread timestamp: ${response.ts}`);
       return response.ts;
     } else {
       console.error('Error posting initial message:', response.error);

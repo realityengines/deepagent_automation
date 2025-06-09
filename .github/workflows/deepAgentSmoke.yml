@@ -65,7 +65,17 @@ jobs:
           $githubActor = "${{ github.actor }}"
           $environment = "${{ env.TEST_ENV }}"
           $buildName = "Deep Agent Smoke Tests"
-          $threadTs = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          $output = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          
+          # Look for the thread_ts line in the output
+          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
+          
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Extracted thread_ts: $threadTs"
           echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -160,7 +170,15 @@ jobs:
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
           }
-          node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
+          
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "success" "$threadTs"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"
@@ -180,7 +198,15 @@ jobs:
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
           }
-          node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
+          
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "failure" "$threadTs"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: "C07FJG27D2L"

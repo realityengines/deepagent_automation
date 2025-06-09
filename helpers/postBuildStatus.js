@@ -40,13 +40,26 @@ async function postBuildStatus(status, threadTs) {
     : `:x: Smoke tests failed!\nBuild URL: ${buildUrl}`;
 
   try {
-    // Post to the original thread
-    await slackClient.chat.postMessage({
-      channel: mainChannelId,
-      text: message,
-      thread_ts: threadTs,
-    });
-    console.log('Build status posted to Slack thread');
+    // Check if threadTs is valid
+    if (!threadTs || threadTs === '0' || threadTs === 'null' || threadTs === 'undefined') {
+      console.log('Invalid thread_ts value:', threadTs);
+      console.log('Posting message to channel without thread');
+      
+      // Post to the channel without thread
+      await slackClient.chat.postMessage({
+        channel: mainChannelId,
+        text: message,
+      });
+      console.log('Build status posted to Slack channel (not in thread)');
+    } else {
+      // Post to the original thread
+      await slackClient.chat.postMessage({
+        channel: mainChannelId,
+        text: message,
+        thread_ts: threadTs,
+      });
+      console.log('Build status posted to Slack thread');
+    }
 
     // If build failed, post to the failure channel as well
     if (status !== 'success' && failureChannelId != "NONE") {
