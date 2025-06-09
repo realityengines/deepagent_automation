@@ -19,8 +19,14 @@ if (!slackToken) {
 const slackClient = new WebClient(slackToken);
 
 // Load the GitHub to Slack email mapping
-const mappingPath = path.join(__dirname, 'github-slack-mapping.json');
-const githubSlackMapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+let githubSlackMapping = {};
+try {
+  const mappingPath = path.join(__dirname, 'github-slack-mapping.json');
+  githubSlackMapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+} catch (error) {
+  console.warn('Warning: Could not load github-slack-mapping.json:', error.message);
+  console.warn('Will proceed without user mappings');
+}
 
 async function findSlackUserByEmail(email) {
   try {
@@ -66,7 +72,8 @@ async function sendInitialMessage(githubUsername, environment, buildName) {
     if (response.ok) {
       console.log('Initial message posted to Slack');
       console.log(`Message sent: ${message}`);
-      console.log(`::set-output name=thread_ts::${response.ts}`);
+      // Use the new GitHub Actions output syntax
+      console.log(`thread_ts=${response.ts}`);
       return response.ts;
     } else {
       console.error('Error posting initial message:', response.error);

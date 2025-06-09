@@ -43,6 +43,7 @@ jobs:
         shell: pwsh
         run: |
           npm ci
+          npm install @slack/web-api
           $githubActor = "${{ github.actor }}"
           $environment = "${{ env.TEST_ENV }}"
           $buildName = "Deep Agent Smoke Tests"
@@ -130,6 +131,7 @@ jobs:
         if: success()
         shell: pwsh
         run: |
+          npm install @slack/web-api
           node helpers/postBuildStatus.js "success" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -144,6 +146,7 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
+          npm install @slack/web-api
           node helpers/postBuildStatus.js "failure" "${{ steps.slack-initial.outputs.thread_ts }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
