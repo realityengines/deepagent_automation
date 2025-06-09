@@ -14,6 +14,12 @@ const initialSlackInfo = process.env.INITIAL_SLACK_INFO || "";
 
 if (!slackToken) {
   console.error('SLACK_TOKEN environment variable is not set');
+  console.error('When running locally, you need to set the SLACK_TOKEN environment variable.');
+  console.error('You can add it to your .env file or set it directly in your terminal:');
+  console.error('  - For Windows PowerShell: $env:SLACK_TOKEN="your-slack-token"');
+  console.error('  - For Windows CMD: set SLACK_TOKEN=your-slack-token');
+  console.error('  - For Linux/macOS: export SLACK_TOKEN=your-slack-token');
+  console.error('In GitHub Actions, this is set via secrets.SLACK_BOT_TOKEN');
   process.exit(1);
 }
 const slackClient = new WebClient(slackToken);
