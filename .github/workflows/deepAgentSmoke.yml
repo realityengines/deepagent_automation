@@ -67,7 +67,7 @@ jobs:
         if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
         shell: pwsh
         run: |
-         npx cucumber-js --tags "@smoke" --parallel 4
+          npx cucumber-js --tags "@smoke" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
           $exitCode = $LASTEXITCODE
           npm run report
           exit $exitCode
@@ -79,7 +79,7 @@ jobs:
         if: ${{ github.event.inputs.tags != '' && github.event_name == 'workflow_dispatch' }}
         shell: pwsh
         run: |
-          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 4
+          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
           $exitCode = $LASTEXITCODE
           npm run report
           exit $exitCode
@@ -91,7 +91,11 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          node generate-summary.js
+          if (Test-Path -Path "reports/cucumber-report.json") {
+            node generate-summary.js
+          } else {
+            Write-Host "Warning: reports/cucumber-report.json not found. Skipping summary generation."
+          }
 
       - name: Debug - List report files
         shell: pwsh

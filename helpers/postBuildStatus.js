@@ -1,5 +1,5 @@
-const { WebClient } = require('@slack/web-api');
-//const { testData } = require('../configs/testData.json')
+import { WebClient } from '@slack/web-api';
+//import testData from '../configs/testData.json' assert { type: 'json' };
 
 const slackToken = process.env.SLACK_TOKEN;
 const mainChannelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E"; // Replace with your main channel ID Prod_release = C0189FJRC9E , Automation_regression_build= C07FJG27D2L

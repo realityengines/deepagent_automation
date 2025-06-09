@@ -1,6 +1,10 @@
-const { WebClient } = require('@slack/web-api');
-const fs = require('fs');
-const path = require('path');
+import { WebClient } from '@slack/web-api';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const slackToken = process.env.SLACK_TOKEN;
 const channelId = process.env.SLACK_CHANNEL_ID || "C07FJG27D2L";
