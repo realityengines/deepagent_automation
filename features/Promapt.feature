@@ -112,3 +112,15 @@ Feature: 30 prompts search
     Examples:
       | promat_user_search                                                                                                                                                                                                                       | follow_up_query                                                                                                                            |
       | Build a responsive data dashboard website with sample graphs, left nav tabs for Dashboard, Analytics, Calculator, Calendar, and Settings; include a basic arithmetic calculator, an interactive calendar, and demo data for all visuals. | Use general demo data with a modern color scheme, include line, bar, and pie charts; the calendar should support viewing and adding events |
+
+  @DeepAgentVideoGeneration @VideoGeneration
+  Scenario Outline: Search DeepAgent prompt and verify video generation
+    Given I click the check out from the welcome window
+    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should see the generated video
+
+    Examples:
+      | promat_user_search                                       | follow_up_query |
+      | Can you create a video on the top 5 most expensive cars? | your call       |

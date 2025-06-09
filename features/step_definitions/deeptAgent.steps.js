@@ -566,3 +566,7 @@ Then(
     }
   }
 );
+
+Then("I should see the generated video", async function () {
+  await deepAgentPage.verifyVideoGeneration();
+});

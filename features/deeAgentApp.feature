@@ -14,7 +14,6 @@ Feature: Deep Agent Functionality Test
     When I open the Deep Agent default sample task
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
-
   # @deepAgentPowerPoint
   # Scenario Outline: Search a single default  sample task for pptx generated
   #   Given I click the check out from the welcome window
@@ -101,3 +100,15 @@ Feature: Deep Agent Functionality Test
     Examples:
       | promat_user_search                                                                                  | follow_up_query                                                                       |
       | Create a 5-slide pitch on entering the U.S. skincare market with an affordable, clean beauty brand. | Can you add recent data (2024/2025) on affordable skincare market growth in the U.S.? |
+
+  @DeepAgentVideoGeneration @VideoGeneration
+  Scenario Outline: Search DeepAgent prompt and verify video generation
+    Given I click the check out from the welcome window
+    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should see the generated video
+
+    Examples:
+      | promat_user_search                                       | follow_up_query |
+      | Can you create a video on the top 5 most expensive cars? | your call     |

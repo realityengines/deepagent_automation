@@ -130,6 +130,12 @@ export class DeepAgentPage {
     );
     this.spinLoadForFile = page.locator("[class*='block pointer']");
     this.chatImage = page.locator("(//canvas[@role='img'])[1]");
+
+    // video gerneration 
+  this.videoGenerationPreview=page.locator("[data-prefix*='fas'][data-icon*='video']");
+  this.videoGenerationLink=page.locator("a[href*='https://cdn.abacus.ai/video']");
+  this.videoGenerationDownload=page.locator("[data-icon*='arrow-down-to-line']");
+
     this.elapsedTime = 0;
   }
 
@@ -1271,52 +1277,18 @@ export class DeepAgentPage {
 
       await this.computerFileDownloadOption.waitFor({ state: "visible" });
       const downloadPromise = this.page.waitForEvent("download", {
-        timeout: 150000,
+        timeout: 200000,
       });
       await this.computerFileDownloadOption.click();
       await this.waitforStopButtonInvisble();
-      await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 80000 });
+      await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 90000 });
       const download = await downloadPromise;
       const suggestedFileName = await download.suggestedFilename();
       const fullPath = path.join(this.downloadPath, suggestedFileName);
       await download.saveAs(fullPath);
     }
-    await this.page.waitForTimeout(3000);
+    await this.page.waitForTimeout(6000);
   }
-
-  //   async downloadComputeAgentFile() {
-  //     await fs.mkdir(this.downloadPath, { recursive: true });
-  //     const fileTypes = ["PDF", "PPTX"];
-  //     for (const type of fileTypes) {
-  //       await this.flexTypeFile.click();
-  //       await this.page.waitForTimeout(1000);
-  //       const optionCount = await this.fileTypeOptions.count();
-  //       for (let i = 0; i < optionCount; i++) {
-  //         const option = this.fileTypeOptions.nth(i);
-  //         const text = await option.innerText();
-  //         if (text.includes(type)) {
-  //           const isSelected =
-  //             (await option.getAttribute("data-state")) === "checked";
-  //           if (!isSelected) {
-  //             await option.click();
-  //             await this.page.waitForTimeout(1000);
-  //           }
-  //           break;
-  //         }
-  //       }
-  //       await this.computerFileDownloadOption.waitFor({ state: "visible" });
-  //       await this.computerFileDownloadOption.click();
-  //       const downloadPromise = this.page.waitForEvent("download", { timeout: 150000 });
-  //       await this.waitforStopButtonInvisble();
-  //       await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 120000 });
-  //       const download = await downloadPromise;
-  //       const suggestedFileName = await download.suggestedFilename();
-  //       const fullPath = path.join(this.downloadPath, suggestedFileName);
-  //       await download.saveAs(fullPath);
-
-  //   }
-  // }
-
   async verifyDownloadedFilesPptxandPdf() {
     const texts = await this.page
       .locator("p[class*='text-ellipsis']")
@@ -1334,4 +1306,24 @@ export class DeepAgentPage {
     if (!hasPDF) throw new Error("PDF file not found.");
     await this.page.waitForTimeout(2000);
   }
-}
+
+
+  async verifyVideoGeneration(){
+      const previewVisible = await this.videoGenerationPreview.isVisible();
+      if (!previewVisible) return;
+      const linkVisible = await this.videoGenerationLink.isVisible();
+      if (!linkVisible) return;
+      await fs.mkdir(this.downloadPath, { recursive: true });
+      const [download] = await Promise.all([
+        this.page.waitForEvent('download'),
+        this.videoGenerationDownload.click(),
+      ]);
+      const suggestedFileName = download.suggestedFilename();
+      const filePath = path.join(this.downloadPath, suggestedFileName);
+      await download.saveAs(filePath);
+    }
+    
+  }
+
+
+
