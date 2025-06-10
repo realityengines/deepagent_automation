@@ -105,11 +105,13 @@ async function getScenarioStatuses() {
     const scenarioStatuses = [];
     
     // Process each feature
-    for (const feature of reportData) {
+    for (const feature of reportData || []) {
       // Process each element (scenario or background)
+      if (!feature.elements) continue;
+      
       for (const element of feature.elements) {
         // Skip backgrounds
-        if (element.type === 'background') continue;
+        if (!element || element.type === 'background') continue;
         
         // Get scenario name
         const scenarioName = element.name;
@@ -119,11 +121,11 @@ async function getScenarioStatuses() {
         let promptText = '';
         
         // Find the prompt text from the steps
-        for (const step of element.steps) {
+        for (const step of element.steps || []) {
           // Look for steps that contain the prompt text
-          if (step.name.includes('I search the prompt') || 
+          if (step.name && (step.name.includes('I search the prompt') || 
               step.name.includes('I search a prompt') || 
-              step.name.includes('I search for a prompt')) {
+              step.name.includes('I search for a prompt'))) {
             // Extract the prompt text from the step arguments
             if (step.arguments && step.arguments.length > 0) {
               promptText = step.arguments[0].content;
@@ -143,18 +145,19 @@ async function getScenarioStatuses() {
         // If we couldn't find the prompt text in the steps, try to get it from the examples
         if (!promptText && element.examples && element.examples.length > 0) {
           const examples = element.examples[0];
-          const rows = examples.rows;
-          if (rows && rows.length > 1) { // First row is header
-            const headerRow = rows[0].cells;
-            const dataRow = rows[1].cells;
+          if (examples && examples.rows && examples.rows.length > 1) { // First row is header
+            const headerRow = examples.rows[0].cells;
+            const dataRow = examples.rows[1].cells;
             
-            // Find the index of the prompt column
-            const promptIndex = headerRow.findIndex(cell => 
-              cell.value.includes('promat_user_search') || 
-              cell.value.includes('prompt'));
-            
-            if (promptIndex !== -1) {
-              promptText = dataRow[promptIndex].value;
+            if (headerRow && dataRow) {
+              // Find the index of the prompt column
+              const promptIndex = headerRow.findIndex(cell => 
+                cell && cell.value && (cell.value.includes('promat_user_search') || 
+                cell.value.includes('prompt')));
+              
+              if (promptIndex !== -1 && dataRow[promptIndex] && dataRow[promptIndex].value) {
+                promptText = dataRow[promptIndex].value;
+              }
             }
           }
         }
@@ -181,45 +184,47 @@ async function getScenarioStatuses() {
 }
 
 async function postBuildStatus(status, threadTs) {
-  const buildUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
-  
-  // Get scenario statuses from Cucumber report
-  const scenarioStatuses = await getScenarioStatuses();
-  
-  // Build the message with scenario statuses
-  let scenarioStatusText = '';
-  if (scenarioStatuses && scenarioStatuses.length > 0) {
-    scenarioStatusText = '\n\n*Scenario Results:*\n';
-    for (const scenario of scenarioStatuses) {
-      const statusIcon = scenario.status === 'passed' ? ':white_check_mark:' : ':x:';
-      // Truncate prompt if it's too long (Slack has message size limits)
-      const promptText = scenario.prompt.length > 50 ? 
-        `${scenario.prompt.substring(0, 47)}...` : scenario.prompt;
-      scenarioStatusText += `${statusIcon} *${scenario.name}*: ${promptText}\n`;
-    }
-  }
-  
-  // Build the summary counts
-  let summaryText = '';
-  if (scenarioStatuses && scenarioStatuses.length > 0) {
-    const totalScenarios = scenarioStatuses.length;
-    const passedScenarios = scenarioStatuses.filter(s => s.status === 'passed').length;
-    const failedScenarios = totalScenarios - passedScenarios;
-    
-    summaryText = `\n\n*Summary:*\n`;
-    summaryText += `:chart_with_upwards_trend: Total Scenarios: ${totalScenarios}\n`;
-    summaryText += `:white_check_mark: Passed: ${passedScenarios}\n`;
-    if (failedScenarios > 0) {
-      summaryText += `:x: Failed: ${failedScenarios}\n`;
-    }
-  }
-  
-  // Create the main message
-  const message = status === 'success'
-    ? `:white_check_mark: Smoke tests completed successfully!\nBuild URL: ${buildUrl}${summaryText}${scenarioStatusText}`
-    : `:x: Smoke tests failed!\nBuild URL: ${buildUrl}${summaryText}${scenarioStatusText}`;
-
   try {
+    const buildUrl = `${process.env.GITHUB_SERVER_URL || ''}/${process.env.GITHUB_REPOSITORY || ''}/actions/runs/${process.env.GITHUB_RUN_ID || ''}`;
+    
+    // Get scenario statuses from Cucumber report
+    const scenarioStatuses = await getScenarioStatuses();
+    
+    // Build the message with scenario statuses
+    let scenarioStatusText = '';
+    if (scenarioStatuses && scenarioStatuses.length > 0) {
+      scenarioStatusText = '\n\n*Scenario Results:*\n';
+      for (const scenario of scenarioStatuses) {
+        const statusIcon = scenario.status === 'passed' ? ':white_check_mark:' : ':x:';
+        // Truncate prompt if it's too long (Slack has message size limits)
+        const promptText = scenario.prompt.length > 50 ? 
+          `${scenario.prompt.substring(0, 47)}...` : scenario.prompt;
+        scenarioStatusText += `${statusIcon} *${scenario.name}*: ${promptText}\n`;
+      }
+    }
+    
+    // Build the summary counts
+    let summaryText = '';
+    if (scenarioStatuses && scenarioStatuses.length > 0) {
+      const totalScenarios = scenarioStatuses.length;
+      const passedScenarios = scenarioStatuses.filter(s => s.status === 'passed').length;
+      const failedScenarios = totalScenarios - passedScenarios;
+      
+      summaryText = `\n\n*Summary:*\n`;
+      summaryText += `:chart_with_upwards_trend: Total Scenarios: ${totalScenarios}\n`;
+      summaryText += `:white_check_mark: Passed: ${passedScenarios}\n`;
+      if (failedScenarios > 0) {
+        summaryText += `:x: Failed: ${failedScenarios}\n`;
+      }
+    }
+    
+    // Create the main message
+    const message = status === 'success'
+      ? `:white_check_mark: Smoke tests completed successfully!\nBuild URL: ${buildUrl}${summaryText}${scenarioStatusText}`
+      : `:x: Smoke tests failed!\nBuild URL: ${buildUrl}${summaryText}${scenarioStatusText}`;
+
+
+
     // Check if threadTs is valid
     if (!threadTs || threadTs === '0' || threadTs === 'null' || threadTs === 'undefined') {
       console.log('Invalid thread_ts value:', threadTs);
@@ -241,7 +246,7 @@ async function postBuildStatus(status, threadTs) {
       console.log('Build status posted to Slack thread');
     }
 
-    // If build failed, post to the failure channel as well
+    // If build failed, post to failure channel as well
     if (status !== 'success' && failureChannelId != "NONE") {
       await slackClient.chat.postMessage({
         channel: failureChannelId,
