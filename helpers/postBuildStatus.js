@@ -325,6 +325,19 @@ async function postBuildStatus(status, threadTs) {
       console.log('Prompt sources distribution:', promptSources);
     }
     
+    // Build the summary statistics
+    let summaryText = '';
+    if (scenarioStatuses && scenarioStatuses.length > 0) {
+      const totalScenarios = scenarioStatuses.length;
+      const passedScenarios = scenarioStatuses.filter(s => s.status === 'passed').length;
+      const failedScenarios = totalScenarios - passedScenarios;
+      
+      summaryText = '\n\n*Summary:*\n';
+      summaryText += `:chart_with_upwards_trend: Total Scenarios: ${totalScenarios}\n`;
+      summaryText += `:white_check_mark: Passed: ${passedScenarios}\n`;
+      summaryText += `:x: Failed: ${failedScenarios}\n`;
+    }
+    
     // Build the message with scenario statuses
     let scenarioStatusText = '';
     if (scenarioStatuses && scenarioStatuses.length > 0) {
@@ -340,7 +353,7 @@ async function postBuildStatus(status, threadTs) {
     
     // Build the message
     const message = {
-      text: `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${scenarioStatusText}`,
+      text: `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
       channel: mainChannelId,
       mrkdwn: true
     };
@@ -358,7 +371,7 @@ async function postBuildStatus(status, threadTs) {
     // If build failed, also post to failure channel
     if (status === 'failure' && failureChannelId && failureChannelId !== mainChannelId) {
       const failureMessage = {
-        text: `Build Failed ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${scenarioStatusText}`,
+        text: `Build Failed ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
         channel: failureChannelId,
         mrkdwn: true
       };
