@@ -15,6 +15,20 @@ const slackToken = process.env.SLACK_TOKEN;
 const mainChannelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E"; // Replace with your main channel ID Prod_release = C0189FJRC9E , Automation_regression_build= C07FJG27D2L
 const failureChannelId = process.env.FAILURE_SLACK_CHANNEL_ID || "C07FJG27D2L"; // Replace with your failure channel ID
 
+// Determine which workflow is running based on GITHUB_WORKFLOW environment variable
+const workflowName = process.env.GITHUB_WORKFLOW || '';
+let targetChannelId = mainChannelId;
+
+if (workflowName.toLowerCase().includes('regression')) {
+  console.log('Detected regression workflow, using regression channel');
+  targetChannelId = "C07FJG27D2L"; // Regression Build Channel
+} else if (workflowName.toLowerCase().includes('smoke')) {
+  console.log('Detected smoke workflow, using smoke channel');
+  targetChannelId = "C0189FJRC9E"; // Prod Release Channel
+} else {
+  console.log(`Using default channel from environment: ${targetChannelId}`);
+}
+
 if (!slackToken) {
   // Check if we're running in GitHub Actions
   if (process.env.GITHUB_ACTIONS === 'true') {
@@ -416,7 +430,7 @@ async function postBuildStatus(status, threadTs) {
     // Build the message
     const message = {
       text: `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
-      channel: mainChannelId,
+      channel: targetChannelId,
       mrkdwn: true
     };
     
@@ -426,7 +440,7 @@ async function postBuildStatus(status, threadTs) {
     }
     
     // Post to Slack
-    console.log(`Posting ${status} message to Slack channel ${mainChannelId}`);
+    console.log(`Posting ${status} message to Slack channel ${targetChannelId}`);
     const result = await slackClient.chat.postMessage(message);
     console.log('Message posted to Slack', result.ts);
     
