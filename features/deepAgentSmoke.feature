@@ -23,6 +23,7 @@ Feature: Deep Agent Functionality Test
     And the compute points should not exceed 150k
     And I should download the generated summary
     Then I should see the search results for the default sample task
+    And I should deploy the website
 
     Examples:
       | promat_user_search                                                                                                                                       | follow_up_query                                                                   |
@@ -69,7 +70,7 @@ Feature: Deep Agent Functionality Test
       | Find reservations at an upscale indian dinner restaurant in San Francisco. | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
 
   @DeepAgentChatBot
-  Scenario Outline: create Ai chat Bot
+  Scenario Outline: Generate AI chatbot
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
