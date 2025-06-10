@@ -626,3 +626,34 @@ Then(
 Then("I should see the generated video", async function () {
   await deepAgentPage.verifyVideoGeneration();
 });
+
+Then(
+  "I can see the custom chat and perform some action and search the prompt {string}",
+  async function (promptSearchForCustomChatbot) {
+    deepAgentPage.clickOnChatBotLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    deepAgentPage = new DeepAgentPage(newPage);
+    this.page = newPage;
+    try {
+      await deepAgentPage.enterPromapt(promptSearchForCustomChatbot);
+      await this.page.waitForTimeout(2000);
+      await deepAgentPage.clickSendButton();
+      await deepAgentPage.page.waitForTimeout(3000);
+      const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+      const isVisible=await deepAgentPage.htmlCode.isVisible();
+      expect(isVisible).to.be.true;
+      deepAgentPage.elapsedTime = firstElapsedTime;
+
+      console.log(
+        "Total elapsed time after follow up prompt:",
+        deepAgentPage.elapsedTime
+      );
+    } catch (error) {
+      console.error("Error performing actions on new page:", error.message);
+      throw error;
+    }
+  }
+);

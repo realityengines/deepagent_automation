@@ -136,6 +136,8 @@ export class DeepAgentPage {
   this.videoGenerationLink=page.locator("a[href*='https://cdn.abacus.ai/video']");
   this.videoGenerationDownload=page.locator("[data-icon*='arrow-down-to-line']");
 
+  this.htmlCode=page.locator("(//span[.='html'])[1]");
+
     this.elapsedTime = 0;
   }
 

@@ -1,5 +1,5 @@
 @regression
-Feature: 30 prompts search
+Feature: Deep Agent Search and Task Execution
   As a logged-in user
     I want to access and view my dashboard and the Deep Agent search and overview
     So that I can explore available search prompts and understand the Deep Agent's capabilities
@@ -10,7 +10,7 @@ Feature: 30 prompts search
     When I click the deep Agent option
 
   @DeepAgentSearchPrompt
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: Execute Deep Agent search prompt and validate results
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -32,11 +32,12 @@ Feature: 30 prompts search
       | Build A Game                                                                                                                                                                                     | Your call with limited functionality.                                                                                                                                    |
       | On-The-Fly Interactive Jira Dashboard                                                                                                                                                            | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon                                                      |
       | Luxury Trip To Bali                                                                                                                                                                              | Luxury mid-range budget relaxation for next month                                                                                                                        |
-      | Dinner Reservations                                                                                                                                                                              | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
+      | Find reservations at an upscale indian dinner restaurant in San Francisco.                                                                                                                       | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
       | Hot or Not - hollywood edition                                                                                                                                                                   | Your call with limited functionality.                                                                                                                                    |
+      | In-depth EV battery research                                                                                                                                                                     | include  major and medium scale ones \n lithium ion                                                                                                                      |
 
   @DeepAgentSearchPromptForEmailSend
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: Trigger email summary via Deep Agent
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -46,7 +47,7 @@ Feature: 30 prompts search
       | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
   @DeepAgentChatBot
-  Scenario Outline: create Ai chat Bot DeepAgent prompt
+  Scenario Outline: Generate AI chatbot using Deep Agent
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
@@ -57,7 +58,7 @@ Feature: 30 prompts search
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
 
   @APPLLMImgGen
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: Generate website with AI content using Deep Agent
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>" to generate a website
     And I should see the status "Completed" for the task
@@ -74,7 +75,7 @@ Feature: 30 prompts search
       | Create a simple fitness tracker website with a form page where users can log exercises by selecting the type, weight, and reps or log cardio with time and calories burnt, and also record their daily food intake by entering food items and corresponding calories; a progress page that displays a date-wise table of all food and exercise entries; and a dashboard page that visualizes daily calorie intake, calories burnt, and net calorie intake through interactive graphs | no auth, yes store the data betweeen sessions, color scheme sage green, add weight tracking too                                  |
 
   @DeepAgentPowerpoint @pptx
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: Generate PowerPoint presentations from prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -88,7 +89,7 @@ Feature: 30 prompts search
       | create a presentation on climate change. 10 slides                                                                                                                                    | make the best choices |
 
   @DeepAgentMCPTask
-  Scenario Outline: Search  default  mcp task from deep Agent
+  Scenario Outline: Search default MCP task from Deep Agent
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -99,7 +100,7 @@ Feature: 30 prompts search
       | Create a comprehensive project management system for launching a new product using google tasks. Include tasks for market research | create two Google Tasks for market research. |
 
   @PromptForWebSiteCreation
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: Validate website generation with UI elements
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>" to generate a website
     And I should see the status "Completed" for the task
@@ -114,7 +115,7 @@ Feature: 30 prompts search
       | Build a responsive data dashboard website with sample graphs, left nav tabs for Dashboard, Analytics, Calculator, Calendar, and Settings; include a basic arithmetic calculator, an interactive calendar, and demo data for all visuals. | Use general demo data with a modern color scheme, include line, bar, and pie charts; the calendar should support viewing and adding events |
 
   @DeepAgentVideoGeneration @VideoGeneration
-  Scenario Outline: Search DeepAgent prompt and verify video generation
+  Scenario Outline: Validate video generation through Deep Agent
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
