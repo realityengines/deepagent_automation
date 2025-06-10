@@ -21,7 +21,7 @@ const dateTimeString = currentDate.toLocaleString();
 try {
     generate({
         jsonDir: 'reports',
-        reportPath: 'reports/html',
+        reportPath: 'test-reports', // Changed from 'reports/html' to 'test-reports'
         displayDuration: true,
         hideMetadata: false,
         buildName: `${process.env.BUILD_NAME}:- ${process.env.TEST_ENV || 'prod'}`,

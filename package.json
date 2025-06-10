@@ -8,6 +8,9 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "setup": "node setup-project.js",
+    "test-slack": "node helpers/testSlackIntegration.js",
+    "check-slack": "node helpers/checkSlackConfig.js",
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); ['reports', 'test-results'].forEach(dir => {try {fs.rmSync(path.join(__dirname, dir), {recursive: true, force: true}); fs.mkdirSync(path.join(__dirname, dir), {recursive: true});} catch (e) {console.error(e)}});\"",
     "test": "cucumber-js --config cucumber.js --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format summary",
     "test:tag": "cucumber-js --config cucumber.js --tags",
@@ -28,6 +31,7 @@
     "@cucumber/html-formatter": "^21.10.0",
     "@cucumber/pretty-formatter": "^1.0.0",
     "@playwright/test": "^1.35.0",
+    "@slack/web-api": "^6.11.2",
     "cross-env": "^7.0.3",
     "cucumber-html-reporter": "^6.0.0",
     "dotenv": "^16.5.0",

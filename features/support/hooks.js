@@ -32,6 +32,20 @@ Before(async function () {
 // Cleanup after each scenario
 After(async function ({ result }) {
   try {
+    // Capture conversation URL if available
+    if (this.page) {
+      try {
+        const url = await this.page.url();
+        if (url && url.includes('conversation')) {
+          // Attach URL to the report in a format that can be parsed later
+          await this.attach(`Conversation URL: ${url}`, 'text/plain');
+          console.log(`Attached conversation URL to report: ${url}`);
+        }
+      } catch (urlError) {
+        console.error('Failed to capture conversation URL:', urlError);
+      }
+    }
+    
     // Take screenshot if scenario fails
     if (result.status === 'FAILED' && this.page) {
       try {

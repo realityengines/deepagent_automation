@@ -27,6 +27,11 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.getConvoId();
   }
 );
@@ -52,10 +57,14 @@ Then("the compute points should not exceed 150k", async function () {
       throw new Error(`Invalid compute points value: ${computePoints}`);
     }
 
+    // Get the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+
     console.log("\n=== Compute Points Details ===");
     console.log(`Current Compute Points: ${computePoints}`);
     console.log(`Maximum Allowed Points: 150000`);
     console.log(`Points Remaining: ${150000 - computePoints}`);
+    console.log(`Conversation URL: ${convoURL}`);
     console.log("============================\n");
 
     try {
@@ -100,6 +109,16 @@ Then("I should download the generated summary", async function () {
     throw error;
   }
 
+  // Get the conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log("\n=== Download Summary ===\n");
+    console.log(`Conversation URL: ${convoURL}`);
+    console.log("============================\n");
+  } catch (error) {
+    console.error("Error getting conversation URL:", error.message);
+  }
+
   // Close browser popup after all downloads are completed
   await deepAgentPage.closeBrowserPopup();
   await deepAgentPage.page.waitForTimeout(2000);
@@ -109,9 +128,12 @@ Then("I should fetch the search results", async function () {
     console.log("\n=== Fetching Search Results ===");
     // Call the searchAndFetchAllResults method
     const searchData = await deepAgentPage.searchAndFetchAllResults();
-    console.log(
-      `Results saved to: ${process.cwd()}/jsonReport/allSearchResults.json`
-    );
+    
+    // Get the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    
+    console.log(`Results saved to: ${process.cwd()}/jsonReport/allSearchResults.json`);
+    console.log(`Conversation URL: ${convoURL}`);
     console.log("====\n");
 
     // Add small delay to ensure file writing is complete
@@ -237,6 +259,11 @@ When(
       );
     }
     this.pptxGenerated = true;
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.getConvoId();
   }
 );
@@ -247,11 +274,12 @@ Then(
     try {
       console.log("\n=== Fetching Search Results ===");
       // Call the searchAndFetchAllResults method
-      const searchData = await deepAgentPage.searchAndFetchAllResults();
-      console.log(
+      const searchData = await deepAgentPage.searchAndFetchAllResults();      
+      // Get the conversation URL
+      const convoURL = await deepAgentPage.getConvoURL();
+            console.log(
         `Results saved to: ${process.cwd()}/jsonReport/allSearchResults.json`
-      );
-      console.log("====\n");
+      );      console.log(`Conversation URL: ${convoURL}`);      console.log("====\n");
 
       // Add small delay to ensure file writing is complete
       await deepAgentPage.page.waitForTimeout(1000);
@@ -282,12 +310,17 @@ When(
 
       // Get and log compute points for verification
       const currentPoints = await deepAgentPage.getComputePoint();
+      
+      // Get the conversation URL
+      const convoURL = await deepAgentPage.getConvoURL();
+      
       console.log("\n=== Compute Points Summary ===");
       console.log(`Current Points Used: ${currentPoints}`);
       console.log(`Points Limit: ${maxComputePoints}`);
       console.log(
         `Within Limit: ${currentPoints <= maxComputePoints ? "Yes ✓" : "No ✗"}`
       );
+      console.log(`Conversation URL: ${convoURL}`);
 
       if (currentPoints > maxComputePoints) {
         console.warn(
@@ -322,6 +355,11 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.getConvoId();
   }
 );
@@ -348,6 +386,11 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.getConvoId();
   }
 );
@@ -373,8 +416,11 @@ Then(
       console.log(
         "Total elapsed time after follow up prompt:",
         deepAgentPage.elapsedTime
-      );
-    } catch (error) {
+      );      
+      // Get and log the conversation URL
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`Conversation URL: ${convoURL}`);
+          } catch (error) {
       console.error("Error performing actions on new page:", error.message);
       throw error;
     }
@@ -425,6 +471,11 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.getConvoId();
   }
 );
@@ -475,6 +526,11 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await deepAgentPage.downloadComputeAgentFile();
     await deepAgentPage.verifyDownloadedFilesPptxandPdf();
     await deepAgentPage.getConvoId();

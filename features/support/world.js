@@ -1,7 +1,7 @@
 import { setWorldConstructor, World } from "@cucumber/cucumber";
 import { chromium } from "playwright";
 import playwright from "playwright";
-import config from "../../config/config.js";
+import config from "../../configs/config.js";
 
 class BrowserType extends World {
   async init() {
