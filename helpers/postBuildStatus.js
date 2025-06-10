@@ -287,11 +287,45 @@ async function getScenarioStatuses() {
           }
         }
         
-        // Try to get conversation URL from the logs
+        // Try to get conversation URL from the logs or attachments
         let conversationURL = null;
         try {
-          // Look for conversation URL in the logs
-          if (element.steps) {
+          // First check attachments (more reliable)
+          if (element.embeddings) {
+            for (const embedding of element.embeddings) {
+              if (embedding && embedding.data && embedding.mime_type === 'text/plain') {
+                try {
+                  // Decode base64 data if needed
+                  let data = embedding.data;
+                  if (Buffer.isBuffer(data)) {
+                    data = data.toString('utf8');
+                  } else if (typeof data === 'string') {
+                    // Try to decode if it looks like base64
+                    if (/^[A-Za-z0-9+/=]+$/.test(data)) {
+                      try {
+                        data = Buffer.from(data, 'base64').toString('utf8');
+                      } catch (e) {
+                        // Not base64, use as is
+                      }
+                    }
+                  }
+                  
+                  // Check if it contains a conversation URL
+                  const urlMatch = data.match(/Conversation URL: (https?:\/\/[^\s]+)/i);
+                  if (urlMatch && urlMatch[1]) {
+                    conversationURL = urlMatch[1];
+                    console.log(`Found conversation URL in attachment: ${conversationURL}`);
+                    break;
+                  }
+                } catch (decodeError) {
+                  console.log(`Error decoding attachment: ${decodeError.message}`);
+                }
+              }
+            }
+          }
+          
+          // If not found in attachments, look in step outputs
+          if (!conversationURL && element.steps) {
             for (const step of element.steps) {
               if (step && step.output) {
                 const urlMatch = step.output.match(/Conversation URL: (https?:\/\/[^\s]+)/i);
@@ -372,7 +406,7 @@ async function postBuildStatus(status, threadTs) {
         // Add conversation URL if available
         let scenarioText = `${statusIcon} ${scenario.name}: ${promptText}`;
         if (scenario.conversationURL) {
-          scenarioText += ` (<${scenario.conversationURL}|View Conversation>)`;
+          scenarioText += ` - <${scenario.conversationURL}|View Conversation>`;
         }
         
         scenarioStatusText += `${scenarioText}\n`;

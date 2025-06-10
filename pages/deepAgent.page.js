@@ -1225,9 +1225,11 @@ export class DeepAgentPage {
   async getConvoURL() {
     try {
       const currentUrl = await this.page.url();
+      // Log in a consistent format that can be parsed later
+      console.log(`Conversation URL: ${currentUrl}`);
       return currentUrl;
     } catch (error) {
-      console.error("Error saving conversation URL:", error.message);
+      console.error("Error getting conversation URL:", error.message);
       throw error;
     }
   }
@@ -1238,9 +1240,10 @@ export class DeepAgentPage {
       await fs.mkdir(path.join(__dirname, "../urlData"), { recursive: true });
       const filePath = path.join(__dirname, "../urlData/conversation_urls.txt");
       const timestamp = new Date().toISOString();
-      const urlData = `${timestamp}\nURL: ${currentUrl}\n\n`;
+      const urlData = `${timestamp}\nConversation URL: ${currentUrl}\n\n`;
       await fs.appendFile(filePath, urlData, "utf8");
       console.log(`URL data saved to: ${filePath}`);
+      console.log(`Conversation URL: ${currentUrl}`);
       return currentUrl;
     } catch (error) {
       console.error("Error saving conversation URL:", error.message);
