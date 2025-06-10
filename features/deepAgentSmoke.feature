@@ -9,36 +9,28 @@ Feature: Deep Agent Functionality Test
     Then I should be logged in successfully
     When I click the deep Agent option
 
-  Scenario: Check default prompt from the Deep Agent popup window and verify "Cancel" and "Try" buttons
+  Scenario: check  and verify "Cancel" and "Try" buttons on default prompt
     Given I click the check out from the welcome window
     When I open the Deep Agent default sample task
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
-  # @deepAgentPowerPoint
-  # Scenario Outline: Search a single default  sample task for pptx generated
-  #   Given I click the check out from the welcome window
-  #   When I search for a default sample task and enter "Generate a downloadable PowerPoint pptx file that provides a general overview of all major benchmarks used to evaluate LLMs, across 10 slides"
-  #   And I should see the status "Completed" for the task
-  #   And the compute points should not exceed 150k
-  #   And I should download the generated summary
-  #   Then I should see the search results for the default sample task
 
   @DeepAgentApp
-  Scenario Outline: Search  default sample task app functionality
+  Scenario Outline: creates an app based on task prompt
     Given I click the check out from the welcome window
-    When I search for all default sample task "<sampleTaskName>" and enter "<Specify_the_prompat>"
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should download the generated summary
     Then I should see the search results for the default sample task
+    And I should deploy the website
 
     Examples:
-      | sampleTaskName | Specify_the_prompat                                                               |
-      | Website        | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
-      # | Hot or Not - hollywood edition | Your call with limited functionality.                                             |
+      | promat_user_search                                                                                                                                       | follow_up_query                                                                   |
+      | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: Add title banner stating 15 days Summer camp for kids of age 4 to 18 | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
 
   @deepAgentIntergation
-  Scenario Outline: Search DeepAgentIntergation  prompt  functionality
+  Scenario Outline: integration the app based on the task prompt
     Given I click the check out from the welcome window
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -52,33 +44,33 @@ Feature: Deep Agent Functionality Test
       | Slack to improve productivity      | Your call with limited functionality. |
 
   @DeepAgentResearch
-  Scenario Outline: Search  default sample task from Research functionality
+  Scenario Outline: Research functionality base on task prompt
     Given I click the check out from the welcome window
-    When I search for all default sample task "<sampleTaskName>" and enter "<Specify_the_prompat>"
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
     Examples:
-      | sampleTaskName      | Specify_the_prompat                               |
+      | promat_user_search  | follow_up_query                                   |
       | Luxury Trip To Bali | Luxury mid-range budget relaxation for next month |
 
   @DeepAgentBrowserUse
-  Scenario Outline: Search  default sample task from browseruse functionality
+  Scenario Outline: browseruse functionality
     Given I click the check out from the welcome window
-    When I search for all default sample task "<sampleTaskName>" and enter "<Specify_the_prompat>"
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should download the generated summary
     Then I should see the search results for the default sample task
 
     Examples:
-      | sampleTaskName      | Specify_the_prompat                                                                                              |
-      | Dinner Reservations | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
+      | promat_user_search                                                         | follow_up_query                                                                                                  |
+      | Find reservations at an upscale indian dinner restaurant in San Francisco. | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
 
   @DeepAgentChatBot
-  Scenario Outline: create Ai chat Bot DeepAgent prompt
+  Scenario Outline: Generate AI chatbot
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
@@ -89,7 +81,7 @@ Feature: Deep Agent Functionality Test
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
 
   @DeepAgentPowerpoint @pptx
-  Scenario Outline: Search DeepAgent prompt
+  Scenario Outline: generate pptx base  on task prompt
     Given I click the check out from the welcome window
     When I search a prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -102,7 +94,7 @@ Feature: Deep Agent Functionality Test
       | Create a 5-slide pitch on entering the U.S. skincare market with an affordable, clean beauty brand. | Can you add recent data (2024/2025) on affordable skincare market growth in the U.S.? |
 
   @DeepAgentVideoGeneration @VideoGeneration
-  Scenario Outline: Search DeepAgent prompt and verify video generation
+  Scenario Outline: generation of video base on task prompt
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -111,4 +103,18 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | promat_user_search                                       | follow_up_query |
-      | Can you create a video on the top 5 most expensive cars? | your call     |
+      | Can you create a video on the top 5 most expensive cars? | your call       |
+
+  @DeepAgentChatCustomBot
+  Scenario Outline: AI chatbot for custom interactions
+    Given I click the check out from the welcome window
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should download the generated summary
+    And I should fetch the search results
+    Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
+
+    Examples:
+      | promat_user_search                                                                                                                                                                                                                                                                                                         | follow_up_query                                                                                                                                                              | Prompt_for_custom_chatBot                   |
+      | Create a chatbot with deep knowledge of ATP tennis tournaments, player stats, and official rules. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Focus the chatbot on ATP tournament info, player stats, and rules, keep it ATP-only for now; show just the schedule on the site, embed the chatbot as a floating chat widget | Create a website for booking tennis courts. |
