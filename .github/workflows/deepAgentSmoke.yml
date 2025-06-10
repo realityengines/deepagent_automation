@@ -27,7 +27,7 @@ jobs:
       # fallback for TEST_ENV if not set from manual dispatch
       TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      SLACK_CHANNEL_ID: "C07FJG27D2L"
+      SLACK_CHANNEL_ID: "C0189FJRC9E"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
     steps:
       - name: Checkout code
@@ -79,7 +79,7 @@ jobs:
           echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
           GITHUB_ACTIONS: "true"
 
       - name: Debug - Environment Variables
@@ -211,7 +211,7 @@ jobs:
           node helpers/postBuildStatus.js "success" "$threadTs"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
@@ -239,7 +239,7 @@ jobs:
           node helpers/postBuildStatus.js "failure" "$threadTs"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
           FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}

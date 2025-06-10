@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const slackToken = process.env.SLACK_TOKEN;
-const channelId = process.env.SLACK_CHANNEL_ID || "C07FJG27D2L";
+const channelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E";
 const initialSlackInfo = process.env.INITIAL_SLACK_INFO || "";
 //C07FJG27D2L Automation Regression Build HChannel
 //C0189FJRC9E Prod Release Channel
