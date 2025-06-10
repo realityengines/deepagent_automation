@@ -287,12 +287,33 @@ async function getScenarioStatuses() {
           }
         }
         
+        // Try to get conversation URL from the logs
+        let conversationURL = null;
+        try {
+          // Look for conversation URL in the logs
+          if (element.steps) {
+            for (const step of element.steps) {
+              if (step && step.output) {
+                const urlMatch = step.output.match(/Conversation URL: (https?:\/\/[^\s]+)/i);
+                if (urlMatch && urlMatch[1]) {
+                  conversationURL = urlMatch[1];
+                  console.log(`Found conversation URL in step output: ${conversationURL}`);
+                  break;
+                }
+              }
+            }
+          }
+        } catch (urlError) {
+          console.log(`Error extracting conversation URL: ${urlError.message}`);
+        }
+
         // Add to our results
         scenarioStatuses.push({
           name: scenarioName,
           status: scenarioStatus,
           prompt: promptText || 'N/A',
-          promptSource: promptSource
+          promptSource: promptSource,
+          conversationURL: conversationURL
         });
         
         if (!promptText) {
@@ -347,7 +368,14 @@ async function postBuildStatus(status, threadTs) {
         // Truncate prompt if it's too long (Slack has message size limits)
         const promptText = scenario.prompt.length > 50 ? 
           `${scenario.prompt.substring(0, 47)}...` : scenario.prompt;
-        scenarioStatusText += `${statusIcon} ${scenario.name}: ${promptText}\n`;
+        
+        // Add conversation URL if available
+        let scenarioText = `${statusIcon} ${scenario.name}: ${promptText}`;
+        if (scenario.conversationURL) {
+          scenarioText += ` (<${scenario.conversationURL}|View Conversation>)`;
+        }
+        
+        scenarioStatusText += `${scenarioText}\n`;
       }
     }
     

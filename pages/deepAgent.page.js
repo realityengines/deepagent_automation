@@ -1034,6 +1034,7 @@ export class DeepAgentPage {
         date: new Date(),
         totalCreditPoints: totalCreditPoints,
         timetaken: `${Number(this.elapsedTime.toFixed(2))} sec`,
+        conversationURL: await this.getConvoURL(),
         response: responseArray,
         search: searchArray,
         promptSearch: promptSearch,
@@ -1068,6 +1069,7 @@ export class DeepAgentPage {
       );
 
       console.log(`All search results and responses saved to: ${filePath}`);
+      console.log(`Conversation URL: ${await this.getConvoURL()}`);
       return reportData;
     } catch (error) {
       console.error("Error in searchAndFetchAllResults:", error.message);
@@ -1217,6 +1219,16 @@ export class DeepAgentPage {
         }
         continue;
       }
+    }
+  }
+
+  async getConvoURL() {
+    try {
+      const currentUrl = await this.page.url();
+      return currentUrl;
+    } catch (error) {
+      console.error("Error saving conversation URL:", error.message);
+      throw error;
     }
   }
 
