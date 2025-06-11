@@ -3,10 +3,10 @@ name: Deep Agent Regression Suite
 on:
   schedule:
     - cron: "0 15 * * *" # 8 AM EST (15:00 UTC)
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+  # push:
+  #   branches: ["master"]
+  # pull_request:
+  #   branches: ["master"]
   workflow_dispatch:
     inputs:
       Environment:
