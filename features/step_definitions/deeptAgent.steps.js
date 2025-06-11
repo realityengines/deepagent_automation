@@ -10,8 +10,8 @@ Given("I click the check out from the welcome window", async function () {
   await deepAgentPage.page.waitForTimeout(3000);
   
   // Get and log the conversation URL at the end of Given step
-  const convoURL = await deepAgentPage.getConvoURL();
-  console.log(`Conversation URL: ${convoURL}`);
+  // const convoURL = await deepAgentPage.getConvoURL();
+  // console.log(`Conversation URL: ${convoURL}`);
 });
 
 When(
@@ -31,8 +31,9 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
-
-    await deepAgentPage.getConvoId();
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    // await deepAgentPage.getConvoId();
   }
 );
 
@@ -246,8 +247,9 @@ When(
       );
     }
     this.pptxGenerated = true;
-
-    await deepAgentPage.getConvoId();
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    // await deepAgentPage.getConvoId();
   }
 );
 
@@ -305,6 +307,8 @@ When(
           `WARNING: Compute points (${currentPoints}) exceeded the maximum limit of ${maxComputePoints}`
         );
       }
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`Conversation URL: ${convoURL}`);
     } catch (error) {
       console.error("\n=== Execution Error ===");
       console.error(`Error executing sample tasks: ${error.message}`);
@@ -334,7 +338,7 @@ When(
       deepAgentPage.elapsedTime
     );
 
-    await deepAgentPage.getConvoId();
+    // await deepAgentPage.getConvoId();
   }
 );
 
@@ -360,8 +364,9 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
-
-    await deepAgentPage.getConvoId();
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    // await deepAgentPage.getConvoId();
   }
 );
 
@@ -438,8 +443,9 @@ When(
       "Total elapsed time after follow up prompt:",
       deepAgentPage.elapsedTime
     );
-
-    await deepAgentPage.getConvoId();
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    // await deepAgentPage.getConvoId();
   }
 );
 
@@ -492,7 +498,9 @@ When(
 
     await deepAgentPage.downloadComputeAgentFile();
     await deepAgentPage.verifyDownloadedFilesPptxandPdf();
-    await deepAgentPage.getConvoId();
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    // await deepAgentPage.getConvoId();
   }
 );
 
