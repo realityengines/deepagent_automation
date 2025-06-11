@@ -3,10 +3,10 @@ name: Deep Agent Smoke Suite
 on:
   schedule:
     - cron: "0 14 * * *" 
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+  # push:
+  #   branches: ["master"]
+  # pull_request:
+  #   branches: ["master"]
   workflow_dispatch:
     inputs:
       Environment:
