@@ -24,6 +24,8 @@ When('I click the login button', async function () {
 
 Then('I should be logged in successfully', async function () {
   await expect(loginPage.getDashboardElement()).toBeVisible();
+  await loginPage.page.waitForTimeout(5000);
+  
 });
 
 Then('I should see an error message', async function () {

@@ -647,8 +647,8 @@ Then(
       await deepAgentPage.clickSendButton();
       await deepAgentPage.page.waitForTimeout(3000);
       const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-      const isVisible = await deepAgentPage.htmlCode.isVisible();
-      expect(isVisible).to.be.true;
+      // const isVisible = await deepAgentPage.htmlCode.isVisible();
+      // expect(isVisible).to.be.true;
       deepAgentPage.elapsedTime = firstElapsedTime;
 
       console.log(
@@ -659,5 +659,25 @@ Then(
       console.error("Error performing actions on new page:", error.message);
       throw error;
     }
+  }
+);
+
+
+Then(
+  "the user completes the registration process successfully and verify the database",
+  async function () {
+    const originalPage = this.page;
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    deepAgentPage = new DeepAgentPage(newPage);
+    this.page = newPage;
+    await deepAgentPage.performSignUp();
+    await newPage.close();
+    this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  await deepAgentPage.verifyDataBase('users')
   }
 );

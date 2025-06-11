@@ -7,6 +7,7 @@ Feature: Deep Agent Functionality Test
   Background:
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
     Then I should be logged in successfully
+    And I select the default LLM "RouteLLM"
     When I click the deep Agent option
 
   Scenario: check  and verify "Cancel" and "Try" buttons on default prompt
@@ -116,5 +117,20 @@ Feature: Deep Agent Functionality Test
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
 
     Examples:
-      | promat_user_search                                                                                                                                                                                                                                                                                                         | follow_up_query                                                                                                                                                              | Prompt_for_custom_chatBot                   |
-      | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Your call | What are the key matchups to watch in the upcoming Wimbledon tournament? |
+      | promat_user_search                                                                                                                                                                                                                                                                       | follow_up_query | Prompt_for_custom_chatBot                                                |
+      | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Your call       | What are the key matchups to watch in the upcoming Wimbledon tournament? |
+
+  @DeepAgentDataBase
+  Scenario Outline: creates an app based on task prompt
+    Given I click the check out from the welcome window
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should download the generated summary
+    Then I should see the search results for the default sample task
+    And I should deploy the website
+    Then the user completes the registration process successfully and verify the database
+
+    Examples:
+      | promat_user_search                                                                                                                                                                                                                                | follow_up_query                                                                                                                                                         |
+      | Create a website with a home page, login page, and sign-up page connected to a database. The sign-up page must always show four fixed fields: full name, email, password, and confirm password, and store user data upon successful registration. | Build me a portfolio website with user authentication, where sign-up stores user data in the database, and login redirects to the home page with a clean, modern design |

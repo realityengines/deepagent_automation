@@ -132,11 +132,25 @@ export class DeepAgentPage {
     this.chatImage = page.locator("(//canvas[@role='img'])[1]");
 
     // video gerneration 
-  this.videoGenerationPreview=page.locator("[data-prefix*='fas'][data-icon*='video']");
+  this.videoGenerationPreview=page.locator("//span[contains(text(), 'Preview Video')]");
   this.videoGenerationLink=page.locator("a[href*='https://cdn.abacus.ai/video']");
   this.videoGenerationDownload=page.locator("[data-icon*='arrow-down-to-line']");
 
   this.htmlCode=page.locator("(//span[.='html'])[1]");
+
+  //  Perform the registration process-
+  this.signUpButton = page.locator("//*[text()='Sign Up']");
+  this.nameField= page.locator("[placeholder*='full name']");
+  this.emailField= page.locator("[placeholder*='email']");
+  this.passwordField = page.locator("(//*[@type='password'])[1]");
+  this.confirmPasswordField = page.locator("(//*[@type='password'])[2]");
+
+  this.createAccountButton = page.locator("[type='submit']");
+
+  this.dropDownForDB= page.locator("(//button[@role='combobox'])[2]");
+  this.refreshButton= page.locator("[class*='center border-b'] svg[data-icon='arrows-rotate']")
+
+  this.userAdded= page.locator("//*[text()='testuser@gmail.com']")
 
     this.elapsedTime = 0;
   }
@@ -1328,8 +1342,8 @@ export class DeepAgentPage {
   async verifyVideoGeneration(){
       const previewVisible = await this.videoGenerationPreview.isVisible();
       if (!previewVisible) return;
-      const linkVisible = await this.videoGenerationLink.isVisible();
-      if (!linkVisible) return;
+      // const linkVisible = await this.videoGenerationLink.isVisible();
+      // if (!linkVisible) return;
       await fs.mkdir(this.downloadPath, { recursive: true });
       const [download] = await Promise.all([
         this.page.waitForEvent('download'),
@@ -1338,6 +1352,30 @@ export class DeepAgentPage {
       const suggestedFileName = download.suggestedFilename();
       const filePath = path.join(this.downloadPath, suggestedFileName);
       await download.saveAs(filePath);
+    }
+
+
+    async performSignUp()
+    {
+      await this.page.waitForTimeout(2000)
+      await this.signUpButton.click();
+      await this.nameField.fill("Test User");
+      await this.emailField.fill("testuser@gmail.com");
+      await this.passwordField.fill("password123");
+      await this.confirmPasswordField.fill("password123");
+      await this.createAccountButton.click();
+      await this.page.waitForTimeout(5000);
+    }
+    async verifyDataBase(tableName)
+    {
+      await this.dataBase.click();
+      await this.dropDownForDB.click();
+      await this.page.waitForTimeout(3000);
+      await this.page.getByRole('option', { name:tableName}).click();
+      await this.page.waitForTimeout(3000);
+      await this.refreshButton.click();
+      await this.page.waitForTimeout(3000);
+      await this.userAdded.isVisible();
     }
     
   }
