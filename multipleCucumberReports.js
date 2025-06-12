@@ -9,10 +9,6 @@ if (!fs.existsSync('reports')) {
     fs.mkdirSync('reports', { recursive: true });
 }
 
-// Ensure reports/html directory exists
-if (!fs.existsSync('reports/html')) {
-    fs.mkdirSync('reports/html', { recursive: true });
-}
 
 // Get current date and time
 const currentDate = new Date();
