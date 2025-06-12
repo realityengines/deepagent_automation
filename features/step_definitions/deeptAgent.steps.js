@@ -409,7 +409,6 @@ Then(
     await newPage.waitForLoadState();
     deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
-    try {
       await deepAgentPage.enterPromapt("what is playwright");
       await this.page.waitForTimeout(2000);
       await deepAgentPage.clickSendButton();
@@ -424,10 +423,7 @@ Then(
       // Get and log the conversation URL
       const convoURL = await deepAgentPage.getConvoURL();
       console.log(`Conversation URL: ${convoURL}`);
-    } catch (error) {
-      console.error("Error performing actions on new page:", error.message);
-      throw error;
-    }
+    
   }
 );
 

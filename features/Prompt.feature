@@ -47,7 +47,7 @@ Feature: Deep Agent Search and Task Execution
       | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
   @DeepAgentChatBot
-  Scenario Outline: Generate AI chatbot using Deep Agent
+  Scenario Outline: Generate AI chatbot 
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k

@@ -16,8 +16,6 @@ Feature: Deep Agent Functionality Test
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
 
-
-
   @DeepAgentApp
   Scenario Outline: creates an app based on task prompt
     Given I click the check out from the welcome window
@@ -42,9 +40,9 @@ Feature: Deep Agent Functionality Test
     And I should fetch the search results
 
     Examples:
-      | promat_user_search                 | follow_up_query                       |
-      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call      |
-      | Slack to improve productivity      | Your call with limited functionality. |
+      | promat_user_search                                                                          | follow_up_query                       |
+      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call                         |
+      | Slack to improve productivity                                                               | Your call with limited functionality. |
 
   @DeepAgentResearch
   Scenario Outline: Research functionality base on task prompt
@@ -72,7 +70,7 @@ Feature: Deep Agent Functionality Test
       | promat_user_search                                                         | follow_up_query                                                                                                  |
       | Find reservations at an upscale indian dinner restaurant in San Francisco. | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
 
-  @DeepAgentChatBot
+  @DeepAgentChatBot1
   Scenario Outline: Generate AI chatbot
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
