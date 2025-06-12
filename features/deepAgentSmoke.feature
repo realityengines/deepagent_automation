@@ -16,6 +16,8 @@ Feature: Deep Agent Functionality Test
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
 
+
+
   @DeepAgentApp
   Scenario Outline: creates an app based on task prompt
     Given I click the check out from the welcome window

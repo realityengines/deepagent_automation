@@ -23,6 +23,8 @@ BeforeAll(async function () {
 Before(async function () {
   try {
     await this.init();
+    // Initialize conversation URL storage
+    this.conversationUrl = null;
   } catch (error) {
     console.error('Error in Before hook:', error);
     throw error;
@@ -36,28 +38,69 @@ After(async function ({ result }) {
     if (this.page) {
       try {
         const url = await this.page.url();
-        if (url && url.includes('conversation')) {
-          // Attach URL to the report in a format that can be parsed later
-          await this.attach(`Conversation URL: ${url}`, 'text/plain');
-          console.log(`Attached conversation URL to report: ${url}`);
+        if (url && (url.includes('conversation') || url.includes('chatllm'))) {
+          this.conversationUrl = url;
+          console.log(`Captured conversation URL: ${url}`);
         }
       } catch (urlError) {
         console.error('Failed to capture conversation URL:', urlError);
       }
     }
     
-    // Take screenshot if scenario fails
-    if (result.status === 'FAILED' && this.page) {
-      try {
-        const screenshotPath = `reports/failure-${Date.now()}.png`;
-        const screenshot = await this.takeScreenshot(screenshotPath);
-        if (screenshot) {
-          await this.attach(screenshot, 'image/png');
+    // Handle failed scenarios
+    if (result.status === 'FAILED') {
+      console.log('='.repeat(50));
+      console.log('TEST FAILURE DETECTED');
+      console.log('='.repeat(50));
+      
+      // Display conversation URL prominently in console
+      if (this.conversationUrl) {
+        console.log(`🔗 CONVERSATION URL: ${this.conversationUrl}`);
+        // Attach URL to the report with enhanced formatting
+        await this.attach(`
+=== FAILURE DETAILS ===
+Conversation URL: ${this.conversationUrl}
+Scenario: ${this.pickle?.name || 'Unknown'}
+Status: FAILED
+Timestamp: ${new Date().toISOString()}
+========================
+        `, 'text/plain');
+      } else {
+        console.log('⚠️  No conversation URL captured');
+        await this.attach(`
+=== FAILURE DETAILS ===
+Conversation URL: Not Available
+Scenario: ${this.pickle?.name || 'Unknown'}
+Status: FAILED
+Timestamp: ${new Date().toISOString()}
+Note: URL could not be captured
+========================
+        `, 'text/plain');
+      }
+      
+      // Take screenshot if scenario fails
+      if (this.page) {
+        try {
+          const screenshotPath = `reports/failure-${Date.now()}.png`;
+          const screenshot = await this.takeScreenshot(screenshotPath);
+          if (screenshot) {
+            await this.attach(screenshot, 'image/png');
+            console.log(`📸 Screenshot saved: ${screenshotPath}`);
+          }
+        } catch (screenshotError) {
+          console.error('Failed to take failure screenshot:', screenshotError);
         }
-      } catch (screenshotError) {
-        console.error('Failed to take failure screenshot:', screenshotError);
+      }
+      
+      console.log('='.repeat(50));
+    } else {
+      // For successful tests, still attach URL if available
+      if (this.conversationUrl) {
+        await this.attach(`Conversation URL: ${this.conversationUrl}`, 'text/plain');
+        console.log(`✅ Test passed - Conversation URL: ${this.conversationUrl}`);
       }
     }
+    
   } catch (error) {
     console.error('Error in After hook:', error);
   } finally {
