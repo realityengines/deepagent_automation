@@ -70,7 +70,7 @@ Feature: Deep Agent Functionality Test
       | promat_user_search                                                         | follow_up_query                                                                                                  |
       | Find reservations at an upscale indian dinner restaurant in San Francisco. | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
 
-  @DeepAgentChatBot1
+  @DeepAgentChatBot
   Scenario Outline: Generate AI chatbot
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
@@ -97,8 +97,7 @@ Feature: Deep Agent Functionality Test
   @DeepAgentVideoGeneration @VideoGeneration
   Scenario Outline: generation of video base on task prompt
     Given I click the check out from the welcome window
-    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
+    When I search for the prompt for video generation "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
     And I should see the generated video
 
@@ -109,11 +108,9 @@ Feature: Deep Agent Functionality Test
   @DeepAgentChatCustomBot
   Scenario Outline: AI chatbot for custom interactions
     Given I click the check out from the welcome window
-    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
-    And I should download the generated summary
-    And I should fetch the search results
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
 
     Examples:

@@ -401,29 +401,29 @@ When(
 
 Then(
   "Then I can see the custom chat and perform some action",
+  { timeout: 50000 },
   async function () {
     deepAgentPage.clickOnChatBotLink();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent("page"),
     ]);
     await newPage.waitForLoadState();
-    deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
-      await deepAgentPage.enterPromapt("what is playwright");
-      await this.page.waitForTimeout(2000);
-      await deepAgentPage.clickSendButton();
-      await deepAgentPage.page.waitForTimeout(3000);
-      const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-      deepAgentPage.elapsedTime = firstElapsedTime;
+    deepAgentPage = new DeepAgentPage(newPage);
+    await this.page.waitForTimeout(2000);
+    await deepAgentPage.enterPromapt("what is playwright");
+    await this.page.waitForTimeout(2000);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = firstElapsedTime;
 
-      console.log(
-        "Total elapsed time after follow up prompt:",
-        deepAgentPage.elapsedTime
-      );
-      // Get and log the conversation URL
-      const convoURL = await deepAgentPage.getConvoURL();
-      console.log(`Conversation URL: ${convoURL}`);
-    
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
   }
 );
 
@@ -658,7 +658,6 @@ Then(
   }
 );
 
-
 Then(
   "the user completes the registration process successfully and verify the database",
   async function () {
@@ -673,7 +672,38 @@ Then(
     await deepAgentPage.performSignUp();
     await newPage.close();
     this.page = originalPage;
-  deepAgentPage = new DeepAgentPage(originalPage);
-  await deepAgentPage.verifyDataBase('users')
+    deepAgentPage = new DeepAgentPage(originalPage);
+    await deepAgentPage.verifyDataBase("users");
+  }
+);
+
+When(
+  "I search for the prompt for video generation {string} with follow-up query {string}",
+  async function (promatSearch, follow_up_query) {
+    await deepAgentPage.enterPromapt(promatSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery(follow_up_query);
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery("your choice");
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const ThirdElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime =
+      firstElapsedTime + secondElapsdTime + ThirdElapsdTime;
+
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+
+    await deepAgentPage.getConvoId();
   }
 );

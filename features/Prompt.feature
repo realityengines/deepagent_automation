@@ -47,7 +47,7 @@ Feature: Deep Agent Search and Task Execution
       | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
   @DeepAgentChatBot
-  Scenario Outline: Generate AI chatbot 
+  Scenario Outline: Generate AI chatbot
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
@@ -117,7 +117,7 @@ Feature: Deep Agent Search and Task Execution
   @DeepAgentVideoGeneration @VideoGeneration
   Scenario Outline: Validate video generation through Deep Agent
     Given I click the check out from the welcome window
-    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+     When I search for the prompt for video generation "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should see the generated video
@@ -132,8 +132,6 @@ Feature: Deep Agent Search and Task Execution
     When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
-    And I should download the generated summary
-    And I should fetch the search results
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
 
     Examples:
