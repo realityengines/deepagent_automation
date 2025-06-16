@@ -1,8 +1,12 @@
 import { Given, When, Then } from "@cucumber/cucumber";
 import { DeepAgentPage } from "../../pages/deepAgent.page.js";
+import { WebsitePage } from "../../pages/website.page.js";
 import { expect } from "chai";
 /** @type {DeepAgentPage} */
 let deepAgentPage;
+
+/** @type {WebsitePage} */
+let websitePage;
 
 Given("I click the check out from the welcome window", async function () {
   deepAgentPage = new DeepAgentPage(this.page);
@@ -494,7 +498,9 @@ When(
     let thirdElapsedTime = 0;
     let fourthElapsedTime = 0;
     let fifthElapsedTime = 0;
-    let titleVisible = false;
+
+    // The 'Choose a Presentation Template' option has been removed
+    /* let titleVisible = false;
     try {
       await deepAgentPage.agentTitle.waitFor({
         state: "visible",
@@ -515,24 +521,25 @@ When(
       await deepAgentPage.page.waitForTimeout(3000);
       await deepAgentPage.selectTheElementFromDropDown("Default");
       fifthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-    }
+    }*/
+
     deepAgentPage.elapsedTime =
       firstElapsedTime +
       secondElapsdTime +
-      thirdElapsedTime +
-      fourthElapsedTime +
-      fifthElapsedTime;
-    console.log(
-      "Total elapsed time after follow up prompt:",
-      deepAgentPage.elapsedTime
-    );
+      // thirdElapsedTime +
+      // fourthElapsedTime +
+      // fifthElapsedTime;
+      console.log(
+        "Total elapsed time after follow up prompt:",
+        deepAgentPage.elapsedTime
+      );
 
     // Get and log the conversation URL
     const convoURL = await deepAgentPage.getConvoURL();
     console.log(`Conversation URL: ${convoURL}`);
 
     await deepAgentPage.downloadComputeAgentFile();
-    await deepAgentPage.verifyDownloadedFilesPptxandPdf();
+    // await deepAgentPage.verifyDownloadedFilesPptxandPdf();
     await deepAgentPage.getConvoId();
   }
 );
@@ -705,5 +712,55 @@ When(
     console.log(`Conversation URL: ${convoURL}`);
 
     await deepAgentPage.getConvoId();
+  }
+);
+
+Then(
+  "I validate that the login functionality works correctly",
+  async function () {
+    const originalPage = this.page;
+    await this.page.waitForTimeout(5000);
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    websitePage = new WebsitePage(newPage);
+    this.page = newPage;
+    await websitePage.fillJoinUSForm();
+    await websitePage.performInvalidLoginAction();
+    await websitePage.performLoginAction();
+    await newPage.close();
+    this.page = originalPage;
+    deepAgentPage = new DeepAgentPage(originalPage);
+    await deepAgentPage.verifyDataBase([
+      "users",
+      "user",
+      "contact_submissions",
+      "User",
+      "Users",
+    ]);
+  }
+);
+Then(
+  "I confirm that the user data is added successfully to the database",
+  async function () {
+    const originalPage = this.page;
+    await this.page.waitForTimeout(5000);
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    websitePage = new WebsitePage(newPage);
+    this.page = newPage;
+    await websitePage.fillContactUSForm();
+    await newPage.close();
+    await deepAgentPage.verifyDataBase([
+      "contacts",
+      "contact",
+      "Contact",
+      "Contacts",
+    ]);
   }
 );

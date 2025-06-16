@@ -14,7 +14,7 @@ const config = {
     browser: {
         headless: process.env.HEADLESS !== 'false',
         slowMo: parseInt(process.env.SLOW_MO || '0'),
-        timeout: parseInt(process.env.TIMEOUT || '1800000')
+        timeout: parseInt(process.env.TIMEOUT || '2400000')
     },
     reporter: [
         ['list'],

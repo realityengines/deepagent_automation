@@ -23,6 +23,7 @@ export class LoginPage {
 
   async clickLoginButton() {
     await this.loginButton.click();
+    await this.page.waitForTimeout(3000);
   }
 
   getDashboardElement() {
