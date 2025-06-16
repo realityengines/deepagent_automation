@@ -129,28 +129,41 @@ export class DeepAgentPage {
       "[id*='rc:'] [data-icon*='download']"
     );
     this.spinLoadForFile = page.locator("[class*='block pointer']");
+
+    this.pdfFileIcon = page.locator("[data-icon*='file-pdf']");
+    this.pptxFileIcon = page.locator("[data-icon*='file-powerpoint']");
+    this.arrowsRotate = page.locator("[class*='fa-spin']");
+
     this.chatImage = page.locator("(//canvas[@role='img'])[1]");
 
-    // video gerneration 
-  this.videoGenerationPreview=page.locator("//span[contains(text(), 'Preview Video')]");
-  this.videoGenerationLink=page.locator("a[href*='https://cdn.abacus.ai/video']");
-  this.videoGenerationDownload=page.locator("[data-icon*='arrow-down-to-line']");
+    // video gerneration
+    this.videoGenerationPreview = page.locator(
+      "//span[contains(text(), 'Preview Video')]"
+    );
+    this.videoGenerationLink = page.locator(
+      "a[href*='https://cdn.abacus.ai/video']"
+    );
+    this.videoGenerationDownload = page.locator(
+      "[data-icon*='arrow-down-to-line']"
+    );
 
-  this.htmlCode=page.locator("(//span[.='html'])[1]");
+    this.htmlCode = page.locator("(//span[.='html'])[1]");
 
-  //  Perform the registration process-
-  this.signUpButton = page.locator("//*[text()='Sign Up']");
-  this.nameField= page.locator("[placeholder*='full name']");
-  this.emailField= page.locator("[placeholder*='email']");
-  this.passwordField = page.locator("(//*[@type='password'])[1]");
-  this.confirmPasswordField = page.locator("(//*[@type='password'])[2]");
+    //  Perform the registration process-
+    this.signUpButton = page.locator("//*[text()='Sign Up']");
+    this.nameField = page.locator("[placeholder*='full name']");
+    this.emailField = page.locator("[placeholder*='email']");
+    this.passwordField = page.locator("(//*[@type='password'])[1]");
+    this.confirmPasswordField = page.locator("(//*[@type='password'])[2]");
 
-  this.createAccountButton = page.locator("[type='submit']");
+    this.createAccountButton = page.locator("[type='submit']");
 
-  this.dropDownForDB= page.locator("(//button[@role='combobox'])[2]");
-  this.refreshButton= page.locator("[class*='center border-b'] svg[data-icon='arrows-rotate']")
+    this.dropDownForDB = page.locator("(//button[@role='combobox'])[2]");
+    this.refreshButton = page.locator(
+      "[class*='center border-b'] svg[data-icon='arrows-rotate']"
+    );
 
-  this.userAdded= page.locator("//*[text()='testuser@gmail.com']")
+    this.userAdded = page.locator("//*[text()='testuser@gmail.com']");
 
     this.elapsedTime = 0;
   }
@@ -202,7 +215,7 @@ export class DeepAgentPage {
 
   async waitforStopButtonInvisble() {
     const startTime = Date.now();
-    const maxWaitTime = 1800000; // 30 minutes in milliseconds
+    const maxWaitTime = 2400000; // 40 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
     let isVisible = true;
     // let elapsedTime = 0;
@@ -1278,48 +1291,131 @@ export class DeepAgentPage {
   }
 
   async clickOnDeployLink() {
+    await this, this.previewButton.click();
     await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
     await this.deployLink.click({ force: true, timeout: 10000 });
   }
 
+  // prevoius code for downalod by dropdown
+  // async downloadComputeAgentFile() {
+  //   await fs.mkdir(this.downloadPath, { recursive: true });
+
+  //   const fileTypes = ["PDF", "PPTX"];
+
+  //   for (const type of fileTypes) {
+  //     await this.flexTypeFile.click();
+  //     await this.page.waitForTimeout(1000);
+
+  //     const optionCount = await this.fileTypeOptions.count();
+  //     for (let i = 0; i < optionCount; i++) {
+  //       const option = this.fileTypeOptions.nth(i);
+  //       const text = await option.innerText();
+  //       if (text.includes(type)) {
+  //         const isSelected =
+  //           (await option.getAttribute("data-state")) === "checked";
+  //         if (!isSelected) {
+  //           await option.click();
+  //           await this.page.waitForTimeout(1000);
+  //         }
+  //         break;
+  //       }
+  //     }
+
+  //     await this.computerFileDownloadOption.waitFor({ state: "visible" });
+  //     const downloadPromise = this.page.waitForEvent("download", {
+  //       timeout: 200000,
+  //     });
+  //     await this.computerFileDownloadOption.click();
+  //     await this.waitforStopButtonInvisble();
+  //     await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 90000 });
+  //     const download = await downloadPromise;
+  //     const suggestedFileName = await download.suggestedFilename();
+  //     const fullPath = path.join(this.downloadPath, suggestedFileName);
+  //     await download.saveAs(fullPath);
+  //   }
+  //   await this.page.waitForTimeout(6000);
+  // }
+
   async downloadComputeAgentFile() {
     await fs.mkdir(this.downloadPath, { recursive: true });
-
-    const fileTypes = ["PDF", "PPTX"];
-
-    for (const type of fileTypes) {
-      await this.flexTypeFile.click();
-      await this.page.waitForTimeout(1000);
-
-      const optionCount = await this.fileTypeOptions.count();
-      for (let i = 0; i < optionCount; i++) {
-        const option = this.fileTypeOptions.nth(i);
-        const text = await option.innerText();
-        if (text.includes(type)) {
-          const isSelected =
-            (await option.getAttribute("data-state")) === "checked";
-          if (!isSelected) {
-            await option.click();
-            await this.page.waitForTimeout(1000);
-          }
-          break;
-        }
-      }
-
-      await this.computerFileDownloadOption.waitFor({ state: "visible" });
-      const downloadPromise = this.page.waitForEvent("download", {
-        timeout: 200000,
+    await this.pdfFileIcon.waitFor({ state: "visible" });
+    await this.pdfFileIcon.click();
+    await this.downalodFileicon();
+    const pdfDownload = await this.page
+      .waitForEvent("download", {
+        timeout: 250000,
+      })
+      .catch((err) => {
+        console.error("❌ PDF Download was not triggered after click.");
+        throw err;
       });
-      await this.computerFileDownloadOption.click();
-      await this.waitforStopButtonInvisble();
-      await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 90000 });
-      const download = await downloadPromise;
-      const suggestedFileName = await download.suggestedFilename();
-      const fullPath = path.join(this.downloadPath, suggestedFileName);
-      await download.saveAs(fullPath);
-    }
+
+    const pdfFileName = await pdfDownload.suggestedFilename();
+    const pdfFullPath = path.join(this.downloadPath, pdfFileName);
+    await pdfDownload.saveAs(pdfFullPath);
+    console.log(`✅ PDF downloaded: ${pdfFileName}`);
+
+    await this.pptxFileIcon.waitFor({ state: "visible" });
+    await this.pptxFileIcon.click();
+    await this.downalodFileicon();
+    const pptxDownload = await this.page
+      .waitForEvent("download", {
+        timeout: 250000,
+      })
+      .catch((err) => {
+        console.error("❌ PPTX Download was not triggered after click.");
+        throw err;
+      });
+
+    const pptxFileName = await pptxDownload.suggestedFilename();
+    const pptxFullPath = path.join(this.downloadPath, pptxFileName);
+    await pptxDownload.saveAs(pptxFullPath);
+    console.log(`✅ PPTX downloaded: ${pptxFileName}`);
+
     await this.page.waitForTimeout(6000);
   }
+
+  async downalodFileicon() {
+    const maxWaitTime = 300000; // 5 minutes
+    const checkInterval = 10000; // 10 seconds
+    const startTime = Date.now();
+    let elapsedTime = 0;
+    let isVisible = true;
+
+    while (isVisible && Date.now() - startTime < maxWaitTime) {
+      try {
+        isVisible = await this.spinLoadForFile.isVisible({ timeout: 1000 });
+        elapsedTime = Date.now() - startTime;
+
+        if (!isVisible) {
+          break;
+        }
+        if (elapsedTime % 30000 < checkInterval) {
+          console.log(
+            `Spinner still visible after ${Math.floor(
+              elapsedTime / 1000
+            )} seconds. Waiting...`
+          );
+        }
+
+        await this.page.waitForTimeout(checkInterval);
+      } catch (error) {
+        console.log(`Error checking spinner visibility: ${error.message}`);
+        isVisible = false;
+        break;
+      }
+    }
+    try {
+      await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 5000 });
+    } catch (error) {
+      console.log(`Final spinner check failed: ${error.message}`);
+    }
+
+    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    console.log(`Spinner disappeared after ${elapsedSeconds} seconds`);
+    return elapsedSeconds;
+  }
+
   async verifyDownloadedFilesPptxandPdf() {
     const texts = await this.page
       .locator("p[class*='text-ellipsis']")
@@ -1338,47 +1434,39 @@ export class DeepAgentPage {
     await this.page.waitForTimeout(2000);
   }
 
-
-  async verifyVideoGeneration(){
-      const previewVisible = await this.videoGenerationPreview.isVisible();
-      if (!previewVisible) return;
-      // const linkVisible = await this.videoGenerationLink.isVisible();
-      // if (!linkVisible) return;
-      await fs.mkdir(this.downloadPath, { recursive: true });
-      const [download] = await Promise.all([
-        this.page.waitForEvent('download'),
-        this.videoGenerationDownload.click(),
-      ]);
-      const suggestedFileName = download.suggestedFilename();
-      const filePath = path.join(this.downloadPath, suggestedFileName);
-      await download.saveAs(filePath);
-    }
-
-
-    async performSignUp()
-    {
-      await this.page.waitForTimeout(2000)
-      await this.signUpButton.click();
-      await this.nameField.fill("Test User");
-      await this.emailField.fill("testuser@gmail.com");
-      await this.passwordField.fill("password123");
-      await this.confirmPasswordField.fill("password123");
-      await this.createAccountButton.click();
-      await this.page.waitForTimeout(5000);
-    }
-    async verifyDataBase(tableName)
-    {
-      await this.dataBase.click();
-      await this.dropDownForDB.click();
-      await this.page.waitForTimeout(3000);
-      await this.page.getByRole('option', { name:tableName}).click();
-      await this.page.waitForTimeout(3000);
-      await this.refreshButton.click();
-      await this.page.waitForTimeout(3000);
-      await this.userAdded.isVisible();
-    }
-    
+  async verifyVideoGeneration() {
+    const previewVisible = await this.videoGenerationPreview.isVisible();
+    if (!previewVisible) return;
+    // const linkVisible = await this.videoGenerationLink.isVisible();
+    // if (!linkVisible) return;
+    await fs.mkdir(this.downloadPath, { recursive: true });
+    const [download] = await Promise.all([
+      this.page.waitForEvent("download"),
+      this.videoGenerationDownload.click(),
+    ]);
+    const suggestedFileName = download.suggestedFilename();
+    const filePath = path.join(this.downloadPath, suggestedFileName);
+    await download.saveAs(filePath);
   }
 
-
-
+  async performSignUp() {
+    await this.page.waitForTimeout(2000);
+    await this.signUpButton.click();
+    await this.nameField.fill("Test User");
+    await this.emailField.fill("testuser@gmail.com");
+    await this.passwordField.fill("password123");
+    await this.confirmPasswordField.fill("password123");
+    await this.createAccountButton.click();
+    await this.page.waitForTimeout(5000);
+  }
+  async verifyDataBase(tableName) {
+    await this.dataBase.click();
+    await this.dropDownForDB.click();
+    await this.page.waitForTimeout(3000);
+    await this.page.getByRole("option", { name: tableName }).click();
+    await this.page.waitForTimeout(3000);
+    await this.refreshButton.click();
+    await this.page.waitForTimeout(3000);
+    await this.userAdded.isVisible();
+  }
+}
