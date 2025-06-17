@@ -83,8 +83,8 @@ export class DeepAgentPage {
 
     this.dropDown = page.locator("[role*='combobox']");
 
-    this.CreatedChatBotlink = page.locator("a[href*='https://apps.']");
-    this.CreatedChatBotlink = page.locator("a[href*='apps.abacus.ai']");
+    // this.CreatedChatBotlink = page.locator("a[href*='https://apps.']");
+    this.CreatedChatBotlink = page.locator("(//a[contains(@href, 'apps.abacus.ai')])[1]");
     this.previewWebPage = page.locator("[data-icon*='globe-pointer']");
     this.dataBase = page.locator("[data-icon*='database']");
     this.previewButton = page.locator("[data-icon='play']");
@@ -134,7 +134,7 @@ export class DeepAgentPage {
     this.pptxFileIcon = page.locator("[data-icon*='file-powerpoint']");
     this.arrowsRotate = page.locator("[class*='fa-spin']");
 
-    this.chatImage = page.locator("(//canvas[@role='img'])[1]");
+    this.chatImage = page.locator("[class='recharts-layer recharts-pie']");
 
     // video gerneration
     this.videoGenerationPreview = page.locator(
@@ -1394,30 +1394,28 @@ export class DeepAgentPage {
     const checkInterval = 10000; // Check every 10 seconds
     const startTime = Date.now();
     let isVisible = true;
-    let elapsedTime = 0;
+    let elapsedTimeDuration = 0;
 
     while (isVisible && Date.now() - startTime < maxWaitTime) {
       try {
-  
         isVisible = await this.spinLoadForFile.isVisible({ timeout: 10000 });
-        elapsedTime = Date.now() - startTime;
+        elapsedTimeDuration = Date.now() - startTime;
 
         if (!isVisible) {
           break; // spinner is gone
         }
-        if (elapsedTime % 10000 < checkInterval) {
+        if (elapsedTimeDuration % 10000 < checkInterval) {
           console.log(
             `⏳ Spinner still visible after ${Math.floor(
-              elapsedTime / 1000
+              elapsedTimeDuration / 1000
             )} seconds. Waiting...`
           );
         }
 
         await this.page.waitForTimeout(checkInterval);
       } catch (error) {
-
         isVisible = false;
-        elapsedTime = Date.now() - startTime;
+        elapsedTimeDuration = Date.now() - startTime;
         break;
       }
     }
@@ -1427,13 +1425,11 @@ export class DeepAgentPage {
       console.log(`Final spinner hidden check failed: ${error.message}`);
     }
 
-    const elapsedSeconds = Math.floor(elapsedTime / 1000);
+    const elapsedSeconds = Math.floor(elapsedTimeDuration / 1000);
     console.log(`✅ Spinner disappeared after ${elapsedSeconds} seconds`);
-    return elapsedSeconds;
+    return elapsedTimeDuration;
   }
-  async verifyNumberOfSlides() {
-    
-  }
+  async verifyNumberOfSlides() {}
 
   async verifyDownloadedFilesPptxandPdf() {
     const texts = await this.page
@@ -1478,11 +1474,18 @@ export class DeepAgentPage {
     await this.createAccountButton.click();
     await this.page.waitForTimeout(5000);
   }
-  async verifyDataBase(tableName) {
+
+  async verifyDataBase(possibleTableNames) {
     await this.dataBase.click();
     await this.dropDownForDB.click();
     await this.page.waitForTimeout(3000);
-    await this.page.getByRole("option", { name: tableName }).click();
+    for (const tableName of possibleTableNames) {
+      const option = this.page.getByRole("option", { name: tableName });
+      if (await option.isVisible()) {
+        await option.click();
+        break;
+      }
+    }
     await this.page.waitForTimeout(3000);
     await this.refreshButton.click();
     await this.page.waitForTimeout(3000);

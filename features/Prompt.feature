@@ -7,6 +7,7 @@ Feature: Deep Agent Search and Task Execution
   Background:
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
     Then I should be logged in successfully
+    And I select the default LLM "RouteLLM"
     When I click the deep Agent option
 
   @DeepAgentSearchPrompt
@@ -129,7 +130,7 @@ Feature: Deep Agent Search and Task Execution
   @DeepAgentChatCustomBot
   Scenario Outline: AI chatbot for custom interactions
     Given I click the check out from the welcome window
-    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+   When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
