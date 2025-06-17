@@ -1338,61 +1338,76 @@ export class DeepAgentPage {
 
   async downloadComputeAgentFile() {
     await fs.mkdir(this.downloadPath, { recursive: true });
-    await this.pdfFileIcon.waitFor({ state: "visible" });
-    await this.pdfFileIcon.click();
-    await this.downalodFileicon();
-    const pdfDownload = await this.page
-      .waitForEvent("download", {
-        timeout: 250000,
-      })
-      .catch((err) => {
-        console.error("❌ PDF Download was not triggered after click.");
-        throw err;
-      });
 
-    const pdfFileName = await pdfDownload.suggestedFilename();
-    const pdfFullPath = path.join(this.downloadPath, pdfFileName);
-    await pdfDownload.saveAs(pdfFullPath);
-    console.log(`✅ PDF downloaded: ${pdfFileName}`);
+    // Download PDF
+    await this.downalodFileicon(); // Wait for spinner
+    await this.waitForFileIconAfterLoading(this.pdfFileIcon, "PDF");
+    await this.triggerDownload(this.pdfFileIcon, "PDF");
 
-    await this.pptxFileIcon.waitFor({ state: "visible" });
-    await this.pptxFileIcon.click();
-    await this.downalodFileicon();
-    const pptxDownload = await this.page
-      .waitForEvent("download", {
-        timeout: 250000,
-      })
-      .catch((err) => {
-        console.error("❌ PPTX Download was not triggered after click.");
-        throw err;
-      });
-
-    const pptxFileName = await pptxDownload.suggestedFilename();
-    const pptxFullPath = path.join(this.downloadPath, pptxFileName);
-    await pptxDownload.saveAs(pptxFullPath);
-    console.log(`✅ PPTX downloaded: ${pptxFileName}`);
+    // Download PPTX
+    await this.downalodFileicon(); // Wait again for spinner
+    await this.waitForFileIconAfterLoading(this.pptxFileIcon, "PPTX");
+    await this.triggerDownload(this.pptxFileIcon, "PPTX");
 
     await this.page.waitForTimeout(6000);
   }
 
+  async waitForFileIconAfterLoading(fileIcon, fileType = "File") {
+    // Step 1: Wait after spinner (already done in downalodFileicon)
+    console.log(`⏳ Waiting for ${fileType} icon to be visible...`);
+    try {
+      await fileIcon.waitFor({ state: "visible", timeout: 180000 }); // 3 min timeout
+      console.log(`✅ ${fileType} icon is now visible.`);
+    } catch (err) {
+      console.error(`❌ ${fileType} icon did not appear within timeout.`);
+      throw err;
+    }
+  }
+
+  async triggerDownload(icon, label = "File") {
+    console.log(`Clicking ${label} download icon...`);
+    await this.page.waitForTimeout(2000);
+
+    let download;
+    try {
+      await icon.waitFor({ state: "visible", timeout: 20000 });
+      const downloadPromise = this.page.waitForEvent("download", {
+        timeout: 300000,
+      }); // 5 mins max
+
+      await icon.click(); // Trigger the download
+
+      download = await downloadPromise;
+    } catch (err) {
+      console.error(`❌ ${label} Download was not triggered after click.`);
+      throw err;
+    }
+
+    const fileName = await download.suggestedFilename();
+    const fullPath = path.join(this.downloadPath, fileName);
+    await download.saveAs(fullPath);
+    console.log(`✅ ${label} downloaded: ${fileName}`);
+  }
+
   async downalodFileicon() {
-    const maxWaitTime = 300000; // 5 minutes
-    const checkInterval = 10000; // 10 seconds
+    const maxWaitTime = 360000; // 6 minutes in milliseconds
+    const checkInterval = 10000; // Check every 10 seconds
     const startTime = Date.now();
-    let elapsedTime = 0;
     let isVisible = true;
+    let elapsedTime = 0;
 
     while (isVisible && Date.now() - startTime < maxWaitTime) {
       try {
-        isVisible = await this.spinLoadForFile.isVisible({ timeout: 1000 });
+  
+        isVisible = await this.spinLoadForFile.isVisible({ timeout: 10000 });
         elapsedTime = Date.now() - startTime;
 
         if (!isVisible) {
-          break;
+          break; // spinner is gone
         }
-        if (elapsedTime % 30000 < checkInterval) {
+        if (elapsedTime % 10000 < checkInterval) {
           console.log(
-            `Spinner still visible after ${Math.floor(
+            `⏳ Spinner still visible after ${Math.floor(
               elapsedTime / 1000
             )} seconds. Waiting...`
           );
@@ -1400,20 +1415,24 @@ export class DeepAgentPage {
 
         await this.page.waitForTimeout(checkInterval);
       } catch (error) {
-        console.log(`Error checking spinner visibility: ${error.message}`);
+
         isVisible = false;
+        elapsedTime = Date.now() - startTime;
         break;
       }
     }
     try {
       await this.spinLoadForFile.waitFor({ state: "hidden", timeout: 5000 });
     } catch (error) {
-      console.log(`Final spinner check failed: ${error.message}`);
+      console.log(`Final spinner hidden check failed: ${error.message}`);
     }
 
-    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`Spinner disappeared after ${elapsedSeconds} seconds`);
+    const elapsedSeconds = Math.floor(elapsedTime / 1000);
+    console.log(`✅ Spinner disappeared after ${elapsedSeconds} seconds`);
     return elapsedSeconds;
+  }
+  async verifyNumberOfSlides() {
+    
   }
 
   async verifyDownloadedFilesPptxandPdf() {
