@@ -88,6 +88,7 @@ Feature: Deep Agent Search and Task Execution
       | promat_user_search                                                                                                                                                                    | follow_up_query       |
       | fetch data about formula one drivers for 2025 season. Create a powerpoint presentation that talks about each team, the drivers, team principle etc. Give some fun facts. Add pictures | proceed               |
       | create a presentation on climate change. 10 slides                                                                                                                                    | make the best choices |
+      | Internet safety tips for teenagers for class 8th PPT                                                                                                                                  | Your choice           |
 
   @DeepAgentMCPTask
   Scenario Outline: Search default MCP task from Deep Agent
@@ -130,7 +131,7 @@ Feature: Deep Agent Search and Task Execution
   @DeepAgentChatCustomBot
   Scenario Outline: AI chatbot for custom interactions
     Given I click the check out from the welcome window
-   When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"

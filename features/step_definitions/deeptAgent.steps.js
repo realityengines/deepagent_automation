@@ -41,6 +41,8 @@ When(
 );
 
 Then("I should see the status {string} for the task", async function (status) {
+  await deepAgentPage.waitforStopButtonInvisble();
+  await deepAgentPage.page.waitForTimeout(3000);
   const hasExpectedStatus = await deepAgentPage.getStatusOfTask(status);
   expect(hasExpectedStatus).to.be.true;
 });
@@ -716,6 +718,8 @@ Then(
     await newPage.waitForLoadState();
     deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
     await deepAgentPage.performSignUp();
     await newPage.close();
     this.page = originalPage;
@@ -767,6 +771,10 @@ Then(
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
+
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
     await websitePage.fillJoinUSForm();
     await websitePage.performInvalidLoginAction();
     await websitePage.performLoginAction();

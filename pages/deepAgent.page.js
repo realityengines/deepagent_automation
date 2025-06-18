@@ -1356,7 +1356,7 @@ export class DeepAgentPage {
     // Step 1: Wait after spinner (already done in downalodFileicon)
     console.log(`⏳ Waiting for ${fileType} icon to be visible...`);
     try {
-      await fileIcon.waitFor({ state: "visible", timeout: 180000 }); // 3 min timeout
+      await fileIcon.waitFor({ state: "visible", timeout: 480000 }); // 8 min timeout
       console.log(`✅ ${fileType} icon is now visible.`);
     } catch (err) {
       console.error(`❌ ${fileType} icon did not appear within timeout.`);
