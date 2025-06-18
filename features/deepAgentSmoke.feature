@@ -78,8 +78,8 @@ Feature: Deep Agent Functionality Test
     Then Then I can see the custom chat and perform some action
 
     Examples:
-      | promat_user_search    | follow_up_query                                                                                                                |
-      | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
+      | promat_user_search    | follow_up_query                                                                                                                                           |
+      | Personal AI assistant |Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @DeepAgentPowerpoint @pptx
   Scenario Outline: generate pptx base  on task prompt
