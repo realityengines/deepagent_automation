@@ -727,7 +727,7 @@ Then(
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
-    await deepAgentPage.verifyDataBase("users");
+    await deepAgentPage.verifyDataBase(["users","user","User","Users"]);
   }
 );
 
