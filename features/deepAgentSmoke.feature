@@ -78,8 +78,8 @@ Feature: Deep Agent Functionality Test
     Then Then I can see the custom chat and perform some action
 
     Examples:
-      | promat_user_search    | follow_up_query                                                                                                                                           |
-      | Personal AI assistant |Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
+      | promat_user_search    | follow_up_query                                                                                                                                            |
+      | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @DeepAgentPowerpoint @pptx
   Scenario Outline: generate pptx base  on task prompt
@@ -129,5 +129,5 @@ Feature: Deep Agent Functionality Test
     Then the user completes the registration process successfully and verify the database
 
     Examples:
-      | promat_user_search                                                                                                                                                                                                                                | follow_up_query                                                                                                                                                         |
-      | Create a website with a home page, login page, and sign-up page connected to a database. The sign-up page must always show four fixed fields: full name, email, password, and confirm password, and store user data upon successful registration. | Build me a portfolio website with user authentication, where sign-up stores user data in the database, and login redirects to the home page with a clean, modern design |
+      | promat_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         |
+      | Create a website with a home page, login page, and sign-up page with header connected to a database. The sign-up page must always show four fixed fields: full name, email, password, and confirm password, and store user data upon successful registration. | Build me a portfolio website with user authentication, where sign-up stores user data in the database, and login redirects to the home page with a clean, modern design |

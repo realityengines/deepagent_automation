@@ -718,8 +718,11 @@ Then(
     await newPage.waitForLoadState();
     deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
+
     const convoURL = await deepAgentPage.getConvoURL();
     console.log(`Conversation URL: ${convoURL}`);
+    await deepAgentPage.getConvoId();
+    
     await deepAgentPage.performSignUp();
     await newPage.close();
     this.page = originalPage;
