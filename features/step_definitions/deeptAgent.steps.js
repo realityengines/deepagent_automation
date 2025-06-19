@@ -767,9 +767,9 @@ Then(
   async function () {
     const originalPage = this.page;
     await this.page.waitForTimeout(5000);
-    deepAgentPage.clickOnDeployLink();
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 120000 }), // 2 min
+      deepAgentPage.clickOnDeployLink(), // trigger new tab
     ]);
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);

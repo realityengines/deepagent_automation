@@ -115,7 +115,7 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | promat_user_search                                                                                                                                                                                                                                                                       | follow_up_query | Prompt_for_custom_chatBot                                                |
-      | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Your call       | What are the key matchups to watch in the upcoming Wimbledon tournament? |
+      | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action.  and create a chatbot link | Your call       | What are the key matchups to watch in the upcoming Wimbledon tournament? |
 
   @DeepAgentDataBase
   Scenario Outline: creates an app based on task prompt

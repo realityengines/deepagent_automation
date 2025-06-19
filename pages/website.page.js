@@ -16,7 +16,7 @@ export class WebsitePage {
         this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.submitButton=this.page.locator("[type='submit']");
-        this.loginLink=this.page.locator("(//*[contains(text(),'Login')])[1]");
+        this.loginLink=this.page.locator("(//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
         this.contactLink=this.page.locator("(//*[contains(text(),'Contact')])[1]");
         this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
