@@ -322,6 +322,10 @@ export class DeepAgentPage {
         console.warn("No compute point elements found");
         return 0;
       }
+     
+    await this.computePoint.first().scrollIntoViewIfNeeded();
+    console.log("Scrolled to first compute point element");
+
 
       // Sum up all compute points from all elements
       let totalPoints = 0;
