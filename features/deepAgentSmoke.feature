@@ -131,3 +131,17 @@ Feature: Deep Agent Functionality Test
     Examples:
       | promat_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         |
       | Create a website with a home page, login page, and sign-up page with header connected to a database. The sign-up page must always show four fixed fields: full name, email, password, and confirm password, and store user data upon successful registration. | Build me a portfolio website with user authentication, where sign-up stores user data in the database, and login redirects to the home page with a clean, modern design |
+
+
+@DeepAgentUrl
+  Scenario Outline: creates an app and verify the urls
+    Given I click the check out from the welcome window
+    When I search the prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should deploy the created website
+    Then Verify all the page links are are 200
+
+    Examples:
+      | promat_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         |
+      | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call |
