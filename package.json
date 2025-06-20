@@ -39,7 +39,9 @@
     "node-fetch": "^3.3.2",
     "path": "^0.12.7",
     "playwright": "^1.35.0",
-    "rimraf": "^5.0.0"
+    "rimraf": "^5.0.0",
+    "libreoffice-convert": "^1.6.1",
+    "openai": "^5.1.1"
   },
   "devDependencies": {
     "chai": "^5.2.0",
