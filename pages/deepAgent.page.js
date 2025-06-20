@@ -96,6 +96,9 @@ export class DeepAgentPage {
       "//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')]"
     );
     this.deploymentName = page.locator("input[class*='flex-1 text-darkcolor']");
+
+    this.deploymentUrl = page.locator("//*[text()='Deployed URL:']//following-sibling::div/a");
+
     this.deployButton = page.locator(
       "//button[contains(@class, 'inline-flex') and contains(@class, 'bg-bwleftblue') and contains(text(), 'Deploy')]"
     );
@@ -710,10 +713,6 @@ export class DeepAgentPage {
       // Don't throw an error, just return false
       return false;
     }
-  }
-
-  async closeBrowserPopup() {
-    await this.browserPopup.click();
   }
 
   async searchAndFetchAllResults() {

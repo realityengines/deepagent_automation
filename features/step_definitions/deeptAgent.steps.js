@@ -564,6 +564,24 @@ Then("I should deploy the website", async function () {
   expect(messageText).to.include("Deployment successful!");
 });
 
+Then("I should deploy the created website", async function () {
+  const randomDeploymentName = `webtest-${Math.random()
+    .toString(36)
+    .substring(2, 8)}`;
+
+  await deepAgentPage.deployOption.click();
+  await deepAgentPage.deploymentName.fill(randomDeploymentName);
+  await deepAgentPage.deployButton.click();
+  await deepAgentPage.deploysucessmessage.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+  const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
+  expect(isVisible).to.be.true;
+  const messageText = await deepAgentPage.deploysucessmessage.textContent();
+  expect(messageText).to.include("Deployment successful!");
+});
+
 // Then(
 //   "the website should display correct tabs, graphs, and navigation bar",
 //   async function () {
@@ -722,12 +740,12 @@ Then(
     const convoURL = await deepAgentPage.getConvoURL();
     console.log(`Conversation URL: ${convoURL}`);
     await deepAgentPage.getConvoId();
-    
+
     await deepAgentPage.performSignUp();
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
-    await deepAgentPage.verifyDataBase(["users","user","User","Users"]);
+    await deepAgentPage.verifyDataBase(["users", "user", "User", "Users"]);
   }
 );
 
@@ -777,7 +795,7 @@ Then(
 
     const convoURL = await deepAgentPage.getConvoURL();
     console.log(`Conversation URL: ${convoURL}`);
-    
+
     await websitePage.fillJoinUSForm();
     await websitePage.performInvalidLoginAction();
     await websitePage.performLoginAction();
@@ -815,3 +833,159 @@ Then(
     ]);
   }
 );
+
+Then("Verify all the page links are are 200", async function () {
+  try {
+    console.log("\n=== Verifying All Page Links ===\n");
+
+    // Store the original page
+    const originalPage = this.page;
+
+    // Click on deployment URL which opens in a new tab
+    console.log("Clicking on deployment URL to open the deployed website...");
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      deepAgentPage.deploymentUrl.click(),
+    ]);
+
+    // Wait for the new page to load
+    await newPage.waitForLoadState("domcontentloaded");
+    console.log(`New page opened: ${await newPage.title()}`);
+
+    // Switch to the new page for link verification
+    this.page = newPage;
+
+    // Get all links on the page
+    console.log("Searching for links on the page...");
+    await newPage.waitForTimeout(2000); // Give the page a moment to fully render
+
+    // Use evaluate to get all links directly from the DOM
+    const links = await newPage.evaluate(() => {
+      const anchors = Array.from(
+        document.querySelectorAll(
+          'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"])'
+        )
+      );
+      return anchors.map((a) => ({
+        href: a.href,
+        text: a.textContent.trim() || a.href,
+      }));
+    });
+
+    console.log(`Found ${links.length} links to verify`);
+
+    let successCount = 0;
+    let failedLinks = [];
+
+    // Check each link
+    for (let i = 0; i < links.length; i++) {
+      const link = links[i];
+      const href = link.href;
+      const linkText = link.text;
+
+      try {
+        // Create a new context to avoid affecting the current page
+        const context = await newPage.context();
+        const page = await context.newPage();
+
+        // Set a timeout for the request
+        console.log(`Testing link: ${href}`);
+        const response = await page.goto(href, {
+          timeout: 30000,
+          waitUntil: "domcontentloaded",
+        });
+        const status = response.status();
+        await this.page.waitForTimeout(2000);
+
+        if (status === 200) {
+          console.log(
+            `✅ Link ${i + 1}/${
+              links.length
+            }: "${linkText}" (${href}) - Status: ${status}`
+          );
+          successCount++;
+        } else {
+          console.warn(
+            `⚠️ Link ${i + 1}/${
+              links.length
+            }: "${linkText}" (${href}) - Status: ${status}`
+          );
+          failedLinks.push({ text: linkText, href, status });
+        }
+
+        await page.close();
+      } catch (error) {
+        console.error(
+          `❌ Link ${i + 1}/${links.length}: "${linkText}" (${href}) - Error: ${
+            error.message
+          }`
+        );
+        failedLinks.push({ text: linkText, href, error: error.message });
+      }
+    }
+
+    // Summary
+    console.log("\n=== Link Verification Summary ===\n");
+    console.log(`Total Links: ${links.length}`);
+    console.log(`Successful (200): ${successCount}`);
+    console.log(`Failed: ${failedLinks.length}`);
+
+    if (failedLinks.length > 0) {
+      console.log("\nFailed Links:");
+      failedLinks.forEach((link, index) => {
+        console.log(
+          `${index + 1}. "${link.text}" (${link.href}) - ${
+            link.status || link.error
+          }`
+        );
+      });
+    }
+
+    // Close the new page and switch back to the original page
+    await newPage.close();
+    this.page = originalPage;
+    console.log("Returned to original page");
+
+    // Get the conversation URL if available
+    try {
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`\nConversation URL: ${convoURL}`);
+    } catch (error) {
+      console.log("Conversation URL not available");
+    }
+    // Add URL status information to the HTML report
+    const urlStatusReport = [
+      "=== URL VERIFICATION RESULTS ===",
+      `Total Links: ${links.length}`,
+      `Successful (200): ${successCount}`,
+      `Failed: ${failedLinks.length}`,
+      "\nSuccessful Links:",
+      ...links
+        .filter((link) => !failedLinks.some((fl) => fl.href === link.href))
+        .map(
+          (link, i) => `${i + 1}. "${link.text}" (${link.href}) - Status: 200`
+        ),
+      "\nFailed Links:",
+      ...failedLinks.map(
+        (link, i) =>
+          `${i + 1}. "${link.text}" (${link.href}) - ${
+            link.status || link.error
+          }`
+      ),
+    ].join("\n");
+
+    await this.attach(urlStatusReport, "text/plain");
+    // Assert that all links returned 200
+    expect(failedLinks.length).to.equal(
+      0,
+      `${failedLinks.length} links failed with non-200 status codes`
+    );
+
+    console.log("\n=== Link Verification Complete ===\n");
+  } catch (error) {
+    console.error("\n=== Error Verifying Links ===\n");
+    console.error(error.message);
+    console.error("\n==============================\n");
+    throw error;
+  }
+});
