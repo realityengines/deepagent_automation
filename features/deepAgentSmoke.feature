@@ -42,7 +42,7 @@ Feature: Deep Agent Functionality Test
     Examples:
       | promat_user_search                                                                          | follow_up_query                       |
       | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call                         |
-      | Slack to improve productivity                                                               | Your call with limited functionality. |
+      | How to manage notifications in Slack to avoid distractions and stay focused                 | Your call with limited functionality. |
 
   @DeepAgentResearch
   Scenario Outline: Research functionality base on task prompt
