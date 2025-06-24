@@ -27,15 +27,22 @@ When(
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
     deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
 
-    console.log(
-      "Total elapsed time after follow up prompt:",
-      deepAgentPage.elapsedTime
-    );
+    const hasExpectedStatus = await deepAgentPage.getStatusOfTask("Completed");
+    console.log(`Status found: ${hasExpectedStatus}`);
 
-    // Get and log the conversation URL
+    // Send fallback prompt only if status not found
+    if (!hasExpectedStatus) {
+      console.log("Status not found, sending fallback prompt...");
+      await deepAgentPage.enterPromaptQuery("your call");
+      await deepAgentPage.page.waitForTimeout(3000);
+      await deepAgentPage.clickSendButton();
+      const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+      deepAgentPage.elapsedTime += thirdElapsedTime;
+    }
+
+    console.log("Total elapsed time after prompts:", deepAgentPage.elapsedTime);
     const convoURL = await deepAgentPage.getConvoURL();
     console.log(`Conversation URL: ${convoURL}`);
-
     await deepAgentPage.getConvoId();
   }
 );
@@ -988,4 +995,62 @@ Then("Verify all the page links are are 200", async function () {
     console.error("\n==============================\n");
     throw error;
   }
+});
+
+Then(
+  "I enter the ingredients and validate the generated response",
+  async function () {
+    const originalPage = this.page;
+    await this.page.waitForTimeout(5000);
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    websitePage = new WebsitePage(newPage);
+    this.page = newPage;
+    await websitePage.enterTheRecipeData();
+    await newPage.close();
+    this.page = originalPage;
+    deepAgentPage = new DeepAgentPage(originalPage);
+    await deepAgentPage.previewButton.click();
+  }
+);
+
+Then(
+  "I upload the file and validate the database integrity",
+  async function () {
+    const originalPage = this.page;
+    await this.page.waitForTimeout(5000);
+    deepAgentPage.clickOnDeployLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    websitePage = new WebsitePage(newPage);
+    this.page = newPage;
+    await websitePage.uploadTheFile();
+    await newPage.close();
+    this.page = originalPage;
+    deepAgentPage = new DeepAgentPage(originalPage);
+    await this.page.waitForTimeout(3000);
+    await deepAgentPage.verifyDataBase(["documents", "contract"]);
+  }
+);
+
+Then("I enter the resume details and analysis the resume", async function () {
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  deepAgentPage.clickOnDeployLink();
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page"),
+  ]);
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await websitePage.analysisTheResume();
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  await this.page.waitForTimeout(3000);
 });
