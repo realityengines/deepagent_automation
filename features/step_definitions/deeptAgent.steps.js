@@ -870,7 +870,7 @@ Then("Verify all the page links are are 200", async function () {
     const links = await newPage.evaluate(() => {
       const anchors = Array.from(
         document.querySelectorAll(
-          'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"])'
+          'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"]):not([href^="tel:"])'
         )
       );
       return anchors.map((a) => ({
