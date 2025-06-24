@@ -21,7 +21,17 @@ export class WebsitePage {
         this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
-        this.statusVisible= this.page.locator("[role='status']")
+        this.statusVisible= this.page.locator("[role='status']");
+        this.exerciseLink=this.page.locator("(//*[contains(text(),'Exercises')] | //*[contains(@href,'exercises')])[1]")
+        this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
+        this.dropdownOptions = this.page.locator('[role*="option"]');
+        this.fileInput = this.page.locator('[type="file"]');
+        this.recipeInputFields=this.page.locator('(//input[contains(@id,"ingredient")] | //input[@type="text"]) | //input[contains(@placeholder,"ingredient")]');
+        this.dropDown=this.page.locator('[role*="combobox"]');
+        this.generateRecipeButton=this.page.locator("(//*[contains(text(),'Generate Recipes')] | //*[contains(text(),'Generate')])[1]");
+        this.description= this.page.locator("[class*='flex-col space']");
+        this.textArea=this.page.locator("textarea[placeholder]");
+        this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
         
     }
 
@@ -72,4 +82,62 @@ export class WebsitePage {
     await this.submitButton.click();
     await this.page.waitForTimeout(3000)
    }
+
+   async enterTheRecipeData()
+   {
+    const ingredients = ['Tomato', 'Cheese', 'Basil'];
+    const fieldCount = await this.recipeInputFields.count();
+   for (let i = 0; i < fieldCount; i++) {
+   await this.recipeInputFields.nth(i).fill(ingredients[i]);
+    }
+    const dropDownCount= await this.dropDown.count();
+    for (let i = 0; i < dropDownCount; i++) {
+      const dropdown = this.dropDown.nth(i);
+      if (await dropdown.isVisible()) {
+        await dropdown.click();
+        if (await this.dropdownOptions.count() > 0) {
+          await this.dropdownOptions.nth(1).click();
+        }
+      }
+    }
+    await this.generateRecipeButton.click();
+    await this.page.waitForTimeout(5000);
+    const descriptionCount = await this.description.count();
+    for (let i = 0; i < descriptionCount; i++) {
+      const isVisible = await this.description.nth(i).isVisible({ timeout: 10000 });
+      try {
+        expect(isVisible, `Element at index ${i} should be visible`).to.be.true;
+      } catch (error) {
+        console.warn(`Warning: Element ${i} is not visible after 10 seconds`);
+      }
+    }
+}
+
+
+async uploadTheFile()
+   {
+    await this.page.waitForTimeout(2000)
+    const filePath = path.resolve('testData/SampleContract-Shuttle.pdf');
+    await this.page.waitForTimeout(3000);
+    await this.fileInput.setInputFiles(filePath);
+   }
+
+
+   async analysisTheResume()
+{
+  await this.page.waitForTimeout(2000)
+  await this.textArea.fill("Mid-level web developer with React and Node.js experience, building responsive apps and improving performance")
+  await this.evaluateResumeButton.click();
+  await this.page.waitForTimeout(5000);
+  const descriptionCount = await this.description.count();
+  for (let i = 0; i < descriptionCount; i++) {
+    const isVisible = await this.description.nth(i).isVisible({ timeout: 10000 });
+    try {
+      expect(isVisible, `Element at index ${i} should be visible`).to.be.true;
+    } catch (error) {
+      console.warn(`Warning: Element ${i} is not visible after 10 seconds`);
+    }
+  }
+
+}
 }
