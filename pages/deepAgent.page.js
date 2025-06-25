@@ -168,6 +168,17 @@ export class DeepAgentPage {
 
     this.userAdded = page.locator("//*[text()='testuser@gmail.com']");
 
+    //DaemonsBrowseruse
+    this.taskMenu=page.locator("[aria-haspopup*='menu'] div");
+    this.taskOptions=page.locator("[role='menuitem']")
+    this.testTask=page.locator("//*[text()='Test Task']");
+    this.browser=page.locator("//*[text()='Browser']");
+    this.successStatus = page.locator("[data-icon='thumbs-up']");
+    this.newSession= page.locator("[data-icon='pen-to-square']");
+    this.taskButton= page.locator("//*[text()='Tasks']");
+    this.reservationTask= page.locator("//*[contains(text(),'View Results')]")
+
+
     this.elapsedTime = 0;
   }
 
@@ -1494,4 +1505,67 @@ export class DeepAgentPage {
     await this.page.waitForTimeout(3000);
     await this.userAdded.isVisible();
   }
+
+  async testTaks()
+  {
+    await this.taskMenu.click();
+    await this.page.waitForTimeout(2000);
+    await this.taskOptions.click();
+    await this.page.waitForTimeout(2000);
+    await this.testTask.click();
+    
+  }
+
+  async checkSuccessStatusPeriodically() {
+    const startTime = Date.now();
+    const maxWaitTime = 2400000; // 40 minutes in milliseconds
+    const checkInterval = 10000; // Check every 10 seconds
+    let isVisible = false; // Initialize as false since we're checking for visibility
+    
+    while (Date.now() - startTime < maxWaitTime) {
+        try {
+            // Check if the success status element is visible
+            isVisible = await this.successStatus.isVisible();
+            
+            if (isVisible) {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                console.log(`✅ Success status visible after ${elapsedTime} seconds!`);
+                return { 
+                    isVisible: true, 
+                    elapsedTime: elapsedTime 
+                }; // Return both status and elapsed time
+            } else {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                console.log(`Success status element is not visible after ${elapsedTime} seconds.`);
+            }
+        } catch (error) {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            console.log(`❌ Error checking success status visibility after ${elapsedTime} seconds:`, error.message);
+        }
+        
+        // Wait for the check interval before next check
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+    }
+    
+    // If we reach here, the maximum wait time has been exceeded
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    console.log("Success status element was not visible within 40 minutes. Timeout reached.");
+    return { 
+        isVisible: false, 
+        elapsedTime: elapsedTime 
+    };
+}
+
+async checkTaskStatus()
+{
+  await this.newSession.click();
+  await this.taskButton.click();
+  const count = await this.reservationTask.count();
+
+  for (let i = 0; i < count; i++)
+  {
+    await this.reservationTask.nth(i).isVisible();
+  }
+}
+
 }

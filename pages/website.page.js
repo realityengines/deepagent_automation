@@ -21,7 +21,7 @@ export class WebsitePage {
         this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
-        this.statusVisible= this.page.locator("[role='status']");
+        this.statusVisible= this.page.locator("(//*[@role='status'] | //*[contains(text(),'Invalid')])[1]");
         this.exerciseLink=this.page.locator("(//*[contains(text(),'Exercises')] | //*[contains(@href,'exercises')])[1]")
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
         this.dropdownOptions = this.page.locator('[role*="option"]');

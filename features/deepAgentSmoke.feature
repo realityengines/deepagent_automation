@@ -40,9 +40,9 @@ Feature: Deep Agent Functionality Test
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                                          | follow_up_query   |
-      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call     |
-      | How to manage notifications in Slack to avoid distractions and stay focused                 | Daily reporting   |
+      | prompt_user_search                                                                          | follow_up_query |
+      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call   |
+      | How to manage notifications in Slack to avoid distractions and stay focused                 | Daily reporting |
 
   @DeepAgentResearch
   Scenario Outline: Research functionality base on task prompt
@@ -114,7 +114,7 @@ Feature: Deep Agent Functionality Test
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                                       | follow_up_query | Prompt_for_custom_chatBot                                                |
+      | prompt_user_search                                                                                                                                                                                                                                                                                                  | follow_up_query | Prompt_for_custom_chatBot                                                |
       | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action.  and create a chatbot link | Your call       | What are the key matchups to watch in the upcoming Wimbledon tournament? |
 
   @DeepAgentDataBase
@@ -132,8 +132,7 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         |
       | Create a website with a home page, login page, and sign-up page with header connected to a database. The sign-up page must always show four fixed fields: full name, email, password, and confirm password, and store user data upon successful registration. | Build me a portfolio website with user authentication, where sign-up stores user data in the database, and login redirects to the home page with a clean, modern design |
 
-
-@DeepAgentUrl
+  @DeepAgentUrl
   Scenario Outline: creates an app and verify the urls
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -143,8 +142,8 @@ Feature: Deep Agent Functionality Test
     Then Verify all the page links are are 200
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         |
-      | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call |
+      | prompt_user_search                                                                                                                                                                                                                                                                                    | follow_up_query |
+      | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call       |
 
   @AIRecipeCreator
   Scenario Outline: Validate the database after website creation and deployment
@@ -154,6 +153,34 @@ Feature: Deep Agent Functionality Test
     And the compute points should not exceed 150k
     And I should deploy the website
     Then I enter the ingredients and validate the generated response
+
     Examples:
       | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
       | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
+
+  @ReservationTask   @DaemonsPrompt
+  Scenario Outline: Validate daemons prompt execution with browser-based query
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    Then I click on the test task
+    And the compute points should not exceed 150k
+    Then I confirm that the task has been successfully created
+
+    Examples:
+      | prompt_user_search                                                                                          | follow_up_query                                                                          |
+      | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now |
+
+  @InfluencerPromptValidation  @DaemonsPrompt
+  Scenario Outline: Validate daily trending topic suggestions for an influencer
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And I should download the generated summary
+    Then I click on the test task
+    And the compute points should not exceed 150k
+    Then I confirm that the task has been successfully created
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                                      | follow_up_query                                             |
+      | I am an influencer who posts about entertainment, pop culture, fashion etc. Help me with grabbing the trending topics on social media. Everyday at night provide me a list of 5 ideas that can go viral | 1. 10pm 2. instagram, tiktok and youtube 3. save it to file |

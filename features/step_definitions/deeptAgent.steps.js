@@ -1054,3 +1054,22 @@ Then("I enter the resume details and analysis the resume", async function () {
   deepAgentPage = new DeepAgentPage(originalPage);
   await this.page.waitForTimeout(3000);
 });
+
+Then("I click on the test task", async function () {
+ await deepAgentPage.testTaks();
+ await this.page.waitForTimeout(3000);
+ const thirdElapsedTime=await deepAgentPage.checkSuccessStatusPeriodically();
+ deepAgentPage.elapsedTime=deepAgentPage.elapsedTime+thirdElapsedTime
+
+// Get and log the conversation URL
+const convoURL = await deepAgentPage.getConvoURL();
+console.log(`Conversation URL: ${convoURL}`);
+
+await deepAgentPage.getConvoId();
+
+});
+
+Then("I confirm that the task has been successfully created", async function () {
+ 
+  await deepAgentPage.checkTaskStatus();
+ });
