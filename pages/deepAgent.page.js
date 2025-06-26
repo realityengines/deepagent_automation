@@ -161,7 +161,7 @@ export class DeepAgentPage {
 
     this.createAccountButton = page.locator("[type='submit']");
 
-    this.dropDownForDB = page.locator("(//button[@role='combobox'])[2]");
+    this.dropDownForDB = page.locator("//span[contains(text(),'Table')]//following::button[@role='combobox']");
     this.refreshButton = page.locator(
       "[class*='center border-b'] svg[data-icon='arrows-rotate']"
     );
@@ -1474,6 +1474,7 @@ export class DeepAgentPage {
     await this.emailField.fill("testuser@gmail.com");
     await this.passwordField.fill("password123");
     await this.confirmPasswordField.fill("password123");
+    await this.page.waitForTimeout(5000);
     await this.createAccountButton.click();
     await this.page.waitForTimeout(5000);
   }

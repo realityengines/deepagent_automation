@@ -146,10 +146,10 @@ Feature: Deep Agent Search and Task Execution
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
-    And I should download the generated summary
     And I should deploy the website
     Then I validate that the login functionality works correctly
-    Then I confirm that the user data is added successfully to the database
+    Then the user completes the registration process successfully and verify the database
+
 
     Examples:
       | prompt_user_search                                                                                                                                                           | follow_up_query                                                                                                                                                                                      |

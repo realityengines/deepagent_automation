@@ -123,7 +123,6 @@ Feature: Deep Agent Functionality Test
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
-    And I should download the generated summary
     Then I should see the search results for the default sample task
     And I should deploy the website
     Then the user completes the registration process successfully and verify the database

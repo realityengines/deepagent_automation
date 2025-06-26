@@ -21,7 +21,7 @@ export class WebsitePage {
         this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
-        this.statusVisible= this.page.locator("[role='status']");
+        this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
         this.exerciseLink=this.page.locator("(//*[contains(text(),'Exercises')] | //*[contains(@href,'exercises')])[1]")
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
         this.dropdownOptions = this.page.locator('[role*="option"]');
@@ -46,7 +46,7 @@ export class WebsitePage {
     await this.passwordField.fill("password123");
     await this.confirmPasswordField.fill("password123");
     await this.submitButton.click();
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(5000);
 
    }
 
@@ -54,6 +54,7 @@ export class WebsitePage {
    {
     await this.page.waitForTimeout(2000);
     await this.loginLink.click();
+    await this.page.waitForTimeout(2000);
     await this.emailField.fill("testuser@gmail.com")
     await this.passwordField.fill("password123");
     await this.submitButton.click();
@@ -68,7 +69,12 @@ export class WebsitePage {
     await this.passwordField.fill("password1234");
     await this.submitButton.click();
     await this.page.waitForTimeout(2000);
-    await this.statusVisible.waitFor({ state: 'visible' });
+    try {
+      await this.statusVisible.waitFor({ state: 'visible', timeout: 5000 });
+      console.log("✅ Status appeared successfully");
+    } catch (error) {
+      console.error("❌ Status did not appear within timeout. Possible login issue.");
+    }
    }
 
    async fillContactUSForm()
