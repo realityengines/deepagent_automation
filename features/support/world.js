@@ -36,7 +36,7 @@ class BrowserType extends World {
         });
 
         this.context = await this.browser.newContext({
-          viewport: { width: 1600, height: 700 },
+          viewport: { width: 1800, height: 900 },
           timeout: 2400000, // 40 minutes context timeout
         });
       } else {
@@ -46,7 +46,7 @@ class BrowserType extends World {
           slowMo: config.browser.slowMo,
         });
         this.context = await this.browser.newContext({
-          viewport: { width: 1600, height: 700 },
+          viewport: { width: 1800, height: 900 },
           timeout: config.browser.timeout,
         });
       }

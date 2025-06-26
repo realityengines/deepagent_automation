@@ -193,7 +193,7 @@ Feature: Deep Agent Search and Task Execution
       | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
 
 
-    @DaemonsPromptReservationTask
+  @DaemonsPromptReservationTask
   Scenario Outline: Validate daemons prompt execution with browser-based query
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
