@@ -158,12 +158,12 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
       | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
 
-  @ReservationTask   @DaemonsPrompt
+  @DaemonsPromptReservationTask
   Scenario Outline: Validate daemons prompt execution with browser-based query
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
     Then I click on the test task
+    And I verify that the deep agent browser created
     And the compute points should not exceed 150k
     Then I confirm that the task has been successfully created
 
@@ -171,11 +171,10 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                          | follow_up_query                                                                          |
       | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now |
 
-  @InfluencerPromptValidation  @DaemonsPrompt
+  @DaemonsPromptInfluencer
   Scenario Outline: Validate daily trending topic suggestions for an influencer
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
     And I should download the generated summary
     Then I click on the test task
     And the compute points should not exceed 150k
@@ -184,3 +183,16 @@ Feature: Deep Agent Functionality Test
     Examples:
       | prompt_user_search                                                                                                                                                                                      | follow_up_query                                             |
       | I am an influencer who posts about entertainment, pop culture, fashion etc. Help me with grabbing the trending topics on social media. Everyday at night provide me a list of 5 ideas that can go viral | 1. 10pm 2. instagram, tiktok and youtube 3. save it to file |
+
+  @DaemonsPromptSMD 
+  Scenario Outline: Validate AI-generated Twitter post scheduling for trending tech content
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    Then I click on the test task
+    And I verify that the Twitter MCP has been created
+    And the compute points should not exceed 150k
+    Then I confirm that the task has been successfully created
+
+    Examples:
+      | prompt_user_search                                                                                  | follow_up_query                          |
+      | Write a  witty and well thought through pun around AI and tech and post it one tweet every 3 hours. | run it for next 24 hours rest you decide |

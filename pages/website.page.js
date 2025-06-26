@@ -26,6 +26,9 @@ export class WebsitePage {
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
         this.dropdownOptions = this.page.locator('[role*="option"]');
         this.fileInput = this.page.locator('[type="file"]');
+        this.analysisContractorButton= this.page.locator("(//*[text()='Analyze Contract'])[1]")
+        this.animatedSpin= this.page.locator("[class*='animate-spin']");
+        this.uploadAnotherContractor= this.page.locator("(//*[contains(text(),'Another Contract')] | //*[contains(text(),'New Contract')] | //*[contains(@class,'rotate')] | //*[contains(text(),'Analyze')])[1]")
         this.recipeInputFields=this.page.locator('(//input[contains(@id,"ingredient")] | //input[@type="text"]) | //input[contains(@placeholder,"ingredient")]');
         this.dropDown=this.page.locator('[role*="combobox"]');
         this.generateRecipeButton=this.page.locator("(//*[contains(text(),'Generate Recipes')] | //*[contains(text(),'Generate')])[1]");
@@ -113,14 +116,87 @@ export class WebsitePage {
     }
 }
 
+async waitForSpinnerWithIntervalChecks() {
+  const maxRetries = 12; // 12 * 10 seconds = 2 minutes
+  let retryCount = 0;
+  
+  console.log('Waiting for spinner to become invisible...');
+  
+  while (retryCount < maxRetries) {
+      try {
+          // Wait for spinner to be hidden with 10 second timeout
+          await this.animatedSpin.waitFor({ 
+              state: 'hidden', 
+              timeout: 10000 
+          });
+          
+          console.log('✅ Spinner has disappeared successfully!');
+          return true;
+          
+      } catch (error) {
+          retryCount++;
+          const elapsedTime = retryCount * 10;
+          
+          if (retryCount >= maxRetries) {
+              console.log(`❌ Timeout: Spinner still visible after ${elapsedTime} seconds`);
+              return false;
+          }
+          
+          console.log(`⏳ Spinner still visible after ${elapsedTime} seconds. Retrying...`);
+      }
+  }
+}
+
 
 async uploadTheFile()
    {
     await this.page.waitForTimeout(2000)
-    const filePath = path.resolve('testData/SampleContract-Shuttle.pdf');
-    await this.page.waitForTimeout(3000);
-    await this.fileInput.setInputFiles(filePath);
-   }
+    const filePathPDF = path.resolve('testData/SampleContract-Shuttle.pdf');
+    await this.fileInput.setInputFiles(filePathPDF);
+
+    const isAnalyzeVisible = await this.analysisContractorButton.isVisible({ timeout: 3000 });
+    if (isAnalyzeVisible) {
+      await this.analysisContractorButton.click();
+    }
+
+    await this.waitForSpinnerWithIntervalChecks()
+
+    await this.page.waitForTimeout(2000)
+    await this.uploadAnotherContractor.click();
+
+    await this.page.waitForTimeout(2000)
+    const filePathtext = path.resolve('testData/Contract.txt');
+    await this.fileInput.setInputFiles(filePathtext);
+
+    const isAnalyzeVisibleText = await this.analysisContractorButton.isVisible({ timeout: 3000 });
+    if (isAnalyzeVisibleText) {
+      await this.analysisContractorButton.click();
+    }
+
+    await this.waitForSpinnerWithIntervalChecks()
+
+    await this.page.waitForTimeout(2000)
+    await this.uploadAnotherContractor.click();
+
+    try {
+      await this.page.waitForTimeout(2000);
+  
+      const filePathDocx = path.resolve('testData/Sample Contract.docx');
+      await this.fileInput.setInputFiles(filePathDocx);
+      const isAnalyzeVisibleDocx = await this.analysisContractorButton.isVisible({ timeout: 3000 });
+      if (isAnalyzeVisibleDocx) {
+        await this.analysisContractorButton.click();
+      }
+      await this.waitForSpinnerWithIntervalChecks();
+  
+      await this.page.waitForTimeout(2000);
+      await this.uploadAnotherContractor.click();
+  } catch (error) {
+      console.error('Error occurred while uploading the contract:', error);
+      throw error; // Optional: rethrow if you want the test to fail
+  }
+
+}
 
 
    async analysisTheResume()

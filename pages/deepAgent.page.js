@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { expect } from "chai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -168,7 +169,7 @@ export class DeepAgentPage {
 
     this.userAdded = page.locator("//*[text()='testuser@gmail.com']");
 
-    //DaemonsBrowseruse
+    //Daemons locators
     this.taskMenu=page.locator("[aria-haspopup*='menu'] div");
     this.taskOptions=page.locator("[role='menuitem']")
     this.testTask=page.locator("//*[text()='Test Task']");
@@ -176,7 +177,9 @@ export class DeepAgentPage {
     this.successStatus = page.locator("[data-icon='thumbs-up']");
     this.newSession= page.locator("[data-icon='pen-to-square']");
     this.taskButton= page.locator("//*[text()='Tasks']");
-    this.reservationTask= page.locator("//*[contains(text(),'View Results')]")
+    this.reservationTask= page.locator("//*[contains(text(),'View Results')]");
+    this.browserUse= page.locator("//*[text()='Browser']")
+    this.twitterMCPTool= page.locator("//*[text()='twitter-mcp_post_tweet output']")
 
 
     this.elapsedTime = 0;
@@ -1518,54 +1521,106 @@ export class DeepAgentPage {
 
   async checkSuccessStatusPeriodically() {
     const startTime = Date.now();
-    const maxWaitTime = 2400000; // 40 minutes in milliseconds
-    const checkInterval = 10000; // Check every 10 seconds
-    let isVisible = false; // Initialize as false since we're checking for visibility
-    
+    const maxWaitTime = 2400000; // 40 minutes
+    const checkInterval = 10000; // 10 seconds
+
     while (Date.now() - startTime < maxWaitTime) {
         try {
-            // Check if the success status element is visible
-            isVisible = await this.successStatus.isVisible();
-            
-            if (isVisible) {
-                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-                console.log(`✅ Success status visible after ${elapsedTime} seconds!`);
-                return { 
-                    isVisible: true, 
-                    elapsedTime: elapsedTime 
-                }; // Return both status and elapsed time
+            const count = await this.successStatus.count();
+
+            if (count > 0) {
+                let allVisible = true;
+
+                for (let i = 0; i < count; i++) {
+                    const element = this.successStatus.nth(i);
+                    const isVisible = await element.isVisible();
+                    if (!isVisible) {
+                        allVisible = false;
+                        break;
+                    }
+                }
+
+                if (allVisible) {
+                    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                    console.log(`✅ All ${count} success status elements are visible after ${elapsedTime} seconds.`);
+                    return {
+                        isVisible: true,
+                        totalElements: count,
+                        elapsedTime: elapsedTime
+                    };
+                } else {
+                    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                    console.log(`⚠️ Not all success status elements are visible yet after ${elapsedTime} seconds.`);
+                }
             } else {
                 const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-                console.log(`Success status element is not visible after ${elapsedTime} seconds.`);
+                console.log(`ℹ️ No success status elements found after ${elapsedTime} seconds.`);
             }
         } catch (error) {
             const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            console.log(`❌ Error checking success status visibility after ${elapsedTime} seconds:`, error.message);
+            console.log(`❌ Error while checking success status after ${elapsedTime} seconds:`, error.message);
         }
-        
-        // Wait for the check interval before next check
+
         await new Promise(resolve => setTimeout(resolve, checkInterval));
     }
-    
-    // If we reach here, the maximum wait time has been exceeded
+
     const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-    console.log("Success status element was not visible within 40 minutes. Timeout reached.");
-    return { 
-        isVisible: false, 
-        elapsedTime: elapsedTime 
+    console.log("⏰ Timeout reached. Not all success status elements became visible.");
+    return {
+        isVisible: false,
+        elapsedTime: elapsedTime
     };
 }
 
+
 async checkTaskStatus()
 {
+  await this.page.waitForTimeout(3000);
+  console.log('Checking task status...');
   await this.newSession.click();
+  await this.page.waitForTimeout(3000);
   await this.taskButton.click();
+  await this.page.waitForTimeout(3000);
   const count = await this.reservationTask.count();
-
+  expect(count).to.be.greaterThan(0);
   for (let i = 0; i < count; i++)
   {
-    await this.reservationTask.nth(i).isVisible();
+    console.log(`Processing reservation task ${i + 1} of ${count}`);
+    const element=await this.reservationTask.nth(i).isVisible();
+    expect(element).to.be.true;
   }
 }
 
+async checkTwitterMCP()
+{
+  await this.page.waitForTimeout(2000);
+  const count=await this.twitterMCPTool.count();
+   expect(count).to.be.greaterThan(0);
+  for(let i=0; i<count; i++)
+  {
+    const element=await this.twitterMCPTool.nth(i)
+    
+    const isVisible = await element.isVisible();
+    expect(isVisible).to.be.true;
+
+    await element.click();
+  }
+  
+}
+
+ async verifyBrowserCreation()
+ {
+  await this.page.waitForTimeout(2000);
+  const count=await this.browserUse.count();
+  expect(count).to.be.greaterThan(0);
+  for(let i=0; i<count; i++)
+    {
+      const element=await this.browserUse.nth(i)
+      
+      const isVisible = await element.isVisible();
+      expect(isVisible).to.be.true;
+  
+      await element.click();
+    }
+ }
 }

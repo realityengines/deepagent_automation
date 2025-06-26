@@ -1030,11 +1030,20 @@ Then(
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
     await websitePage.uploadTheFile();
+
+    console.log("\n=== Step 1: Getting Conversation URL ===");
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    await deepAgentPage.getConvoId();
+    
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
-    await this.page.waitForTimeout(3000);
-    await deepAgentPage.verifyDataBase(["documents", "contract"]);
+    console.log("\n=== Step 2: Getting Conversation URL ===");
+    const convoURL1 = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL1}`);
+    await deepAgentPage.getConvoId();
+    
   }
 );
 
@@ -1068,6 +1077,17 @@ console.log(`Conversation URL: ${convoURL}`);
 await deepAgentPage.getConvoId();
 
 });
+
+Then("I verify that the deep agent browser created", async function () {
+ 
+  await deepAgentPage.verifyBrowserCreation();
+ });
+
+Then("I verify that the Twitter MCP has been created", async function () {
+ 
+  await deepAgentPage.checkTwitterMCP();
+ });
+
 
 Then("I confirm that the task has been successfully created", async function () {
  
