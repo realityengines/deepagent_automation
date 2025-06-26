@@ -7,9 +7,11 @@ Feature: Deep Agent Functionality Test
   Background:
     Given the user enters username "testuser1744775890841@internalreai.com" and password "Testuser@123"
     Then I should be logged in successfully
+    Then I click on skip button
     And I select the default LLM "RouteLLM"
     When I click the deep Agent option
 
+@abc
   Scenario: check  and verify "Cancel" and "Try" buttons on default prompt
     Given I click the check out from the welcome window
     When I open the Deep Agent default sample task
