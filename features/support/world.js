@@ -14,7 +14,7 @@ class BrowserType extends World {
           "LT:Options": {
             platform: config.lambdaTest.platformName,
             build: config.lambdaTest.buildName,
-            name: "Playwright Test",
+            name: "Deeo Agent Test",
             user: config.lambdaTest.username,
             accessKey: config.lambdaTest.accessKey,
             network: false,
