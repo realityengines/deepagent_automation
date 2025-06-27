@@ -15,11 +15,6 @@ When("I click the deep Agent option", { timeout: 50000 }, async function () {
   await this.page.waitForTimeout(2000);
 });
 
-Then("I click on skip button", async function () {
-  dashboardPage = new DashboardPage(this.page);
-  await dashboardPage.clickOnSkipButton();
-  await dashboardPage.page.waitForTimeout(2000);
-});
 Then("I select the default LLM {string}", async function (llmRoute) {
   dashboardPage = new DashboardPage(this.page);
   await dashboardPage.llmListDropDown.waitFor({ state: "visible" });

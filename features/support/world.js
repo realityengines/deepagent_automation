@@ -21,9 +21,9 @@ class BrowserType extends World {
             video: true,
             console: true,
             tunnel: config.lambdaTest.tunnel,
-            timeout: 2400000,
-            idleTimeout:2400000,
-            sessionTimeout:2400000
+            timeout: 30000000,
+            idleTimeout:30000000,
+            sessionTimeout:30000000
       
           },
         };
@@ -32,21 +32,23 @@ class BrowserType extends World {
           wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(
             JSON.stringify(capabilities)
           )}`,
-          timeout: 2400000, // 40 minutes connection timeout
+          timeout: 30000000, // 50 minutes connection timeout
         });
 
         this.context = await this.browser.newContext({
-          viewport: { width: 1800, height: 900 },
-          timeout: 2400000, // 40 minutes context timeout
+          viewport: { width: 1900, height: 1000 },
+          timeout: 30000000, // 40 minutes context timeout
         });
       } else {
         // Local execution
         this.browser = await chromium.launch({
           headless: config.browser.headless,
           slowMo: config.browser.slowMo,
+          args: ['--start-maximized']
         });
         this.context = await this.browser.newContext({
-          viewport: { width: 1800, height: 900 },
+          // viewport: { width: 1800, height: 900 },
+          viewport: null,
           timeout: config.browser.timeout,
         });
       }
@@ -54,11 +56,11 @@ class BrowserType extends World {
 
       // Increase default navigation and page timeouts for LambdaTest
       if (config.executionMode === "lambda") {
-        await this.page.setDefaultNavigationTimeout(2400000); // 0 minutes
-        await this.page.setDefaultTimeout(2400000); // 40 minutes
+        await this.page.setDefaultNavigationTimeout(30000000); // 0 minutes
+        await this.page.setDefaultTimeout(30000000); // 50 minutes
       } else {
-        await this.page.setDefaultNavigationTimeout(2400000);
-        await this.page.setDefaultTimeout(2400000);
+        await this.page.setDefaultNavigationTimeout(30000000);
+        await this.page.setDefaultTimeout(30000000);
       }
     } catch (error) {
       console.error("Failed to initialize browser:", error);

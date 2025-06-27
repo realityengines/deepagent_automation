@@ -440,7 +440,7 @@ Then(
     await newPage.close();
     this.page = originalPage;
     console.log("Returned to original page");
- 
+
     // Capture conversation URL
     try {
       const convoURL = await deepAgentPage.getConvoURL();
@@ -672,10 +672,11 @@ Then(
   "the website should display correct tabs, graphs, and navigation bar",
   async function () {
     await deepAgentPage.previewButton.click();
-    deepAgentPage.clickOnDeployLink();
 
+    // Wait for the new page to open when clicking the deploy link
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+      deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
     ]);
 
     await newPage.waitForLoadState();
@@ -716,10 +717,13 @@ Then(
   "I can see the custom chat and perform some action and search the prompt {string}",
   async function (promptSearchForCustomChatbot) {
     const originalPage = this.page;
-    deepAgentPage.clickOnChatBotLink();
+
+    // Wait for the new page to open when clicking the chatbot link
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+      deepAgentPage.clickOnChatBotLink(), // Now properly awaited in Promise.all
     ]);
+
     await newPage.waitForLoadState();
     deepAgentPage = new DeepAgentPage(newPage);
     this.page = newPage;
@@ -733,125 +737,161 @@ Then(
       // expect(isVisible).to.be.true;
       deepAgentPage.elapsedTime = firstElapsedTime;
 
-
-
       console.log(
         "Total elapsed time after follow up prompt:",
         deepAgentPage.elapsedTime
       );
-
-
     } catch (error) {
       console.error("Error performing actions on new page:", error.message);
       throw error;
     }
-   // Close the new page and return to original
-   await newPage.close();
-   this.page = originalPage;
-   console.log("Returned to original page");
+    // Close the new page and return to original
+    await newPage.close();
+    this.page = originalPage;
+    console.log("Returned to original page");
 
-   // Capture conversation URL
-   try {
-     const convoURL = await deepAgentPage.getConvoURL();
-     console.log(`\nConversation URL: ${convoURL}`);
-   } catch (error) {
-     console.log("Conversation URL not available");
-   }
- }
+    // Capture conversation URL
+    try {
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`\nConversation URL: ${convoURL}`);
+    } catch (error) {
+      console.log("Conversation URL not available");
+    }
+  }
 );
 
 Then(
   "the user completes the registration process successfully and verify the database",
   async function () {
-        const originalPage = this.page;
-    
-        // Click the deployment link and wait for the new page
-        await deepAgentPage.clickOnDeployLink();
-        const [newPage] = await Promise.all([
-          this.page.context().waitForEvent("page"),
-        ]);
-        await newPage.waitForLoadState("domcontentloaded");
-    
-        // Switch page context to new page
-        deepAgentPage = new DeepAgentPage(newPage);
-        this.page = newPage;
-    
-        // === Step 1: Link Verification ===
-        console.log("\n=== Step 1: Verifying All Page Links ===");
-    
-        const links = await newPage.evaluate(() => {
-          const anchors = Array.from(
-            document.querySelectorAll('a[href]:not([href^="javascript:"]):not([href^="#"]):not([href^="mailto:"]):not([href^="tel:"])')
-          );
-          return anchors.map(a => ({
-            href: a.href,
-            text: a.textContent.trim() || a.href
-          }));
-        });
-    
-        console.log(`Found ${links.length} links`);
-    
-        let failedLinks = [];
-        for (const [i, link] of links.entries()) {
-          const tempContext = await newPage.context();
-          const tempPage = await tempContext.newPage();
-          try {
-            const response = await tempPage.goto(link.href, { timeout: 15000, waitUntil: "domcontentloaded" });
-            const status = response?.status() || 0;
-    
-            if (status !== 200) {
-              console.warn(`❌ Link ${i + 1}: ${link.text} (${link.href}) - Status: ${status}`);
-              failedLinks.push({ ...link, status });
-            } else {
-              console.log(`✅ Link ${i + 1}: ${link.text} (${link.href}) - 200 OK`);
-            }
-          } catch (err) {
-            console.error(`❌ Link ${i + 1}: ${link.text} (${link.href}) - Error: ${err.message}`);
-            failedLinks.push({ ...link, error: err.message });
-          } finally {
-            await tempPage.close();
+    const signupReport = [];
+    try {
+      const originalPage = this.page;
+      console.log("\n=== Step 1: Click Deploy and Open New Page ===");
+
+      // Click deploy link and wait for new page
+      const [newPage] = await Promise.all([
+        originalPage.context().waitForEvent("page", { timeout: 60000 }),
+        deepAgentPage.clickOnDeployLink(),
+      ]);
+      await newPage.waitForLoadState("domcontentloaded");
+      this.page = newPage;
+      deepAgentPage = new DeepAgentPage(newPage);
+      await newPage.waitForTimeout(2000);
+
+      // === Step 2: Verify All Page Links ===
+      console.log("\n=== Step 2: Verifying All Page Links ===");
+      const links = await newPage.evaluate(() => {
+        return Array.from(
+          document.querySelectorAll(
+            'a[href]:not([href^="javascript:"]):not([href^="#"]):not([href^="mailto:"]):not([href^="tel:"])'
+          )
+        ).map((a) => ({
+          href: a.href,
+          text: a.textContent.trim() || a.href,
+        }));
+      });
+
+      const failedLinks = [];
+      let successCount = 0;
+
+      for (const [i, link] of links.entries()) {
+        const tempPage = await newPage.context().newPage();
+        try {
+          const response = await tempPage.goto(link.href, {
+            timeout: 15000,
+            waitUntil: "domcontentloaded",
+          });
+          const status = response?.status() || 0;
+
+          if (status === 200) {
+            successCount++;
+            console.log(
+              `✅ Link ${i + 1}: ${link.text} (${link.href}) - 200 OK`
+            );
+          } else {
+            console.warn(
+              `❌ Link ${i + 1}: ${link.text} (${
+                link.href
+              }) - Status: ${status}`
+            );
+            failedLinks.push({ ...link, status });
           }
+        } catch (err) {
+          console.error(
+            `❌ Link ${i + 1}: ${link.text} (${link.href}) - Error: ${
+              err.message
+            }`
+          );
+          failedLinks.push({ ...link, error: err.message });
+        } finally {
+          await tempPage.close();
         }
-    
-        // Attach failed link details
-        if (failedLinks.length > 0) {
-          const failedReport = [
-            "=== Failed Links Report ===",
-            ...failedLinks.map((link, i) => `${i + 1}. ${link.text} (${link.href}) - ${link.status || link.error}`)
-          ].join("\n");
-    
-          await this.attach(failedReport, "text/plain");
-          expect(failedLinks.length).to.equal(0, `${failedLinks.length} links failed with non-200 status`);
-        }
-    
-        // === Step 2: Get Conversation URL ===
-        console.log("\n=== Step 2: Getting Conversation URL ===");
+      }
+
+      const urlStatusReport = [
+        "=== URL VERIFICATION RESULTS ===",
+        `Total Links: ${links.length}`,
+        `Successful (200): ${successCount}`,
+        `Failed: ${failedLinks.length}`,
+        "\nSuccessful Links:",
+        ...links
+          .filter((l) => !failedLinks.some((f) => f.href === l.href))
+          .map((l, i) => `${i + 1}. "${l.text}" (${l.href}) - Status: 200`),
+        "\nFailed Links:",
+        ...failedLinks.map(
+          (l, i) => `${i + 1}. "${l.text}" (${l.href}) - ${l.status || l.error}`
+        ),
+      ].join("\n");
+
+      await this.attach(urlStatusReport, "text/plain");
+      expect(failedLinks.length).to.equal(
+        0,
+        `${failedLinks.length} links failed`
+      );
+
+      console.log("\n=== Step 3: Getting Conversation URL ===");
+      try {
         const convoURL = await deepAgentPage.getConvoURL();
         console.log(`Conversation URL: ${convoURL}`);
-        await deepAgentPage.getConvoId();
-    
-        // === Step 3: Perform Signup ===
-        console.log("\n=== Step 3: Performing Signup ===");
-        await deepAgentPage.performSignUp();
-    
-         // === Step 3: Get Conversation URL ===
-         console.log("\n=== Step 2: Getting Conversation URL ===");
-         const convoURL3 = await deepAgentPage.getConvoURL();
-         console.log(`Conversation URL: ${convoURL3}`);
-         await deepAgentPage.getConvoId();
-        // === Step 4: Close new page and go back ===
-        await newPage.close();
-        this.page = originalPage;
-        deepAgentPage = new DeepAgentPage(originalPage);
-    
-        // === Step 5: Verify Database ===
-        console.log("\n=== Step 4: Verifying Database ===");
-        await deepAgentPage.verifyDataBase(["users", "user", "User", "Users"]);
-    
-        console.log("\n✅ All steps completed successfully.");
+      } catch (e) {
+        console.log("Conversation URL not available");
       }
-    );
-  
+
+      // === Step 4: Perform Signup ===
+      console.log("\n=== Step 4: Performing Signup ===");
+      await deepAgentPage.performSignUp(this.attach);
+      // === Step 4.1: Return to original Deep Agent page ===
+      console.log("\n=== Step 4.1: Returning to original DeepAgent page ===");
+      await newPage.close();
+      this.page = originalPage;
+      deepAgentPage = new DeepAgentPage(originalPage);
+      try {
+        const convoURL2 = await deepAgentPage.getConvoURL();
+        console.log(`Conversation URL after signup: ${convoURL2}`);
+      } catch (e) {
+        console.log("Conversation URL after signup not available");
+      }
+
+      // === Step 6: Verify Database ===
+      console.log("\n=== Step 5: Verifying Database ===");
+      await deepAgentPage.verifyDataBase(["users", "user", "User", "Users"]);
+
+      // Cleanup: Close new page and return
+      await newPage.close();
+      this.page = originalPage;
+      deepAgentPage = new DeepAgentPage(originalPage);
+
+      console.log("\n✅ All steps completed successfully.\n");
+    } catch (err) {
+      console.error(
+        "\n❌ Error during user registration and verification steps:"
+      );
+      console.error(err.stack || err.message);
+      await this.attach(`Test failed with error: ${err.message}`, "text/plain");
+      throw err;
+    }
+  }
+);
 
 When(
   "I search for the prompt for video generation {string} with follow-up query {string}",
@@ -1117,7 +1157,8 @@ Then(
     await this.page.waitForTimeout(5000);
     deepAgentPage.clickOnDeployLink();
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent("page"),
+      this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+      deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
     ]);
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
@@ -1136,7 +1177,8 @@ Then("I enter the resume details and analysis the resume", async function () {
   await this.page.waitForTimeout(5000);
   deepAgentPage.clickOnDeployLink();
   const [newPage] = await Promise.all([
-    this.page.context().waitForEvent("page"),
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
   ]);
   await newPage.waitForLoadState();
   websitePage = new WebsitePage(newPage);

@@ -9,7 +9,6 @@ Feature: Login Functionality
     When I enter valid username "testuser1744775890841@internalreai.com"
     And I enter valid password "Testuser@123"
     And I click the login button
-    Then I click on skip button
     Then I should be logged in successfully
 
   @Login
