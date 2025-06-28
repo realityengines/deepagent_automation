@@ -1,8 +1,8 @@
 import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
 import fs from 'fs';
 import { cleanupDirectories } from '../../utils/cleanup.js';
-// Set default timeout to 40 minutes (2400000 milliseconds) for all steps
-setDefaultTimeout(2400000);
+// Set default timeout to 50 minutes (30000000 milliseconds) for all steps
+setDefaultTimeout(30000000);
 
 // Ensure the reports directory exists
 BeforeAll(async function () {

@@ -101,7 +101,7 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                 | follow_up_query                              |
       | Create a comprehensive project management system for launching a new product using google tasks. Include tasks for market research | create two Google Tasks for market research. |
 
-  @PromptForWebSiteCreation
+  @PromptForWebSiteCreation 
   Scenario Outline: Validate website generation with UI elements
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
@@ -140,7 +140,7 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                                                                                                                                                                         | follow_up_query                                                                                                                                                              | Prompt_for_custom_chatBot                   |
       | Create a chatbot with deep knowledge of ATP tennis tournaments, player stats, and official rules. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Focus the chatbot on ATP tournament info, player stats, and rules, keep it ATP-only for now; show just the schedule on the site, embed the chatbot as a floating chat widget | Create a website for booking tennis courts. |
 
-  @PromptForDatabaseValidation
+  @PromptForDatabaseValidation 
   Scenario Outline: Validate the database after website creation and deployment
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
@@ -148,22 +148,21 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should deploy the website
     Then I validate that the login functionality works correctly
-    Then the user completes the registration process successfully and verify the database
-
+    Then I confirm that the user data is added successfully to the database
 
     Examples:
       | prompt_user_search                                                                                                                                                           | follow_up_query                                                                                                                                                                                      |
       | create a website for women in product community, make the website content rich, it should have 6 pages, add a login and signup flow for users and also add a contact us form | For the Join Us page, add a form with fields: First Name, Last Name, Email, Password, and Confirm Password. For the Contact Us page, add a form with fields: Full Name, Email, Subject, and Message. |
 
- 
   @AIAppsContractor 
   Scenario Outline: Validate database after uploading a file
     Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
+     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should deploy the website
     Then I upload the file and validate the database integrity
+
     Examples:
       | prompt_user_search                                                                                                                                                                                 | follow_up_query                                                                                                                                                    |
       | build a contract terms extractor. Upload your contract and it will extract key contract terms Ensure the home page displays a drag-and-drop section for uploading contract files (PDF, DOCX, TXT). | The extractor should support PDF, Word, and text files, extract key terms, and display them in a categorized table with optional highlights and confidence scores. |
@@ -176,10 +175,11 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should deploy the website
     Then I enter the resume details and analysis the resume
+
     Examples:
       | prompt_user_search                                                                                                                                                               | follow_up_query                                                                |
       | Build a resume evaluator - users can cut and paste a resume and we should evaluate it after click on submit button and give them insights on how well their resume is structured | general content quality, don't need score system, give improvement suggestions |
-      
+
   @AIAppsRecipeCreator 
   Scenario Outline: Validate the response after generating a recipe
     Given I click the check out from the welcome window
@@ -188,6 +188,7 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should deploy the website
     Then I enter the ingredients and validate the generated response
+
     Examples:
       | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
       | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |

@@ -9,7 +9,12 @@ export class DashboardPage {
     this.deepAgentTextName = page.locator(
       '//div[contains(text(), "DeepAgent")]'
     );
+    this.SkipButton=page.locator("//button[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'skip')]");
   }
+
+  async clickOnSkipButton() {
+    await this.SkipButton.click();
+}
 
   async clickOnDeepAgent() {
     await this.deepAgentTextName.click();
