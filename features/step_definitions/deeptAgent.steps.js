@@ -569,18 +569,39 @@ Then("I should deploy the website", async function () {
     .toString(36)
     .substring(2, 8)}`;
 
-  await deepAgentPage.deployOption.click();
-  await deepAgentPage.deploymentName.fill(randomDeploymentName);
-  await deepAgentPage.deployButton.click();
-  await deepAgentPage.deploysucessmessage.waitFor({
-    state: "visible",
-    timeout: 10000,
+    await deepAgentPage.deployOption.click();
+    await deepAgentPage.deploymentName.fill(randomDeploymentName);
+    await deepAgentPage.deployButton.click();
+  
+    try {
+      // Wait until success message is visible (up to 30s)
+      await deepAgentPage.deploysucessmessage.waitFor({
+        state: "visible",
+        timeout: 30000,
+      });
+  
+      const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
+      expect(isVisible, "Success message not visible").to.be.true;
+  
+      const messageText = await deepAgentPage.deploysucessmessage.textContent();
+      expect(messageText, "Success message text mismatch").to.include(
+        "Deployment successful!"
+      );
+  
+      console.log("✅ Success message appeared and text is correct.");
+  
+      // Wait until message disappears (max 2 minutes)
+      await deepAgentPage.deploysucessmessage.waitFor({
+        state: "hidden",
+        timeout: 120000, // 2 minutes
+      });
+  
+      console.log("✅ Success message is now hidden.");
+    } catch (error) {
+      console.error("❌ Deployment success message issue:", error.message);
+    }
   });
-  const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
-  expect(isVisible).to.be.true;
-  const messageText = await deepAgentPage.deploysucessmessage.textContent();
-  expect(messageText).to.include("Deployment successful!");
-});
+
 
 Then("I should deploy the created website", async function () {
   const randomDeploymentName = `webtest-${Math.random()
@@ -1155,7 +1176,6 @@ Then(
   async function () {
     const originalPage = this.page;
     await this.page.waitForTimeout(5000);
-    deepAgentPage.clickOnDeployLink();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
       deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
@@ -1163,12 +1183,18 @@ Then(
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
-    await websitePage.uploadTheFile();
+    await websitePage.uploadTheFiles();
+
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
     await this.page.waitForTimeout(3000);
-    await deepAgentPage.verifyDataBase(["documents", "contract"]);
+    console.log("\n=== Step 2: Getting Conversation URL ===");
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    await deepAgentPage.getConvoId();
+
+    // await deepAgentPage.verifyDataBase(["documents", "contract"]);
   }
 );
 

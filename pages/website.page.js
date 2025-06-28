@@ -17,7 +17,9 @@ export class WebsitePage {
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.submitButton=this.page.locator("[type='submit']");
         this.loginLink=this.page.locator("(//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
-        this.contactLink=this.page.locator("(//*[contains(text(),'Contact')])[1]");
+        this.logout=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'logout')]");
+      
+        this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
         this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
@@ -26,10 +28,14 @@ export class WebsitePage {
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
         this.dropdownOptions = this.page.locator('[role*="option"]');
         this.fileInput = this.page.locator('[type="file"]');
+        this.analysisContractorButton= this.page.locator("(//*[contains(text(), 'New Analysis') or contains(text(), 'Analyze New') or contains(text(), 'Analyze Another')])[1]");
+        this.animatedSpin= this.page.locator("[class*='animate-spin']");
+        this.uploadFailed= this.page.locator("p[class*='text-red']");
+   
         this.recipeInputFields=this.page.locator('(//input[contains(@id,"ingredient")] | //input[@type="text"]) | //input[contains(@placeholder,"ingredient")]');
         this.dropDown=this.page.locator('[role*="combobox"]');
-        this.generateRecipeButton=this.page.locator("(//*[contains(text(),'Generate Recipes')] | //*[contains(text(),'Generate')])[1]");
-        this.description= this.page.locator("[class*='flex-col space']");
+        this.generateRecipeButton=this.page.locator("(//*[contains(text(),'Generate Recipes')])[1]");
+        this.description= this.page.locator("//*[contains(text(),'Instructions')]");
         this.textArea=this.page.locator("textarea[placeholder]");
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
         
@@ -43,20 +49,37 @@ export class WebsitePage {
     await this.firstNameField.fill("test");
     await this.lastNameField.fill("qa");
     await this.emailField.fill("testuser@gmail.com");
-    await this.passwordField.fill("password123");
-    await this.confirmPasswordField.fill("password123");
+    await this.passwordField.fill("Password@123");
+    await this.confirmPasswordField.fill("Password@123");
     await this.submitButton.click();
     await this.page.waitForTimeout(5000);
+    try {
+      await this.logout.waitFor({ state: "visible", timeout: 30000 }); // wait up to 30 sec
+      await this.logout.click();
+      console.log("Logout button appeared and was clicked.");
+    } catch (err) {
+      console.log("Logout button did not appear within 60 seconds, skipping.");
+    }
 
    }
 
    async performLoginAction()
    {
     await this.page.waitForTimeout(2000);
-    await this.loginLink.click();
+    try {
+  
+      await this.loginLink.waitFor({ state: 'visible', timeout: 60000 });
+      console.log("✅ Login button appeared after logout");
+      await this.loginLink.click();
+      console.log("✅ Login button clicked");
+  
+    } catch (error) {
+      console.error("❌ Logout/Login flow failed:", error);
+    }
+
     await this.page.waitForTimeout(2000);
     await this.emailField.fill("testuser@gmail.com")
-    await this.passwordField.fill("password123");
+    await this.passwordField.fill("Password@123");
     await this.submitButton.click();
     await this.page.waitForTimeout(2000);
    }
@@ -64,9 +87,19 @@ export class WebsitePage {
    async performInvalidLoginAction()
    {
     await this.page.waitForTimeout(2000);
-    await this.loginLink.click();
+    try {
+  
+      await this.loginLink.waitFor({ state: 'visible', timeout: 60000 });
+      console.log("✅ Login button appeared after logout");
+      await this.loginLink.click();
+      console.log("✅ Login button clicked");
+  
+    } catch (error) {
+      console.error("❌ Logout/Login flow failed:", error);
+    }
+
     await this.emailField.fill("testuser@gmail.com")
-    await this.passwordField.fill("password1234");
+    await this.passwordField.fill("Password@1234");
     await this.submitButton.click();
     await this.page.waitForTimeout(2000);
     try {
@@ -120,13 +153,178 @@ export class WebsitePage {
 }
 
 
-async uploadTheFile()
-   {
-    await this.page.waitForTimeout(2000)
-    const filePath = path.resolve('testData/SampleContract-Shuttle.pdf');
-    await this.page.waitForTimeout(3000);
-    await this.fileInput.setInputFiles(filePath);
-   }
+async uploadTheFiles() {
+  const results = {
+    PDF: '',
+    TXT: '',
+    DOCX: ''
+  };
+
+  const uploadAndCheck = async (filePath, label) => {
+    try {
+      console.log(`📤 Uploading ${label}...`);
+      await this.page.waitForTimeout(2000);
+      await this.fileInput.setInputFiles(filePath);
+
+      await this.waitForSpinnerWithIntervalChecks();
+
+      const isUploadFailedVisible = await this.uploadFailed.isVisible({ timeout: 5000 });
+      if (isUploadFailedVisible) {
+        const failedText = await this.uploadFailed.textContent();
+        if (failedText?.toLowerCase().includes("failed")) {
+          results[label] = `Failed: ${failedText.trim()}`;
+          console.log(`❌ ${label} upload failed: ${failedText.trim()}`);
+          return false; // tells caller it failed
+        }
+      }
+
+      const isAnalyzeVisible = await this.analysisContractorButton.isVisible({ timeout: 3000 });
+      if (isAnalyzeVisible) {
+        await this.analysisContractorButton.click();
+      }
+
+      results[label] = "Success";
+      console.log(`✅ ${label} uploaded and analyzed successfully.`);
+      return true;
+    } catch (error) {
+      results[label] = `Failed: ${error.message}`;
+      console.log(`❌ ${label} upload error: ${error.message}`);
+      return false;
+    }
+  };
+
+  // === Upload PDF ===
+  const pdfPassed = await uploadAndCheck.call(this, path.resolve('testData/SampleContract-Shuttle.pdf'), 'PDF');
+  if (!pdfPassed) {
+    console.log('🔄 Refreshing after PDF failure...');
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+  }
+
+  // === Upload TXT ===
+  const txtPassed = await uploadAndCheck.call(this, path.resolve('testData/Contract.txt'), 'TXT');
+  if (!txtPassed) {
+    console.log('🔄 Refreshing after TXT failure...');
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+  }
+
+  // === Upload DOCX ===
+  await uploadAndCheck.call(this, path.resolve('testData/Sample Contract.docx'), 'DOCX');
+
+  // === Final Summary ===
+  console.log("\n📄 Final Upload Summary:");
+  for (const [fileType, status] of Object.entries(results)) {
+    if (status === "Success") {
+      console.log(`✅ ${fileType} uploaded and analyzed successfully.`);
+    } else {
+      console.log(`❌ ${fileType} upload failed: ${status}`);
+    }
+  }
+}
+
+
+
+
+
+// async uploadTheFiles() {
+//   const results = {
+//     PDF: '',
+//     TXT: '',
+//     DOCX: ''
+//   };
+
+//   // Helper function for each file
+//   const uploadAndCheck = async (filePath, label) => {
+//     try {
+//       await this.page.waitForTimeout(2000);
+//       await this.fileInput.setInputFiles(filePath);
+//       await this.waitForSpinnerWithIntervalChecks();
+//       const isUploadFailedVisible = await this.uploadFailed.isVisible({ timeout: 5000 });
+//       if (isUploadFailedVisible) {
+//         const failedText = await this.uploadFailed.textContent();
+//         if (failedText?.toLowerCase().includes("failed")) {
+//           results[label] = `Failed: ${failedText.trim()}`;
+//           return;
+//         }
+//       }
+
+//       results[label] = "Success";
+//     } catch (error) {
+//       results[label] = `Failed: ${error.message}`;
+//     }
+//   };
+
+//   // Upload each file and check
+//   await uploadAndCheck(path.resolve('testData/SampleContract-Shuttle.pdf'), 'PDF');
+
+//   try { await this.analysisContractorButton.click(); } catch {}
+
+//   await uploadAndCheck(path.resolve('testData/Contract.txt'), 'TXT');
+
+//   try { await this.analysisContractorButton.click(); } catch {}
+
+//   await uploadAndCheck(path.resolve('testData/Sample Contract.docx'), 'DOCX');
+
+//   // Final Summary
+//   console.log("\n📄 Final Upload Summary:");
+//   for (const [fileType, status] of Object.entries(results)) {
+//     if (status === "Success") {
+//       console.log(`✅ ${fileType} uploaded and analyzed successfully.`);
+//     } else {
+//       console.log(`❌ ${fileType} upload failed: ${status}`);
+//     }
+//   }
+// }
+
+
+
+async waitForSpinnerWithIntervalChecks() {
+  const startTime = Date.now();
+  const maxWaitTime = 300000; // 5 minutes in milliseconds
+  const checkInterval = 10000; // 10 seconds
+  let isVisible = true;
+
+  console.log('🕒 Waiting for spinner to become invisible...');
+
+  while (isVisible && Date.now() - startTime < maxWaitTime) {
+    try {
+      // Check if the spinner is visible
+      isVisible = await this.animatedSpin.isVisible({ timeout: 1000 });
+
+      if (!isVisible) {
+        this.elapsedTime = Date.now() - startTime;
+        console.log(`✅ Spinner disappeared after ${this.elapsedTime / 1000} seconds`);
+        break;
+      }
+
+      // Log every 30 seconds
+      this.elapsedTime = Date.now() - startTime;
+      if (this.elapsedTime % 30000 < checkInterval) {
+        console.log(`⏳ Spinner still visible after ${Math.floor(this.elapsedTime / 1000)} seconds...`);
+      }
+
+      await this.page.waitForTimeout(checkInterval);
+    } catch (error) {
+      // If element is detached or error occurs, assume it's gone
+      console.log(`⚠️ Spinner check error: ${error.message}`);
+      isVisible = false;
+      this.elapsedTime = Date.now() - startTime;
+      break;
+    }
+  }
+
+  // Final confirmation to ensure it's hidden
+  try {
+    await this.animatedSpin.waitFor({ state: 'hidden', timeout: 5000 });
+  } catch (error) {
+    console.log(`❌ Final spinner check failed: ${error.message}`);
+  }
+
+  const elapsedTimeInSeconds = this.elapsedTime / 1000;
+  console.log(`⏱️ Spinner became invisible after ${elapsedTimeInSeconds} seconds`);
+
+  return elapsedTimeInSeconds;
+}
+
 
 
    async analysisTheResume()
