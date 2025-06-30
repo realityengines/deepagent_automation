@@ -154,8 +154,8 @@ export class DeepAgentPage {
 
     //  Perform the registration process-
     this.signUpButton = page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up')]");
-    this.nameField = page.locator("[placeholder*='full name']");
-    this.emailField = page.locator("[placeholder*='email']");
+    this.nameField = page.locator("//*[@id='fullName' or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
+    this.emailField = page.locator("//*[@id='email' or contains(@placeholder, 'email')]");
     this.passwordField = page.locator("(//*[@type='password'])[1]");
     this.confirmPasswordField = page.locator("(//*[@type='password'])[2]");
 
@@ -218,7 +218,7 @@ export class DeepAgentPage {
 
   async waitforStopButtonInvisble() {
     const startTime = Date.now();
-    const maxWaitTime = 2400000; // 40 minutes in milliseconds
+    const maxWaitTime = 30000000; // 50 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
     let isVisible = true;
     // let elapsedTime = 0;
@@ -1467,16 +1467,47 @@ export class DeepAgentPage {
     await download.saveAs(filePath);
   }
 
-  async performSignUp() {
-    await this.page.waitForTimeout(2000);
-    await this.signUpButton.click();
-    await this.nameField.fill("Test User");
-    await this.emailField.fill("testuser@gmail.com");
-    await this.passwordField.fill("password123");
-    await this.confirmPasswordField.fill("password123");
-    await this.page.waitForTimeout(5000);
-    await this.createAccountButton.click();
-    await this.page.waitForTimeout(5000);
+  async performSignUp(attachFn) {
+    const signupReport = [];
+    try {
+      signupReport.push("=== SIGNUP EXECUTION RESULTS ===");
+      signupReport.push(`Signup started at: ${new Date().toISOString()}`);
+  
+      await this.page.waitForTimeout(1000);
+      signupReport.push("Step 1: Clicked 'Sign Up' button");
+      await this.signUpButton.click();
+  
+      signupReport.push("Step 2: Filled in name");
+      await this.nameField.fill("Test User");
+  
+      signupReport.push("Step 3: Filled in email");
+      await this.emailField.fill("testuser@gmail.com");
+  
+      signupReport.push("Step 4: Filled in password");
+      await this.passwordField.fill("password123");
+  
+      signupReport.push("Step 5: Confirmed password");
+      await this.confirmPasswordField.fill("password123");
+  
+      await this.page.waitForTimeout(500);
+      signupReport.push("Step 6: Clicked 'Create Account'");
+      await this.createAccountButton.click();
+      await this.page.waitForTimeout(3000);
+  
+      signupReport.push("✅ Signup completed successfully.");
+  
+      // ✅ Only call attach if it was passed
+      if (attachFn) {
+        await attachFn(signupReport.join("\n"), "text/plain");
+      }
+  
+    } catch (err) {
+      signupReport.push(`❌ Signup failed: ${err.message}`);
+      if (attachFn) {
+        await attachFn(signupReport.join("\n"), "text/plain");
+      }
+      throw err;
+    }
   }
 
   async verifyDataBase(possibleTableNames) {
