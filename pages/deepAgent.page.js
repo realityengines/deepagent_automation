@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { expect } from "chai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,6 +168,20 @@ export class DeepAgentPage {
     );
 
     this.userAdded = page.locator("//*[text()='testuser@gmail.com']");
+
+
+    //Daemons locators
+    this.taskMenu=page.locator("(//*[@aria-haspopup='menu'])[1]");
+    this.taskOptions=page.locator("[role='menuitem']")
+    this.testTask=page.locator("//*[text()='Test Task']");
+    this.browser=page.locator("//*[text()='Browser']");
+    this.successStatus = page.locator("[data-icon='thumbs-up']");
+    this.newSession= page.locator("[data-icon='pen-to-square']");
+    this.taskButton= page.locator("//*[text()='Tasks']");
+    this.reservationTask= page.locator("//*[contains(text(),'View Results')]");
+    this.browserUse= page.locator("//*[text()='Browser']")
+    this.gmailTool= page.locator("//*[contains(text(),'gmail_tool')]")
+    this.twitterMCPTool= page.locator("//*[text()='twitter-mcp_post_tweet output']")
 
     this.elapsedTime = 0;
   }
@@ -1526,4 +1541,117 @@ export class DeepAgentPage {
     await this.page.waitForTimeout(3000);
     await this.userAdded.isVisible();
   }
+
+
+  async checkSuccessStatusPeriodically() {
+    const startTime = Date.now();
+    const maxWaitTime = 1200000; // 20 minutes
+    const checkInterval = 10000; // 10 seconds
+    while (Date.now() - startTime < maxWaitTime) {
+        try {
+            const count = await this.successStatus.count();
+            if (count > 0) {
+                let allVisible = true;
+                for (let i = 0; i < count; i++) {
+                    const element = this.successStatus.nth(i);
+                    const isVisible = await element.isVisible();
+                    if (!isVisible) {
+                        allVisible = false;
+                        break;
+                    }
+                }
+                if (allVisible) {
+                    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                    console.log(`:white_check_mark: All ${count} success status elements are visible after ${elapsedTime} seconds.`);
+                    return {
+                        isVisible: true,
+                        totalElements: count,
+                        elapsedTime: elapsedTime
+                    };
+                } else {
+                    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                    console.log(`Not all success status elements are visible yet after ${elapsedTime} seconds.`);
+                }
+            } else {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                console.log(`:information_source: No success status elements found after ${elapsedTime} seconds.`);
+            }
+        } catch (error) {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            console.log(`:x: Error while checking success status after ${elapsedTime} seconds:`, error.message);
+        }
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+    }
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    console.log(":alarm_clock: Timeout reached. Not all success status elements became visible.");
+    return {
+        isVisible: false,
+        elapsedTime: elapsedTime
+    };
+}
+  async testTaks()
+  {
+    await this.taskMenu.click();
+    await this.page.waitForTimeout(2000);
+    await this.taskOptions.click();
+    await this.page.waitForTimeout(2000);
+    await this.testTask.click();
+  }
+  async verifyBrowserCreation()
+  {
+   await this.page.waitForTimeout(5000);
+    const isBrowserUseVisible = await this.browserUse.first().isVisible();
+   const isGmailToolVisible = await this.gmailTool.first().isVisible();
+   if (isBrowserUseVisible) {
+     const count = await this.browserUse.count();
+     expect(count).to.be.greaterThan(0);
+     for(let i = 0; i < count; i++) {
+       const element = await this.browserUse.nth(i);
+       const isVisible = await element.isVisible();
+       expect(isVisible).to.be.true;
+       await element.click();
+     }
+   }
+   else if(isGmailToolVisible)
+   {
+     const count = await this.gmailTool.count();
+     expect(count).to.be.greaterThan(0);
+     for(let i = 0; i < count; i++) {
+       const element = await this.gmailTool.nth(i);
+       const isVisible = await element.isVisible();
+       expect(isVisible).to.be.true;
+       await element.click();
+   }
+  }
+  }
+  async checkTwitterMCP()
+{
+  await this.page.waitForTimeout(2000);
+  const count=await this.twitterMCPTool.count();
+  expect(count).to.be.greaterThan(0);
+  for(let i=0; i<count; i++)
+  {
+    const element=await this.twitterMCPTool.nth(i)
+    const isVisible = await element.isVisible();
+    expect(isVisible).to.be.true;
+    await element.click();
+  }
+}
+  async checkTaskStatus()
+{
+  await this.page.waitForTimeout(3000);
+  console.log('Checking task status...');
+  await this.newSession.click();
+  await this.page.waitForTimeout(3000);
+  await this.taskButton.click();
+  await this.page.waitForTimeout(3000);
+  const count = await this.reservationTask.count();
+  expect(count).to.be.greaterThan(0);
+  for (let i = 0; i < count; i++)
+  {
+    console.log(`Processing reservation task ${i + 1} of ${count}`);
+    const element=await this.reservationTask.nth(i).isVisible();
+    expect(element).to.be.true;
+  }
+}
 }
