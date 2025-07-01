@@ -200,6 +200,7 @@ async function getScenarioStatuses() {
                 'I search a prompt',
                 'I search for a prompt',
                 'I search the chat bot prompt',
+                'I search the long prompt',
                 'I search for',
                 'I enter',
                 'I type',

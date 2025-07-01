@@ -32,9 +32,9 @@ export class WebsitePage {
         this.animatedSpin= this.page.locator("[class*='animate-spin']");
         this.uploadFailed= this.page.locator("p[class*='text-red']");
    
-        this.recipeInputFields=this.page.locator('(//input[contains(@id,"ingredient")] | //input[@type="text"]) | //input[contains(@placeholder,"ingredient")]');
+        this.recipeInputFields=this.page.locator("//input[   contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')   or @type='text' ]");
         this.dropDown=this.page.locator('[role*="combobox"]');
-        this.generateRecipeButton=this.page.locator("(//*[contains(text(),'Generate Recipes')])[1]");
+        this.generateRecipeButton=this.page.locator("//button[(@type='submit' or translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes'))][1]");
         this.description= this.page.locator("//*[contains(text(),'Instructions')]");
         this.textArea=this.page.locator("textarea[placeholder]");
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
@@ -140,16 +140,18 @@ export class WebsitePage {
       }
     }
     await this.generateRecipeButton.click();
-    await this.page.waitForTimeout(5000);
+    await this.description.first().waitFor({ state: 'visible', timeout: 120000 });
+    // Then validate all visible descriptions
     const descriptionCount = await this.description.count();
     for (let i = 0; i < descriptionCount; i++) {
-      const isVisible = await this.description.nth(i).isVisible({ timeout: 10000 });
       try {
+        const isVisible = await this.description.nth(i).isVisible({ timeout: 10000 });
         expect(isVisible, `Element at index ${i} should be visible`).to.be.true;
       } catch (error) {
         console.warn(`Warning: Element ${i} is not visible after 10 seconds`);
       }
     }
+    
 }
 
 
