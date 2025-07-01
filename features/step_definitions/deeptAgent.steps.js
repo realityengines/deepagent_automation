@@ -1246,3 +1246,30 @@ When(/^I search the long prompt "(.*)" with follow-up query "(.*)"$/s, async fun
 }
 );
 
+Then("I click on the test task", async function () {
+  await deepAgentPage.testTaks();
+  await this.page.waitForTimeout(3000);
+  const thirdElapsedTime=await deepAgentPage.checkSuccessStatusPeriodically();
+  deepAgentPage.elapsedTime=deepAgentPage.elapsedTime+thirdElapsedTime
+
+ });
+ Then("I verify that the deep agent browser created", async function () {
+  await deepAgentPage.verifyBrowserCreation();
+  
+ });
+ Then("I verify that the Twitter MCP has been created", async function () {
+  await deepAgentPage.checkTwitterMCP();
+ });
+ Then("I confirm that the task has been successfully created", async function () {
+  await deepAgentPage.checkTaskStatus();
+ });
+
+
+
+
+
+
+
+
+
+
