@@ -1157,6 +1157,15 @@ Then(
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
     await deepAgentPage.previewButton.click();
+    await this.page.waitForTimeout(5000);
+    console.log("Returned to original page");
+    try {
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`\nConversation URL: ${convoURL}`);
+    } catch (error) {
+      console.log("Conversation URL not available");
+    }
+
   }
 );
 
