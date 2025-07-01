@@ -155,7 +155,7 @@ export class DeepAgentPage {
     //  Perform the registration process-
     this.signUpButton = page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up')]");
     this.nameField = page.locator("//*[@id='fullName' or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
-    this.emailField = page.locator("//*[@id='email' or contains(@placeholder, 'email')]");
+    this.emailField = page.locator("//*[translate(@id, 'EMAIL', 'email') = 'email' or contains(translate(@placeholder, 'EMAIL', 'email'), 'email')]");
     this.passwordField = page.locator("(//*[@type='password'])[1]");
     this.confirmPasswordField = page.locator("(//*[@type='password'])[2]");
 
@@ -1294,7 +1294,7 @@ export class DeepAgentPage {
   }
 
   async clickOnDeployLink() {
-    await this, this.previewButton.click();
+    await this.previewButton.click();
     await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
     await this.deployLink.click({ force: true, timeout: 10000 });
   }

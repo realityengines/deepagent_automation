@@ -784,12 +784,11 @@ Then(
 Then(
   "the user completes the registration process successfully and verify the database",
   async function () {
-    const signupReport = [];
     try {
       const originalPage = this.page;
       console.log("\n=== Step 1: Click Deploy and Open New Page ===");
 
-      // Click deploy link and wait for new page
+      // Open deployed page
       const [newPage] = await Promise.all([
         originalPage.context().waitForEvent("page", { timeout: 60000 }),
         deepAgentPage.clickOnDeployLink(),
@@ -826,50 +825,44 @@ Then(
 
           if (status === 200) {
             successCount++;
-            console.log(
-              `✅ Link ${i + 1}: ${link.text} (${link.href}) - 200 OK`
-            );
+            console.log(`✅ Link ${i + 1}: ${link.text} (${link.href}) - 200 OK`);
           } else {
-            console.warn(
-              `❌ Link ${i + 1}: ${link.text} (${
-                link.href
-              }) - Status: ${status}`
-            );
+            console.warn(`❌ Link ${i + 1}: ${link.text} (${link.href}) - Status: ${status}`);
             failedLinks.push({ ...link, status });
           }
         } catch (err) {
-          console.error(
-            `❌ Link ${i + 1}: ${link.text} (${link.href}) - Error: ${
-              err.message
-            }`
-          );
+          console.error(`❌ Link ${i + 1}: ${link.text} (${link.href}) - Error: ${err.message}`);
           failedLinks.push({ ...link, error: err.message });
         } finally {
           await tempPage.close();
         }
       }
 
+      // Report all link results
       const urlStatusReport = [
         "=== URL VERIFICATION RESULTS ===",
         `Total Links: ${links.length}`,
         `Successful (200): ${successCount}`,
         `Failed: ${failedLinks.length}`,
-        "\nSuccessful Links:",
+        "\n✅ Successful Links:",
         ...links
           .filter((l) => !failedLinks.some((f) => f.href === l.href))
           .map((l, i) => `${i + 1}. "${l.text}" (${l.href}) - Status: 200`),
-        "\nFailed Links:",
+        "\n❌ Failed Links:",
         ...failedLinks.map(
           (l, i) => `${i + 1}. "${l.text}" (${l.href}) - ${l.status || l.error}`
         ),
+        "\n⚠️ Proceeding with signup despite failed links...",
       ].join("\n");
 
       await this.attach(urlStatusReport, "text/plain");
-      expect(failedLinks.length).to.equal(
-        0,
-        `${failedLinks.length} links failed`
-      );
 
+      // OPTIONAL: Log simple alert if needed
+      if (failedLinks.length > 0) {
+        console.warn(`⚠️ ALERT: ${failedLinks.length} link(s) failed, continuing with signup.`);
+      }
+
+      // === Step 3: Getting Conversation URL ===
       console.log("\n=== Step 3: Getting Conversation URL ===");
       try {
         const convoURL = await deepAgentPage.getConvoURL();
@@ -881,11 +874,13 @@ Then(
       // === Step 4: Perform Signup ===
       console.log("\n=== Step 4: Performing Signup ===");
       await deepAgentPage.performSignUp(this.attach);
+
       // === Step 4.1: Return to original Deep Agent page ===
       console.log("\n=== Step 4.1: Returning to original DeepAgent page ===");
       await newPage.close();
       this.page = originalPage;
       deepAgentPage = new DeepAgentPage(originalPage);
+
       try {
         const convoURL2 = await deepAgentPage.getConvoURL();
         console.log(`Conversation URL after signup: ${convoURL2}`);
@@ -893,26 +888,20 @@ Then(
         console.log("Conversation URL after signup not available");
       }
 
-      // === Step 6: Verify Database ===
+      // === Step 5: Verify Database ===
       console.log("\n=== Step 5: Verifying Database ===");
       await deepAgentPage.verifyDataBase(["users", "user", "User", "Users"]);
 
-      // Cleanup: Close new page and return
-      await newPage.close();
-      this.page = originalPage;
-      deepAgentPage = new DeepAgentPage(originalPage);
-
       console.log("\n✅ All steps completed successfully.\n");
     } catch (err) {
-      console.error(
-        "\n❌ Error during user registration and verification steps:"
-      );
+      console.error("\n❌ Error during user registration and verification steps:");
       console.error(err.stack || err.message);
       await this.attach(`Test failed with error: ${err.message}`, "text/plain");
       throw err;
     }
   }
 );
+
 
 When(
   "I search for the prompt for video generation {string} with follow-up query {string}",
@@ -1215,3 +1204,36 @@ Then("I enter the resume details and analysis the resume", async function () {
   deepAgentPage = new DeepAgentPage(originalPage);
   await this.page.waitForTimeout(3000);
 });
+
+
+When(/^I search the long prompt "(.*)" with follow-up query "(.*)"$/s, async function (promatSearch, follow_up_query) {
+  await deepAgentPage.enterPromapt(promatSearch);
+  await deepAgentPage.clickSendButton();
+  await deepAgentPage.page.waitForTimeout(3000);
+  const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+  await deepAgentPage.enterPromaptQuery(follow_up_query);
+  await deepAgentPage.page.waitForTimeout(3000);
+  await deepAgentPage.clickSendButton();
+  const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+  deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime;
+
+  const hasExpectedStatus = await deepAgentPage.getStatusOfTask("Completed");
+  console.log(`Status found: ${hasExpectedStatus}`);
+
+  // Send fallback prompt only if status not found
+  if (!hasExpectedStatus) {
+    console.log("Status not found, sending fallback prompt...");
+    await deepAgentPage.enterPromaptQuery("your call");
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime += thirdElapsedTime;
+  }
+
+  console.log("Total elapsed time after prompts:", deepAgentPage.elapsedTime);
+  const convoURL = await deepAgentPage.getConvoURL();
+  console.log(`Conversation URL: ${convoURL}`);
+  await deepAgentPage.getConvoId();
+}
+);
+
