@@ -158,7 +158,7 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
       | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
 
-  @DaemonsPromptReservationTask @Daemons
+  @DaemonsPromptReservationTask
   Scenario Outline: Verify reservation task
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
