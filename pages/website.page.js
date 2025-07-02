@@ -12,7 +12,9 @@ export class WebsitePage {
         this.joinUSButton = this.page.locator("(//*[contains(text(),'Join Us')])[1]");
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
-        this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')]");
+        this.emailField = this.page.locator("(//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')])[1]");
+        this.phoneNumberField = this.page.locator("(//*[contains(@id,'phone')] | //*[contains(@name,'phone')] | //*[contains(@placeholder,'phone')] | //input[@type='tel'])[1]");
+        this.contactButton= this.page.locator("(//*[text()='Contact'])[1]")
         this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.submitButton=this.page.locator("[type='submit']");
@@ -20,9 +22,9 @@ export class WebsitePage {
         this.logout=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'logout')]");
       
         this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
-        this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
+        this.fullnameField= this.page.locator("(//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'full name')])[1]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
-        this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
+        this.messageTextField = this.page.locator("(//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us')])[1]");
         this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
         this.exerciseLink=this.page.locator("(//*[contains(text(),'Exercises')] | //*[contains(@href,'exercises')])[1]")
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
@@ -346,5 +348,21 @@ async waitForSpinnerWithIntervalChecks() {
     }
   }
 
+}
+
+async fillTheForm()
+{
+  await this.page.waitForTimeout(5000);
+  const isContactButtonVisible = await this.contactButton.isVisible();
+  if (isContactButtonVisible) {
+    await this.contactButton.click();
+    console.log("Contact button clicked");
+  }
+  await this.fullnameField.fill("test QA");
+  await this.emailField.fill("testuser@gmail.com");
+  await this.phoneNumberField.fill("1234567890");
+  await this.messageTextField.fill("testing the applications for better use");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(5000)
 }
 }

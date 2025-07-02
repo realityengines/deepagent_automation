@@ -1273,7 +1273,30 @@ Then("I click on the test task", async function () {
   await deepAgentPage.checkTaskStatus();
  });
 
-
+ Then(
+  "I fill out the contact form and validate that the data is saved in the database",
+  async function () {
+    const originalPage = this.page;
+    await this.page.waitForTimeout(5000);
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+      deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
+    ]);
+    await newPage.waitForLoadState();
+    websitePage = new WebsitePage(newPage);
+    this.page = newPage;
+    await websitePage.fillTheForm();
+    await newPage.close();
+    this.page = originalPage;
+    deepAgentPage = new DeepAgentPage(originalPage);
+    await this.page.waitForTimeout(3000);
+    console.log("\n=== Step 2: Getting Conversation URL ===");
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    await deepAgentPage.getConvoId();
+    await deepAgentPage.verifyDataBase(["contact", "contacts", "Contact", "Contacts"]);
+  }
+);
 
 
 

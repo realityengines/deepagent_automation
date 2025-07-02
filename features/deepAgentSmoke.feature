@@ -170,3 +170,16 @@ Feature: Deep Agent Functionality Test
     Examples:
       | prompt_user_search                                                                                          | follow_up_query                                                                          |
       | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now |
+
+  @AppLLMDatabase
+  Scenario Outline: Verify database functionality
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should deploy the website
+    Then I fill out the contact form and validate that the data is saved in the database
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                                                                                                    | follow_up_query                                                                       |
+      | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content | The contact form should have only these fields: Full Name, Email, Phone, and Message. |
