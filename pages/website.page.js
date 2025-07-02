@@ -34,7 +34,7 @@ export class WebsitePage {
    
         this.recipeInputFields=this.page.locator("//input[   contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')   or @type='text' ]");
         this.dropDown=this.page.locator('[role*="combobox"]');
-        this.generateRecipeButton=this.page.locator("//button[(@type='submit' or translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes'))][1]");
+        this.generateRecipeButton=this.page.locator("(//*[@type='submit' or translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes')])[1]");
         this.description= this.page.locator("//*[contains(text(),'Instructions')]");
         this.textArea=this.page.locator("textarea[placeholder]");
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
@@ -139,6 +139,7 @@ export class WebsitePage {
         }
       }
     }
+    await this.page.waitForTimeout(6000);
     await this.generateRecipeButton.click();
     await this.description.first().waitFor({ state: 'visible', timeout: 120000 });
     // Then validate all visible descriptions

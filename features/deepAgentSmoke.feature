@@ -31,7 +31,7 @@ Feature: Deep Agent Functionality Test
       | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: Add title banner stating 15 days Summer camp for kids of age 4 to 18 | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
 
   @Intergation
-  Scenario Outline: Verify Deep Agent integrate 
+  Scenario Outline: Verify Deep Agent integrate
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -40,13 +40,13 @@ Feature: Deep Agent Functionality Test
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                                          | follow_up_query                                                                                                     |
-      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call                                                                                                       |
+      | prompt_user_search                                                                          | follow_up_query |
+      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call   |
       # | On-The-Fly Interactive Jira Dashboard                                                       | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       # | How to manage notifications in Slack to avoid distractions and stay focused                 | Daily reporting   |
 
   @Research
-  Scenario Outline: Verify Deep Agent's  research 
+  Scenario Outline: Verify Deep Agent's  research
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -59,7 +59,7 @@ Feature: Deep Agent Functionality Test
       | Luxury Trip To Bali | Luxury mid-range budget relaxation for next month |
 
   @BrowserUse
-  Scenario Outline: Verify browser task execution 
+  Scenario Outline: Verify browser task execution
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -72,7 +72,7 @@ Feature: Deep Agent Functionality Test
       | Find reservations at an upscale indian dinner restaurant in San Francisco. | Looking to book a table for 5 for Sunday lunch—do you have any availability around 12:30–1:30 PM?  create a file |
 
   @ChatBot
-  Scenario Outline: Verify chatbot creation 
+  Scenario Outline: Verify chatbot creation
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
@@ -83,7 +83,7 @@ Feature: Deep Agent Functionality Test
       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @Powerpoint
-  Scenario Outline: Verify PowerPoint presentation generation 
+  Scenario Outline: Verify PowerPoint presentation generation
     Given I click the check out from the welcome window
     When I search a prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -96,7 +96,7 @@ Feature: Deep Agent Functionality Test
       | Create a 5-slide pitch on entering the U.S. skincare market with an affordable, clean beauty brand. | Can you add recent data (2024/2025) on affordable skincare market growth in the U.S.? |
 
   @VideoGeneration
-  Scenario Outline: Verify video generation 
+  Scenario Outline: Verify video generation
     Given I click the check out from the welcome window
     When I search for the prompt for video generation "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
@@ -146,7 +146,7 @@ Feature: Deep Agent Functionality Test
       | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call       |
 
   @AIAppsRecipeCreator
-  Scenario Outline: Verify AI application functionality 
+  Scenario Outline: Verify AI application functionality
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
     And I should see the status "Completed" for the task
@@ -157,3 +157,16 @@ Feature: Deep Agent Functionality Test
     Examples:
       | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
       | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
+
+@DaemonsPromptReservationTask @Daemons
+  Scenario Outline: Verify reservation task
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    Then I click on the test task
+    And I verify that the deep agent browser created
+    And the compute points should not exceed 150k
+    Then I confirm that the task has been successfully created
+
+    Examples:
+      | prompt_user_search                                                                                          | follow_up_query                                                                          |
+      | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now |

@@ -1152,10 +1152,20 @@ Then(
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
-    await websitePage.enterTheRecipeData();
+    let recipeError;
+    try {
+      await websitePage.enterTheRecipeData();
+    } catch (error) {
+      recipeError = error;
+      console.error("Failed to enter recipe data:", error.message);
+    }
+    // Ensure the page is closed and context restored
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
+    if (recipeError) {
+      throw recipeError; // This will fail the test after cleanup
+    }
     await deepAgentPage.previewButton.click();
     await this.page.waitForTimeout(5000);
     console.log("Returned to original page");
@@ -1165,7 +1175,6 @@ Then(
     } catch (error) {
       console.log("Conversation URL not available");
     }
-
   }
 );
 
