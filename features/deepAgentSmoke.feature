@@ -155,10 +155,10 @@ Feature: Deep Agent Functionality Test
     Then I enter the ingredients and validate the generated response
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
-      | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
+      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
+      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
 
-@DaemonsPromptReservationTask @Daemons
+  @DaemonsPromptReservationTask @Daemons
   Scenario Outline: Verify reservation task
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"

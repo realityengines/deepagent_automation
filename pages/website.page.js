@@ -32,7 +32,7 @@ export class WebsitePage {
         this.animatedSpin= this.page.locator("[class*='animate-spin']");
         this.uploadFailed= this.page.locator("p[class*='text-red']");
    
-        this.recipeInputFields=this.page.locator("//input[   contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')   or @type='text' ]");
+        this.recipeInputFields=this.page.locator("//input[contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')   or @type='text' ]");
         this.dropDown=this.page.locator('[role*="combobox"]');
         this.generateRecipeButton=this.page.locator("(//*[@type='submit' or translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes')])[1]");
         this.description= this.page.locator("//*[contains(text(),'Instructions')]");

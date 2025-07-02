@@ -176,7 +176,7 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                                                                                                                                                                         | follow_up_query                                                                                                                                                              | Prompt_for_custom_chatBot                   |
       | Create a chatbot with deep knowledge of ATP tennis tournaments, player stats, and official rules. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action. | Focus the chatbot on ATP tournament info, player stats, and rules, keep it ATP-only for now; show just the schedule on the site, embed the chatbot as a floating chat widget | Create a website for booking tennis courts. |
 
-  @LoginDatabaseValidation
+  @AppLLmSignAuth
   Scenario Outline: Verify database and login functionality
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
@@ -226,8 +226,9 @@ Feature: Deep Agent Search and Task Execution
     Then I enter the ingredients and validate the generated response
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                              | follow_up_query                                                     |
-      | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
+      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
+      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
+      # | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
 
   @DeepAgentlongPrompt
   Scenario Outline: Verify website creation for long prompt
