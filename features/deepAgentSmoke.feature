@@ -155,8 +155,8 @@ Feature: Deep Agent Functionality Test
     Then I enter the ingredients and validate the generated response
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
-      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
+      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                                                  |
+      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Provide the instructions after generating the response |
 
   @DaemonsPromptReservationTask
   Scenario Outline: Verify reservation task
@@ -181,5 +181,5 @@ Feature: Deep Agent Functionality Test
     Then I fill out the contact form and validate that the data is saved in the database
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                    | follow_up_query                                                                       |
-      | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content | The contact form should have only these fields: Full Name, Email, Phone, and Message. |
+      | prompt_user_search                                                                                                                                                                                                                                                    | follow_up_query                                                                                                                                                   |
+      | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content | Create a contact form with the following fixed fields: Full Name, Email, Phone, and Message. Each field should have a placeholder with the same name as the field |

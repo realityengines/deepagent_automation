@@ -951,6 +951,7 @@ Then(
     await websitePage.performLoginAction();
     await newPage.close();
     this.page = originalPage;
+    await this.page.waitForTimeout(2000);
     deepAgentPage = new DeepAgentPage(originalPage);
     await deepAgentPage.verifyDataBase([
       "users",

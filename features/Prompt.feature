@@ -24,7 +24,6 @@ Feature: Deep Agent Search and Task Execution
       | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview | your call                                                                                                           |
       | Connect To Gmail And Automate Work                                                      | Find sent emails with no replies                                                                                    |
       | On-The-Fly Interactive Jira Dashboard                                                   | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
-      | Luxury Trip To Bali                                                                     | Luxury mid-range budget relaxation for next month                                                                   |
       # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
       # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
 
@@ -44,6 +43,7 @@ Feature: Deep Agent Search and Task Execution
       | write detailed PDF report on India Pakistan conflicts after 2000            | Your call with limited functionality.                                                                                                                                    |
       | In-depth EV battery research                                                | include  major and medium scale ones \n lithium ion                                                                                                                      |
       | Find reservations at an upscale indian dinner restaurant in San Francisco.  | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
+      | Luxury Trip To Bali                                                         | Luxury mid-range budget relaxation for next month                                                                                                                        |
 
   @MCPPrompts
   Scenario Outline: Verify executes research prompts for MCP
@@ -199,8 +199,8 @@ Feature: Deep Agent Search and Task Execution
     Then I fill out the contact form and validate that the data is saved in the database
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                    | follow_up_query                                                                       |
-      | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content | The contact form should have only these fields: Full Name, Email, Phone, and Message. |
+      | prompt_user_search                                                                                                                                                                                                                                                    | follow_up_query                                                                                                                                                   |
+      | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content | Create a contact form with the following fixed fields: Full Name, Email, Phone, and Message. Each field should have a placeholder with the same name as the field |
 
   @AIAppsContractor
   Scenario Outline: Verify file upload and contract term extraction
@@ -238,8 +238,8 @@ Feature: Deep Agent Search and Task Execution
     Then I enter the ingredients and validate the generated response
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
-      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
+      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                                                  |
+      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Provide the instructions after generating the response |
       # | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
 
   @DeepAgentlongPrompt

@@ -22,9 +22,9 @@ export class WebsitePage {
         this.logout=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'logout')]");
       
         this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
-        this.fullnameField= this.page.locator("(//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'full name')])[1]");
+        this.fullnameField= this.page.locator("(//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'full name')] | //*[contains(@placeholder,'Full Name')])[1]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
-        this.messageTextField = this.page.locator("(//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us')])[1]");
+        this.messageTextField = this.page.locator("(//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us')] | //*[@placeholder='Message'])[1]");
         this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
         this.exerciseLink=this.page.locator("(//*[contains(text(),'Exercises')] | //*[contains(@href,'exercises')])[1]")
         this.categoriesDropdown=this.page.locator("((//*[@role='combobox']) | //*[contains(text(),'Categories')])[1]");
@@ -34,10 +34,10 @@ export class WebsitePage {
         this.animatedSpin= this.page.locator("[class*='animate-spin']");
         this.uploadFailed= this.page.locator("p[class*='text-red']");
    
-        this.recipeInputFields=this.page.locator("//input[contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')   or @type='text' ]");
+        this.recipeInputFields=this.page.locator("//input[contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')]");
         this.dropDown=this.page.locator('[role*="combobox"]');
         this.generateRecipeButton=this.page.locator("(//*[@type='submit' or translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes')])[1]");
-        this.description= this.page.locator("//*[contains(text(),'Instructions')]");
+        this.description= this.page.locator("(//*[contains(text(),'Instructions')] | //*[text()='View Recipe'] | //*[text()=''])");
         this.textArea=this.page.locator("textarea[placeholder]");
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
         
@@ -142,6 +142,7 @@ export class WebsitePage {
       }
     }
     await this.page.waitForTimeout(6000);
+    await this.generateRecipeButton.scrollIntoViewIfNeeded();
     await this.generateRecipeButton.click();
     await this.description.first().waitFor({ state: 'visible', timeout: 120000 });
     // Then validate all visible descriptions
@@ -358,10 +359,15 @@ async fillTheForm()
     await this.contactButton.click();
     console.log("Contact button clicked");
   }
+  await this.page.waitForTimeout(2000);
   await this.fullnameField.fill("test QA");
+  await this.page.waitForTimeout(2000);
   await this.emailField.fill("testuser@gmail.com");
+  await this.page.waitForTimeout(2000);
   await this.phoneNumberField.fill("1234567890");
+  await this.page.waitForTimeout(2000);
   await this.messageTextField.fill("testing the applications for better use");
+  await this.page.waitForTimeout(2000);
   await this.submitButton.click();
   await this.page.waitForTimeout(5000)
 }

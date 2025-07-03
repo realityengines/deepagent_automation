@@ -1309,8 +1309,9 @@ export class DeepAgentPage {
   }
 
   async clickOnDeployLink() {
+    await this.previewButton.waitFor({ state: "visible", timeout: 10000 });
     await this.previewButton.click();
-    await this.deployLink.waitFor({ state: "visible", timeout: 10000 });
+    await this.deployLink.waitFor({ state: "visible", timeout: 15000 });
     await this.deployLink.click({ force: true, timeout: 10000 });
   }
 
