@@ -110,7 +110,7 @@ Feature: Deep Agent Search and Task Execution
       | Create a website about Louvre Museum, Paris. The website should have a brief general overview about the history of the museum. The website should have another page that has a list of all the art pieces in the museum with images. Clicking on the image opens up a dedicated description page of that particular piece. Make sure to add accurate information and pictures                                                                                                        | add the top 25 arts, add a nice historic artsy touch to the website color theme and font that complements the Louvre's aesthetic |
       | Create a simple fitness tracker website with a form page where users can log exercises by selecting the type, weight, and reps or log cardio with time and calories burnt, and also record their daily food intake by entering food items and corresponding calories; a progress page that displays a date-wise table of all food and exercise entries; and a dashboard page that visualizes daily calorie intake, calories burnt, and net calorie intake through interactive graphs | no auth, yes store the data betweeen sessions, color scheme sage green, add weight tracking too                                  |
 
-  @Powerpoint @ppt
+  @Powerpoint
   Scenario Outline: Verify PowerPoint presentation generation
     Given I click the check out from the welcome window
     When I search a prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
