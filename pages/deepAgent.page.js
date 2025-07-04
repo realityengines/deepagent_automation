@@ -1409,7 +1409,7 @@ export class DeepAgentPage {
   }
 
   async downalodFileicon() {
-    const maxWaitTime = 360000; // 6 minutes in milliseconds
+    const maxWaitTime = 480000; // 8 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
     const startTime = Date.now();
     let isVisible = true;

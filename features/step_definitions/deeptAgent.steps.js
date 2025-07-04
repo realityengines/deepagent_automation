@@ -49,7 +49,7 @@ When(
 
 Then("I should see the status {string} for the task", async function (status) {
   await deepAgentPage.waitforStopButtonInvisble();
-  await deepAgentPage.page.waitForTimeout(3000);
+  await this.page.waitForTimeout(3000);
   const hasExpectedStatus = await deepAgentPage.getStatusOfTask(status);
   expect(hasExpectedStatus).to.be.true;
 });
@@ -871,15 +871,26 @@ Then(
         console.log("Conversation URL not available");
       }
 
+      let errorMessage;
       // === Step 4: Perform Signup ===
+      try{
       console.log("\n=== Step 4: Performing Signup ===");
       await deepAgentPage.performSignUp(this.attach);
+      }
+      catch (error) {
+        errorMessage = error;
+        console.error("Error during signup process:", error.message);
+      }
 
       // === Step 4.1: Return to original Deep Agent page ===
       console.log("\n=== Step 4.1: Returning to original DeepAgent page ===");
       await newPage.close();
       this.page = originalPage;
       deepAgentPage = new DeepAgentPage(originalPage);
+      if(errorMessage)
+      {
+        throw errorMessage;
+      }
 
       try {
         const convoURL2 = await deepAgentPage.getConvoURL();
@@ -946,13 +957,25 @@ Then(
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
+    let errorMessage;
+    try
+  {
     await websitePage.fillJoinUSForm();
     await websitePage.performInvalidLoginAction();
     await websitePage.performLoginAction();
+  } catch (error) 
+  {
+    errorMessage = error;
+    console.error("Error while performing actions on the website:", error.message);
+  }
     await newPage.close();
     this.page = originalPage;
     await this.page.waitForTimeout(2000);
     deepAgentPage = new DeepAgentPage(originalPage);
+  if(errorMessage)
+    {
+        throw errorMessage;
+    }  
     await deepAgentPage.verifyDataBase([
       "users",
       "user",
@@ -1191,11 +1214,22 @@ Then(
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
+    let errorMessage;
+    try{
     await websitePage.uploadTheFiles();
+    }catch(error)
+    {
+      errorMessage = error
+      console.error("Error during file upload:", error.message);
+    }
 
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
+    if(errorMessage)
+    {
+      throw errorMessage;
+    }
     await this.page.waitForTimeout(3000);
     console.log("\n=== Step 2: Getting Conversation URL ===");
     const convoURL = await deepAgentPage.getConvoURL();
@@ -1209,7 +1243,6 @@ Then(
 Then("I enter the resume details and analysis the resume", async function () {
   const originalPage = this.page;
   await this.page.waitForTimeout(5000);
-  deepAgentPage.clickOnDeployLink();
   const [newPage] = await Promise.all([
     this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
     deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
@@ -1217,11 +1250,27 @@ Then("I enter the resume details and analysis the resume", async function () {
   await newPage.waitForLoadState();
   websitePage = new WebsitePage(newPage);
   this.page = newPage;
+  let errorMessage;
+  try{
   await websitePage.analysisTheResume();
+  }
+  catch(error)
+  {
+    errorMessage=error
+    console.log("Error occurred during resume analysis:", error.message);
+  }
   await newPage.close();
   this.page = originalPage;
   deepAgentPage = new DeepAgentPage(originalPage);
+  if(errorMessage)
+    {throw errorMessage;}
   await this.page.waitForTimeout(3000);
+  console.log("\n=== Step 2: Getting Conversation URL ===");
+  const convoURL = await deepAgentPage.getConvoURL();
+  console.log(`Conversation URL: ${convoURL}`);
+  await deepAgentPage.getConvoId();
+ 
+
 });
 
 
@@ -1286,10 +1335,19 @@ Then("I click on the test task", async function () {
     await newPage.waitForLoadState();
     websitePage = new WebsitePage(newPage);
     this.page = newPage;
+    let errorMessage;
+    try{
     await websitePage.fillTheForm();
+    } catch (error) {
+        errorMessage = error;
+        console.error("Error while filling the form:", error.message);
+    }
     await newPage.close();
     this.page = originalPage;
     deepAgentPage = new DeepAgentPage(originalPage);
+    if(errorMessage){
+      throw errorMessage;
+    }
     await this.page.waitForTimeout(3000);
     console.log("\n=== Step 2: Getting Conversation URL ===");
     const convoURL = await deepAgentPage.getConvoURL();

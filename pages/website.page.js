@@ -37,9 +37,9 @@ export class WebsitePage {
         this.recipeInputFields=this.page.locator("//input[contains(translate(@id, 'INGREDIENT', 'ingredient'), 'ingredient')   or contains(translate(@placeholder, 'INGREDIENT', 'ingredient'), 'ingredient')]");
         this.dropDown=this.page.locator('[role*="combobox"]');
         this.generateRecipeButton=this.page.locator("(//*[@type='submit' or translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'submit' or contains(text(), 'Generate Recipes')])[1]");
-        this.description= this.page.locator("(//*[contains(text(),'Instructions')] | //*[text()='View Recipe'] | //*[text()=''])");
-        this.textArea=this.page.locator("textarea[placeholder]");
-        this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
+        this.description= this.page.locator("(//*[contains(text(),'Instructions')] | //*[text()='View Recipe'] | //*[text()='View Full Recipe'])");
+        this.textArea=this.page.locator("textarea[placeholder*='resume']");
+        this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')] | //button[contains(text(),'Resume')])[1]");
         
     }
 
