@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export class WebsitePage {
     constructor(page) {
         this.page = page;
-        this.joinUSButton = this.page.locator("(//*[contains(text(),'Join Us')])[1]");
+        this.joinUSButton = this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'Join Us')])[1]");
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
         this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')]");
