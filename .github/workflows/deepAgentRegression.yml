@@ -2,7 +2,7 @@ name: Deep Agent Regression Suite
 
 on:
   schedule:
-    - cron: "30 4 * * *" # 10 AM IST (15:00 UTC)
+    - cron: "30 4 * * *" # 10 AM IST
   # push:
   #   branches: ["master"]
   # pull_request:

@@ -10,7 +10,7 @@ Feature: Deep Agent Search and Task Execution
     And I select the default LLM "RouteLLM"
     When I click the deep Agent option
 
-  @IntegrationPrompts
+  @IntegrationPrompts @pr
   Scenario Outline: Verify Deep Agent integrate
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -20,15 +20,15 @@ Feature: Deep Agent Search and Task Execution
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                                      | follow_up_query                                                                                                     |
-      | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview | your call                                                                                                           |
-      | Connect To Gmail And Automate Work                                                      | Find sent emails with no replies                                                                                    |
-      | On-The-Fly Interactive Jira Dashboard                                                   | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
-      | Luxury Trip To Bali                                                                     | Luxury mid-range budget relaxation for next month                                                                   |
+      | prompt_user_search                                                                                                                                                                                     | follow_up_query                                                                                                     |
+      | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview                                                                                                                | your call                                                                                                           |
+      | Make me a dashboard of summary of all the open Jira issues reported by me in the last 3 sprints. \n Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
+      | Create a detailed 3-day itinerary for a trip to Bali, please include the names of tours, restaurant and beaches that I should go to. \n My budget is \\$10000.                                         | Luxury mid-range budget relaxation for next month                                                                   |
+      # | Connect To Gmail And Automate Work                                                      | Find sent emails with no replies                                                                                    |
       # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
       # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
 
-  @ResearchPrompts
+  @ResearchPrompts @pr
   Scenario Outline: Verify Deep Agent's research prompts
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -38,12 +38,12 @@ Feature: Deep Agent Search and Task Execution
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                          | follow_up_query                                                                                                                                                          |
-      | search Elon Musk and create pdf file                                        | Elon Musk's life or career in the PDf                                                                                                                                    |
-      | How does media coverage influence public opinion during election campaigns? | Your call with limited functionality.                                                                                                                                    |
-      | write detailed PDF report on India Pakistan conflicts after 2000            | Your call with limited functionality.                                                                                                                                    |
-      | In-depth EV battery research                                                | include  major and medium scale ones \n lithium ion                                                                                                                      |
-      | Find reservations at an upscale indian dinner restaurant in San Francisco.  | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
+      | prompt_user_search                                                                                                                                                                                                                                                          | follow_up_query                                                                                                                                                          |
+      | Search for latest information about Elon Musk and generate a PDF summary.                                                                                                                                                                                                   | Elon Musk's life or career in the PDf                                                                                                                                    |
+      | How does media coverage influence public opinion during election campaigns?                                                                                                                                                                                                 | Your call with limited functionality.                                                                                                                                    |
+      | write detailed PDF report on India Pakistan conflicts after 2000                                                                                                                                                                                                            | Your call with limited functionality.                                                                                                                                    |
+      | Do a in-depth research around EV battery manufacturers globally, and provide a competitive study around them.\nCite source of information for all the information you use.\nThe report should have one section to rate the manufacturers across various relevant parameters | include  major and medium scale ones \n lithium ion                                                                                                                      |
+      | Find reservations at an upscale indian dinner restaurant in San Francisco.                                                                                                                                                                                                  | Book a table for 5 this Sunday at 1:00 PM for lunch at any Italian restaurant near Connaught Place, Delhi — no special preferences. Create a pdf of the restaurant list. |
 
   @MCPPrompts
   Scenario Outline: Verify executes research prompts for MCP
@@ -58,7 +58,7 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                                               | follow_up_query                                                                 |
       | Create a literature review document about model context protocol, make sure to include all the top rated literature and content from Anthropic. Deliver a docx/pdf file. Keep it under 15 pages. | Model Context Protocol technical professional, 15 pages with detailed structure |
 
-  @APPsCreationPrompts
+  @APPsCreationPrompts @pr
   Scenario Outline: Verify Deep Agent's  application creation
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -68,10 +68,10 @@ Feature: Deep Agent Search and Task Execution
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                                  | follow_up_query                                                                   |
-      | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
-      | Build a fully functional game of sudoku. Keep it simple and functional.             | Your call with limited functionality.                                             |
-      | Hot or Not - hollywood edition                                                      | Your call with limited functionality.                                             |
+      | prompt_user_search                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | follow_up_query                                                                   |
+      | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
+      | Build a fully functional game of sudoku. Keep it simple and functional.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Your call with limited functionality.                                             |
+      | Build a fun “Hot or Not: Hollywood Edition” game. \nThe game should show random celebrity photos (Hollywood actors, musicians, influencers) one at a time to the user. \n The number of celebrities should be 20. \nFor each celebrity, the user can swipe left/right or tap a Hot or Not button to rate them. After a rating, the next celebrity appears automatically. \nTrack stats: show the percentage of people who voted “Hot” for each celebrity after the user votes.\n Include a leaderboard or trending list showing the top-rated celebrities overall. \nKeep the UI stylish, modern, and fast — optimized for mobile devices.\n Make the UI really look nice, enticing people to play the game. | Your call with limited functionality.                                             |
 
   @JiraIntegrationPrompt
   Scenario Outline: Verify  Deep Agent integrates with Jira
@@ -91,8 +91,8 @@ Feature: Deep Agent Search and Task Execution
     Then Then I can see the custom chat and perform some action
 
     Examples:
-      | prompt_user_search    | follow_up_query                                                                                                                                            |
-      | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
+      | prompt_user_search                                                                                                                                                                              | follow_up_query                                                                                                                                            |
+      | Build an AI app that takes basic user info, lets them select body type & goals via simple illustrations, and generates daily workout plans with exercise visuals, sets, reps, and instructions. | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @APPLLMPrompts
   Scenario Outline: Verify AI-generated website creation
