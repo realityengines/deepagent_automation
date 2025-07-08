@@ -70,7 +70,7 @@ Feature: Deep Agent Search and Task Execution
     Examples:
       | prompt_user_search                                                                  | follow_up_query                                                                   |
       | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
-      | Build A Game                                                                        | Your call with limited functionality.                                             |
+      | Build a fully functional game of sudoku. Keep it simple and functional.             | Your call with limited functionality.                                             |
       | Hot or Not - hollywood edition                                                      | Your call with limited functionality.                                             |
 
   @JiraIntegrationPrompt
