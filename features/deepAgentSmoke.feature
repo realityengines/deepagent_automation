@@ -55,8 +55,8 @@ Feature: Deep Agent Functionality Test
     Then I should see the search results for the default sample task
 
     Examples:
-      | prompt_user_search  | follow_up_query                                   |
-      | Luxury Trip To Bali | Luxury mid-range budget relaxation for next month |
+      | prompt_user_search                                                                                                                                             | follow_up_query                                   |
+      | Create a detailed 3-day itinerary for a trip to Bali, please include the names of tours, restaurant and beaches that I should go to. \n My budget is \\$10000. | Luxury mid-range budget relaxation for next month |
 
   @BrowserUse
   Scenario Outline: Verify browser task execution
@@ -79,8 +79,8 @@ Feature: Deep Agent Functionality Test
     Then Then I can see the custom chat and perform some action
 
     Examples:
-      | prompt_user_search    | follow_up_query                                                                                                                                            |
-      | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
+      | prompt_user_search                                                                                                                                                                              | follow_up_query                                                                                                                                            |
+      | Build an AI app that takes basic user info, lets them select body type & goals via simple illustrations, and generates daily workout plans with exercise visuals, sets, reps, and instructions. | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @Powerpoint
   Scenario Outline: Verify PowerPoint presentation generation
