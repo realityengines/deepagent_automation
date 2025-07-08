@@ -17,6 +17,8 @@ export class WebsitePage {
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.submitButton=this.page.locator("[type='submit']");
         this.loginLink=this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
+        this.username=this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'test')])[1]");
+        
         this.logout=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'logout') or    contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign out')]");
       
         this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
@@ -53,12 +55,21 @@ export class WebsitePage {
     await this.confirmPasswordField.fill("Password@123");
     await this.submitButton.click();
     await this.page.waitForTimeout(5000);
+
+    try{
+      await this.username.waitFor({ state: "visible", timeout: 30000 }); // wait up to 30 sec
+      await this.username.click();
+      console.log("username and icon appeared and was clicked.");
+    } catch (err) {
+      console.log("user name did not appear within 30 seconds, skipping.");
+    } 
+    
     try {
       await this.logout.waitFor({ state: "visible", timeout: 30000 }); // wait up to 30 sec
       await this.logout.click();
       console.log("Logout button appeared and was clicked.");
     } catch (err) {
-      console.log("Logout button did not appear within 60 seconds, skipping.");
+      console.log("Logout button did not appear within 30 seconds, skipping.");
     }
 
    }
