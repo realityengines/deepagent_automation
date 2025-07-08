@@ -1208,7 +1208,6 @@ Then(
 Then("I enter the resume details and analysis the resume", async function () {
   const originalPage = this.page;
   await this.page.waitForTimeout(5000);
-  deepAgentPage.clickOnDeployLink();
   const [newPage] = await Promise.all([
     this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
     deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
