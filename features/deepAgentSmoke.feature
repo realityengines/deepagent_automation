@@ -10,14 +10,14 @@ Feature: Deep Agent Functionality Test
     And I select the default LLM "RouteLLM"
     When I click the deep Agent option
 
-  Scenario: check  and verify "Cancel" and "Try" buttons on default prompt
+  Scenario: check and verify "Cancel" and "Try" buttons on default prompt
     Given I click the check out from the welcome window
     When I open the Deep Agent default sample task
     Then I should see the Deep Agent popup window
     And I should see the Cancel and Try it buttons
 
   @AppsCreation
-  Scenario Outline: Verify application creation
+  Scenario Outline: Verify website application creation
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
@@ -41,7 +41,7 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | prompt_user_search                                                                          | follow_up_query |
-      | Connect To Gmail And Automate Work. Summarise the last 5 days emails and create a pdf file. | All your call   |
+      | Connect To Gmail And Automate Work. Summarise the last 2 days emails and create a pdf file. | All your call   |
       # | On-The-Fly Interactive Jira Dashboard                                                       | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       # | How to manage notifications in Slack to avoid distractions and stay focused                 | Daily reporting   |
 
@@ -93,7 +93,7 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | prompt_user_search                                                                                  | follow_up_query                                                                       |
-      | Create a 5-slide pitch on entering the U.S. skincare market with an affordable, clean beauty brand. | Can you add recent data (2024/2025) on affordable skincare market growth in the U.S.? |
+      | Create a simple 3-slide PowerPoint presentation on "Daily Healthy Habits". The first slide should have a title "Daily Healthy Habits" with a subtitle "Simple tips for a better lifestyle" and a background image representing healthy living, like someone doing yoga or eating fruits. The second slide should list key habits as bullet points — such as waking up early, drinking 2L of water, walking for 30 minutes, and eating fruits and vegetables — with small icons or images next to each habit. The third slide should include a basic pie or bar chart showing a sample daily time breakdown: 8 hours for sleep, 8 hours for work, 2 hours for health activities, and 6 hours for personal time. Keep it clean and visual, no need for research or long text. | Your call |
 
   @VideoGeneration
   Scenario Outline: Verify video generation
@@ -104,7 +104,7 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | prompt_user_search                                       | follow_up_query |
-      | Can you create a video on the top 5 most expensive cars? | your call       |
+      | Can you create a video on the top 2 most expensive cars? | your call       |
 
   @ChatCustomBot
   Scenario Outline: Verify custom AI chatbot generation and interactions
@@ -116,7 +116,7 @@ Feature: Deep Agent Functionality Test
 
     Examples:
       | prompt_user_search                                                                                                                                                                                                                                                                                                  | follow_up_query | Prompt_for_custom_chatBot                                                |
-      | Create a chatbot with deep knowledge of ATP tennis tournaments. The chatbot should be able to help users create a website showing the ATP tournament schedule. Please give me the chatbot link along with a live preview window or deployed site where I can test the chatbot in action.  and create a chatbot link | Your call       | What are the key matchups to watch in the upcoming Wimbledon tournament? |
+      | Create a simple custom chatbot called FriendlyBot. It should just respond to the user in a friendly manner. | Your call       | how are you doing? |
 
   @DataBaseValidation
   Scenario Outline: Verify user registration and database integration

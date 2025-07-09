@@ -1,0 +1,236 @@
+name: Deep Agent Smoke Suite - Staging
+    
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Test tag to run (without @)"
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: windows-latest
+    env:
+      # Fixed environment - always staging
+      TEST_ENV: "staging"
+      SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL_ID: "C0189FJRC9E"
+      FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Check Slack configuration
+        shell: pwsh
+        run: |
+          npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
+          Write-Host "u2705 Slack token is configured"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          GITHUB_ACTIONS: "true"
+
+      - name: Send initial Slack notification
+        id: slack-initial
+        shell: pwsh
+        run: |
+          npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
+          $githubActor = "${{ github.actor }}"
+          $environment = "${{ env.TEST_ENV }}"
+          $buildName = "Deep Agent Smoke Tests"
+          $output = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          
+          # Look for the thread_ts line in the output
+          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
+          
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Extracted thread_ts: $threadTs"
+          echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
+          GITHUB_ACTIONS: "true"
+
+      - name: Debug - Environment Variables
+        shell: pwsh
+        run: |
+          echo "Selected Environment: $env:TEST_ENV"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          # First run npm install to generate package-lock.json if it doesn't exist
+          if (-not (Test-Path -Path "package-lock.json")) {
+            npm install
+          } else {
+            npm ci
+          }
+          npx playwright install --with-deps
+
+      - name: Run all tests (no tag specified)
+        if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
+        shell: pwsh
+        run: |
+          npx cucumber-js --tags "@smoke" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
+          $exitCode = $LASTEXITCODE
+          npm run report
+          exit $exitCode
+        env:
+          CI: true
+          TEST_ENV: ${{ env.TEST_ENV }}
+
+      - name: Run tests with specific tag
+        if: ${{ github.event.inputs.tags != '' && github.event_name == 'workflow_dispatch' }}
+        shell: pwsh
+        run: |
+          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
+          $exitCode = $LASTEXITCODE
+          npm run report
+          exit $exitCode
+        env:
+          CI: true
+          TEST_ENV: ${{ env.TEST_ENV }}
+
+      - name: Generate Test Summary Report
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path -Path "reports/cucumber-report.json") {
+            node generate-summary.js
+          } else {
+            Write-Host "Warning: reports/cucumber-report.json not found. Skipping summary generation."
+          }
+
+      - name: Report Location Information
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "\n=============================================" -ForegroundColor Green
+          Write-Host "TEST REPORT LOCATIONS:" -ForegroundColor Green
+          Write-Host "=============================================" -ForegroundColor Green
+          Write-Host "HTML Report: $PWD/test-reports/index.html" -ForegroundColor Cyan
+          Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
+          Write-Host "=============================================\n" -ForegroundColor Green
+          
+          # Create a marker file with report locations for easy reference
+          @"
+          TEST REPORT LOCATIONS:
+          =============================================
+          HTML Report: $PWD/test-reports/index.html
+          JSON Report: $PWD/reports/cucumber-report.json
+          =============================================
+          "@ | Out-File -FilePath "report-locations.txt"
+
+      - name: Debug - List report files
+        shell: pwsh
+        run: |
+          Write-Host "Listing all files in reports/"
+          Get-ChildItem -Recurse reports
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: |
+            reports/**
+            test-reports/**
+            cucumber-report.html
+            cucumber-report.json
+          retention-days: 30
+          if-no-files-found: warn
+          
+      - name: Upload report locations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-locations-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: report-locations.txt
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ github.run_id }}-${{ env.TEST_ENV }}
+          path: |
+            reports/traces/
+            reports/screenshots/
+          retention-days: 30
+          if-no-files-found: ignore
+          
+      - name: Send success Slack notification
+        if: success()
+        shell: pwsh
+        run: |
+          Write-Host "Sending success notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+          
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "success" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+          
+      - name: Send failure Slack notification
+        if: failure()
+        shell: pwsh
+        run: |
+          Write-Host "Sending failure notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+          
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "failure" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: "C0189FJRC9E"
+          FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
