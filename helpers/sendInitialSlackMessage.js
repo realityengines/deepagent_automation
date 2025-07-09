@@ -88,8 +88,8 @@ async function sendInitialMessage(githubUsername, environment, buildName) {
     console.log(`Using default channel from environment: ${targetChannelId}`);
   }
 
-  // Updated message to include "Build Name triggered"
-  const message = `:pager: Build **${buildName}** triggered for environment **${environment}** by ${userMention}. ${initialSlackInfo}\nMonitor this thread for test results before launching to prod.`;
+  // Updated message to include "Build Name triggered" with bold formatting
+  const message = `:pager: Build *${buildName}* triggered for environment *${environment}* by ${userMention}. ${initialSlackInfo}\nMonitor this thread for test results before launching to prod.`;
 
   try {
     const response = await slackClient.chat.postMessage({
