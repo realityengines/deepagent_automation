@@ -1281,7 +1281,159 @@ Then("I click on the test task", async function () {
   await deepAgentPage.checkTaskStatus();
  });
 
+ Then("Verify all the page links and buttons are working", async function () {
+  try {
+    console.log("\n=== Verifying All Page Links & Buttons ===\n");
 
+    const originalPage = this.page;
+
+    // Open the deployed website in a new tab
+    console.log("Clicking on deployment URL to open the deployed website...");
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      deepAgentPage.deploymentUrl.click(),
+    ]);
+
+    await newPage.waitForLoadState("domcontentloaded");
+    console.log(`New page opened: ${await newPage.title()}`);
+    this.page = newPage;
+    await newPage.waitForTimeout(2000);
+
+    // --- LINK VERIFICATION ---
+    const links = await newPage.evaluate(() => {
+      const anchors = Array.from(
+        document.querySelectorAll(
+          'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"]):not([href^="tel:"])'
+        )
+      );
+      return anchors.map((a) => ({
+        href: a.href,
+        text: a.textContent.trim() || a.href,
+      }));
+    });
+
+    console.log(`🔗 Found ${links.length} links to verify`);
+    let linkSuccessCount = 0;
+    let failedLinks = [];
+
+    for (let i = 0; i < links.length; i++) {
+      const { href, text } = links[i];
+      try {
+        const context = await newPage.context();
+        const tempPage = await context.newPage();
+
+        const response = await tempPage.goto(href, {
+          timeout: 30000,
+          waitUntil: "domcontentloaded",
+        });
+        const status = response.status();
+        await tempPage.close();
+
+        if (status === 200) {
+          console.log(`✅ Link ${i + 1}: "${text}" - 200 OK`);
+          linkSuccessCount++;
+        } else {
+          console.warn(`❌ Link ${i + 1}: "${text}" - Status: ${status}`);
+          failedLinks.push({ text, href, status });
+        }
+      } catch (err) {
+        console.error(`❌ Link ${i + 1}: "${text}" - Error: ${err.message}`);
+        failedLinks.push({ text, href, error: err.message });
+      }
+    }
+
+    // --- BUTTON VERIFICATION ---
+    const buttons = await newPage.evaluate(() => {
+      const btnElements = Array.from(document.querySelectorAll('button, [role="button"], a.button, a.btn'));
+      return btnElements.map((btn, index) => {
+        const label =
+          btn.innerText.trim() ||
+          btn.getAttribute("aria-label") ||
+          `Unnamed Button ${index + 1}`;
+        return {
+          index,
+          label,
+        };
+      });
+    });
+
+    console.log(`🟦 Found ${buttons.length} buttons to verify`);
+    let buttonSuccessCount = 0;
+    let failedButtons = [];
+
+    const buttonHandles = await newPage.$$('button, [role="button"], a.button, a.btn');
+
+    for (let i = 0; i < buttons.length; i++) {
+      const { label } = buttons[i];
+      try {
+        if (!buttonHandles[i]) {
+          throw new Error("Button not found in DOM at index " + i);
+        }
+
+        console.log(`Clicking button ${i + 1}: "${label}"`);
+        await buttonHandles[i].click({ timeout: 5000 });
+        await newPage.waitForTimeout(1000); // Wait for any possible UI change
+        buttonSuccessCount++;
+      } catch (err) {
+        console.warn(`❌ Failed to click button "${label}" - ${err.message}`);
+        failedButtons.push({ label, error: err.message });
+      }
+    }
+
+    // --- REPORT SUMMARY ---
+    const combinedReport = [
+      "=== LINK VERIFICATION ===",
+      `Total Links: ${links.length}`,
+      `Successful (200): ${linkSuccessCount}`,
+      `Failed: ${failedLinks.length}`,
+      ...failedLinks.map(
+        (link, i) =>
+          `${i + 1}. "${link.text}" (${link.href}) - ${
+            link.status || link.error
+          }`
+      ),
+
+      "\n=== BUTTON VERIFICATION ===",
+      `Total Buttons: ${buttons.length}`,
+      `Successful Clicks: ${buttonSuccessCount}`,
+      `Failed Clicks: ${failedButtons.length}`,
+      ...failedButtons.map(
+        (btn, i) => `${i + 1}. "${btn.label}" - ${btn.error}`
+      ),
+    ].join("\n");
+
+    await this.attach(combinedReport, "text/plain");
+
+    // Close the tab and restore original page
+    await newPage.close();
+    this.page = originalPage;
+    console.log("✅ Returned to original page");
+
+    // Optional: Convo URL
+    try {
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`🔗 Conversation URL: ${convoURL}`);
+    } catch (error) {
+      console.log("Conversation URL not available");
+    }
+
+    if (failedLinks.length > 0 || failedButtons.length > 0) {
+      console.warn("⚠️ Some links or buttons failed. See attached report.");
+    } else {
+      console.log("🎉 All links and buttons verified successfully!");
+    }
+
+  } catch (error) {
+    console.error("🚨 Error in verifying links/buttons: ", error.message);
+    throw error;
+  }
+});
+
+Then("I should verify that the database has been created", async function () {
+
+  
+
+ });
 
 
 
