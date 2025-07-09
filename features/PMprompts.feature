@@ -62,7 +62,7 @@
 #   @AppLLMDataSeeding
 #   Scenario Outline: Verify AppLLM, Data Seeding
 #     Given I click the check out from the welcome window
-#     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+#     When I search the long prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
 #     And I should see the status "Completed" for the task
 #     And the compute points should not exceed 150k
 #     And I should deploy the created website
