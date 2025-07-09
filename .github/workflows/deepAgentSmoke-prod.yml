@@ -1,5 +1,6 @@
 name: Deep Agent Smoke Suite - Prod
-    
+
+on:    
   workflow_dispatch:
     inputs:
       tags:

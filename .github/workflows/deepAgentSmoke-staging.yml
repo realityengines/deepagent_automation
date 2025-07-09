@@ -1,5 +1,6 @@
 name: Deep Agent Smoke Suite - Staging
-    
+
+on:  
   workflow_dispatch:
     inputs:
       tags:
