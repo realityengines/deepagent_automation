@@ -86,18 +86,14 @@ Then("the compute points should not exceed 150k", async function () {
         console.warn(
           `⚠️ WARNING: Compute points (${computePoints}) exceeded 150k limit`
         );
-        console.warn(
-          "Continuing test execution despite high compute points..."
-        );
-        // Log but don't fail the test
-        return true;
+        // Fail the test when compute points exceed the limit
+        throw new Error(`Compute points (${computePoints}) exceeded 150k limit`);
       }
       return true;
     } catch (assertError) {
       console.warn(`⚠️ Assertion Warning: ${assertError.message}`);
-      console.warn("Continuing test execution...");
-      // Continue execution without failing the test
-      return true;
+      // Rethrow the error to fail the test
+      throw assertError;
     }
   } catch (error) {
     console.error("Error in compute points verification:", error.message);
@@ -130,6 +126,8 @@ Then("I should download the generated summary", async function () {
     console.log("============================\n");
   } catch (error) {
     console.error("Error getting conversation URL:", error.message);
+    // Rethrow the error to fail the test
+    throw error;
   }
 
   // Close browser popup after all downloads are completed
@@ -261,7 +259,8 @@ When(
         if (!isViewFileVisible) {
           console.warn("⚠️ PPTX file was NOT found even after all retries.");
           this.pptxGenerated = false;
-          return; // Don't throw!
+          // Throw an error to fail the test
+          throw new Error("PPTX file was not found after all retries");
         }
       } else {
         console.log(
@@ -714,9 +713,11 @@ Then(
         console.log(`${label} visible: ${isVisible}`);
         if (!isVisible) {
           console.warn(`⚠️ Warning: ${label} is not visible.`);
+          throw new Error(`${label} is not visible`);
         }
       } catch (e) {
         console.warn(`⚠️ Warning: Failed to verify ${label}: ${e.message}`);
+        throw e; // Rethrow to fail the test
       }
     };
 
@@ -1126,10 +1127,10 @@ Then("Verify all the page links are are 200", async function () {
 
     await this.attach(urlStatusReport, "text/plain");
     // Assert that all links returned 200
-    // expect(failedLinks.length).to.equal(
-    //   0,
-    //   `${failedLinks.length} links failed with non-200 status codes`
-    // );
+    expect(failedLinks.length).to.equal(
+      0,
+      `${failedLinks.length} links failed with non-200 status codes`
+    );
 
      if (failedLinks.length > 0) {
       console.warn(
