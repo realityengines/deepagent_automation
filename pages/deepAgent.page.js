@@ -181,7 +181,12 @@ export class DeepAgentPage {
     this.reservationTask= page.locator("//*[contains(text(),'View Results')]");
     this.browserUse= page.locator("//*[text()='Browser']")
     this.gmailTool= page.locator("//*[contains(text(),'gmail_tool')]")
-    this.twitterMCPTool= page.locator("//*[text()='twitter-mcp_post_tweet output']")
+    this.twitterMCPTool= page.locator("//*[text()='twitter-mcp_post_tweet output']");
+
+
+    // new locators
+    this.dropdownOptions = page.locator('[role*="option"]');
+    this.rowPresent= page.locator("(//*[@role='row'])[1]");
 
     this.elapsedTime = 0;
   }
@@ -1653,5 +1658,27 @@ export class DeepAgentPage {
     const element=await this.reservationTask.nth(i).isVisible();
     expect(element).to.be.true;
   }
+}
+
+async verifyDataSeeding()
+{
+  await this.dataBase.click();
+  await this.page.waitForTimeout(2000);
+  await this.dropDown.click();
+  await this.page.waitForTimeout(3000);
+
+  const allOptions=await this.dropdownOptions.count();
+
+  for (let i = 0; i < allOptions; i++) 
+  {
+
+    await this.dropdownOptions.nth(i).click();
+
+    await this.page.waitForTimeout(1000);
+
+    await this.rowPresent.isVisible();
+    await this.dropDown.click();
+  }
+
 }
 }

@@ -45,7 +45,7 @@ Feature: Deep Agent Functionality Test
       # | On-The-Fly Interactive Jira Dashboard                                                       | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
       # | How to manage notifications in Slack to avoid distractions and stay focused                 | Daily reporting   |
 
-  @Research
+  @DeepResearch
   Scenario Outline: Verify Deep Agent's  research
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
