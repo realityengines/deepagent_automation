@@ -47,8 +47,16 @@ After(async function ({ result }) {
       }
     }
     
-    // Handle failed scenarios
-    if (result.status === 'FAILED') {
+    // Handle failed or skipped scenarios
+    if (result.status === 'FAILED' || result.status === 'SKIPPED' || result.status === 'PENDING') {
+      // If status is SKIPPED or PENDING, force it to be treated as a failure
+      if (result.status === 'SKIPPED' || result.status === 'PENDING') {
+        console.log('='.repeat(50));
+        console.log(`STEP ${result.status} DETECTED - TREATING AS FAILURE`);
+        console.log('='.repeat(50));
+        // Force the test to fail
+        result.status = 'FAILED';
+      }
       console.log('='.repeat(50));
       console.log('TEST FAILURE DETECTED');
       console.log('='.repeat(50));

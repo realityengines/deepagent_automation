@@ -23,7 +23,8 @@ class BrowserType extends World {
             tunnel: config.lambdaTest.tunnel,
             timeout: 30000000,
             idleTimeout:30000000,
-            sessionTimeout:30000000
+            sessionTimeout:30000000,
+            queueTimeout: 900
       
           },
         };
