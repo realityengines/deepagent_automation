@@ -36,7 +36,8 @@ const config = {
         console: true,
         w3c: true,
         plugin: 'node_js-mocha',
-        tunnel: process.env.TUNNEL === 'true'
+        tunnel: process.env.TUNNEL === 'true',
+        queueTimeout: 900
     },
     // Environment configuration
     // Execution mode: 'local' or 'lambda'
@@ -60,7 +61,8 @@ const getBrowserCapabilities = () => {
                 console: config.lambdaTest.console,
                 w3c: config.lambdaTest.w3c,
                 plugin: config.lambdaTest.plugin,
-                tunnel: config.lambdaTest.tunnel
+                tunnel: config.lambdaTest.tunnel,
+                queueTimeout: 900
             }
         };
     }
