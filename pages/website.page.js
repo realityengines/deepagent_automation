@@ -43,6 +43,10 @@ export class WebsitePage {
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
         
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
+
+        //HR website locators-
+        this.signUpLink=this.page.locator("//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up']");
+
     }
 
    async fillJoinUSForm()
