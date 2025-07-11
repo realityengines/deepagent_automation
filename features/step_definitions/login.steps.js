@@ -37,6 +37,7 @@ Then('I should see an error message', async function () {
 Given('the user enters username {string} and password {string}', async function (username, password) {
   loginPage = new LoginPage(this.page);
   await loginPage.navigate();
+  await this.page.waitForLoadState('load');
   await loginPage.enterUsername(username);
   await loginPage.enterPassword(password);
   await loginPage.clickLoginButton();
