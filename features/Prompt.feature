@@ -138,10 +138,10 @@ Feature: Deep Agent Search and Task Execution
   @AppLLMAuthRBAC
   Scenario Outline: Verify AppLLM, Auth, RBAC
     Given I click the check out from the welcome window
-    # When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    # And I should see the status "Completed" for the task
-    # And the compute points should not exceed 150k
-    # And I should deploy the created website
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should deploy the created website
     Then Verify all the page links and buttons are working
 
     Examples:
