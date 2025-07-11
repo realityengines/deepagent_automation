@@ -142,7 +142,7 @@ export class DeepAgentPage {
 
     // video gerneration
     this.videoGenerationPreview = page.locator(
-      "//span[contains(text(), 'Preview Video')]"
+      "(//span[contains(text(), 'Preview Video')])[1]"
     );
     this.videoGenerationLink = page.locator(
       "a[href*='https://cdn.abacus.ai/video']"
