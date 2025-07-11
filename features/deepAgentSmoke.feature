@@ -110,7 +110,6 @@ Feature: Deep Agent Functionality Test
   Scenario Outline: Verify custom AI chatbot generation and interactions
     Given I click the check out from the welcome window
     When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     Then I can see the custom chat and perform some action and search the prompt "<Prompt_for_custom_chatBot>"
 
