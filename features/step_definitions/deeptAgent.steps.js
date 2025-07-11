@@ -1344,43 +1344,69 @@ Then("I click on the test task", async function () {
       }
     }
 
-    // --- BUTTON VERIFICATION ---
-    const buttons = await newPage.evaluate(() => {
-      const btnElements = Array.from(document.querySelectorAll('button, [role="button"], a.button, a.btn'));
-      return btnElements.map((btn, index) => {
-        const label =
-          btn.innerText.trim() ||
-          btn.getAttribute("aria-label") ||
-          `Unnamed Button ${index + 1}`;
-        return {
-          index,
-          label,
-        };
-      });
-    });
-
-    console.log(`🟦 Found ${buttons.length} buttons to verify`);
-    let buttonSuccessCount = 0;
-    let failedButtons = [];
-
-    const buttonHandles = await newPage.$$('button, [role="button"], a.button, a.btn');
-
-    for (let i = 0; i < buttons.length; i++) {
-      const { label } = buttons[i];
-      try {
-        if (!buttonHandles[i]) {
-          throw new Error("Button not found in DOM at index " + i);
-        }
-
-        console.log(`Clicking button ${i + 1}: "${label}"`);
-        await buttonHandles[i].click({ timeout: 5000 });
-        await newPage.waitForTimeout(1000); // Wait for any possible UI change
-        buttonSuccessCount++;
-      } catch (err) {
-        console.warn(`❌ Failed to click button "${label}" - ${err.message}`);
-        failedButtons.push({ label, error: err.message });
-      }
-    }
+     // --- BUTTON VERIFICATION (Robust Like Link Check) ---
+     const initialUrl = newPage.url(); // store original URL
+     const buttons = await newPage.evaluate(() => {
+       const btnElements = Array.from(document.querySelectorAll('button, [role="button"], a.button, a.btn'));
+       return btnElements.map((btn, index) => {
+         const label =
+           btn.innerText.trim() ||
+           btn.getAttribute("aria-label") ||
+           `Unnamed Button ${index + 1}`;
+         return {
+           index,
+           label,
+         };
+       });
+     });
+ 
+     console.log(`🟦 Found ${buttons.length} buttons to verify`);
+     let buttonSuccessCount = 0;
+     let failedButtons = [];
+ 
+     for (let i = 0; i < buttons.length; i++) {
+       const { label } = buttons[i];
+       try {
+         // Reload the page fresh each time to get valid DOM
+         await newPage.goto(initialUrl, { waitUntil: 'domcontentloaded' });
+         await newPage.waitForTimeout(1000);
+ 
+         // Re-identify the button by label each time
+         const buttonHandle = await newPage.evaluateHandle((label) => {
+           const candidates = Array.from(document.querySelectorAll('button, [role="button"], a.button, a.btn'));
+           return candidates.find(el =>
+             el.innerText.trim() === label || el.getAttribute("aria-label") === label
+           );
+         }, label);
+ 
+         if (!buttonHandle) {
+           throw new Error(`Button "${label}" not found`);
+         }
+ 
+         console.log(`Clicking button ${i + 1}: "${label}"`);
+ 
+         // Detect if clicking opens a new tab
+         const [maybeNewPage] = await Promise.all([
+           newPage.context().waitForEvent("page").catch(() => null), // safe catch if no new tab
+           buttonHandle.click({ timeout: 5000 }),
+         ]);
+ 
+         await newPage.waitForTimeout(1500);
+ 
+         if (maybeNewPage) {
+           await maybeNewPage.waitForLoadState("domcontentloaded");
+           console.log(`↪️ Button "${label}" opened new page: ${await maybeNewPage.title()}`);
+           await maybeNewPage.close();
+         } else {
+           console.log(`✅ Button "${label}" clicked (no new page)`);
+         }
+ 
+         buttonSuccessCount++;
+       } catch (err) {
+         console.warn(`❌ Failed to click button "${label}" - ${err.message}`);
+         failedButtons.push({ label, error: err.message });
+       }
+     }
 
     // --- REPORT SUMMARY ---
     const combinedReport = [
