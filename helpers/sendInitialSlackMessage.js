@@ -89,7 +89,7 @@ async function sendInitialMessage(githubUsername, environment, buildName) {
   }
 
   // Updated message to include "Build Name triggered" with bold formatting
-  const message = `:pager: Build *${buildName}* triggered for environment *${environment}* by ${userMention}. ${initialSlackInfo}\nQA @prasanth, please check the test results in this thread.\nMonitor this thread for test results before launching to prod.`;
+  const message = `:pager: Build *${buildName}* triggered for environment *${environment}* by ${userMention} @prasanth. ${initialSlackInfo}\nMonitor this thread for test results before launching to prod.`;
 
   try {
     const response = await slackClient.chat.postMessage({
