@@ -373,14 +373,26 @@ async analysisTheResume()
 
 async checkTheWebsiteHaveUsefulwords()
 {
-  const words=["reputation", "fearless", "1989", "lover"]
+  const words = ["reputation", "fearless", "1989", "lover"];
+
   for (const word of words) {
-      const isWordPresent = await this.page.locator(`text=${word}`).isVisible();
-      if (isWordPresent) {
-        console.log(`The word "${word}" is present on the website.`);
-      } else {
-        console.log(`The word "${word}" is not found on the website.`);
+    const locator = this.page.locator(`text=${word}`);
+    const count = await locator.count();
+  
+    let isVisible = false;
+  
+    for (let i = 0; i < count; i++) {
+      if (await locator.nth(i).isVisible()) {
+        isVisible = true;
+        break; // One visible match is enough
       }
+    }
+  
+    if (isVisible) {
+      console.log(`The word "${word}" is present on the website.`);
+    } else {
+      console.log(`The word "${word}" is not found on the website.`);
+    }
   }
 }
 

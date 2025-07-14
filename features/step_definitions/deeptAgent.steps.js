@@ -1469,10 +1469,22 @@ Then("verify that the website contains some useful words", async function () {
   await newPage.waitForLoadState();
   websitePage = new WebsitePage(newPage);
   this.page = newPage;
+  let websiteError;
+  try{
   await websitePage.checkTheWebsiteHaveUsefulwords();
+  } 
+  catch(error)
+  {
+    websiteError=error
+    console.log(`Website error: ${error.message}`)
+  }
   await newPage.close();
   this.page = originalPage;
   deepAgentPage = new DeepAgentPage(originalPage);
+  if(websiteError)
+    {
+      throw websiteError;
+    }
   await this.page.waitForTimeout(5000);
   console.log("Returned to original page");
   try {
