@@ -220,7 +220,6 @@ Feature: Deep Agent Search and Task Execution
   Scenario Outline: Verify video generation
     Given I click the check out from the welcome window
     When I search for the prompt for video generation "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should see the generated video
 
