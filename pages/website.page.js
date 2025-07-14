@@ -60,6 +60,10 @@ export class WebsitePage {
     await this.emailField.fill("testuser@gmail.com");
     await this.passwordField.fill("Password@123");
     await this.confirmPasswordField.fill("Password@123");
+    if(await this.checkOut.isVisible())
+    {
+        await this.checkOut.click();
+    }
     await this.submitButton.click();
     await this.page.waitForTimeout(5000);
 
