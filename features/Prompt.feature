@@ -93,16 +93,16 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                      | follow_up_query |
       | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
-  # @ChatBotPrompt
-  # Scenario Outline: Verify chatbot creation with personalized AI
-  #   Given I click the check out from the welcome window
-  #   When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-  #   And the compute points should not exceed 150k
-  #   Then Then I can see the custom chat and perform some action
+  @ChatBotPrompt
+  Scenario Outline: Verify chatbot creation with personalized AI
+    Given I click the check out from the welcome window
+    When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And the compute points should not exceed 150k
+    Then Then I can see the custom chat and perform some action
 
-  #   Examples:
-  #     | prompt_user_search                                                                                                                                                                              | follow_up_query                                                                                                                                            |
-  #     | Build an AI app that takes basic user info, lets them select body type & goals via simple illustrations, and generates daily workout plans with exercise visuals, sets, reps, and instructions. | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
+    Examples:
+      | prompt_user_search                                                                                                                                                                              | follow_up_query                                                                                                                                            |
+      | Build an AI app that takes basic user info, lets them select body type & goals via simple illustrations, and generates daily workout plans with exercise visuals, sets, reps, and instructions. | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively , and create a chatbot link |
 
   @APPLLMPrompts
   Scenario Outline: Verify AI-generated website creation
