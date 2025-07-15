@@ -48,6 +48,9 @@ export class WebsitePage {
         //HR website locators-
         this.signUpLink=this.page.locator("//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up']");
 
+        //Chatbot-
+        // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
+        this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
     }
 
    async fillJoinUSForm()
@@ -396,5 +399,16 @@ async checkTheWebsiteHaveUsefulwords()
   }
 }
 
+async checkTheChatbot()
+{
+  await this.page.waitForTimeout(8000);
+  let chatbotVisible = await this.chatbotInputField.isVisible();
+  if(chatbotVisible)
+  {
+  await this.chatbotInputField.fill("Where can I find the best tacos in Manhattan?");
+  }
+
+  await this.page.waitForTimeout(5000)
+}
 
 }

@@ -392,10 +392,14 @@ When(
     await deepAgentPage.page.waitForTimeout(3000);
     await deepAgentPage.clickSendButton();
     const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    let ThirdElapsdTime=0;
+    if(!await deepAgentPage.CreatedChatBotlink.isVisible())
+    {
     await deepAgentPage.enterPromaptQuery("your choice");
     await deepAgentPage.clickSendButton();
     await deepAgentPage.page.waitForTimeout(3000);
     const ThirdElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    }
     deepAgentPage.elapsedTime =
       firstElapsedTime + secondElapsdTime + ThirdElapsdTime;
 
@@ -1523,10 +1527,79 @@ Then("verify that the website contains some useful words", async function () {
   } catch (error) {
     console.log("Conversation URL not available");
   }
+});
 
+ Then("I verify the website has a chatbot", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
+  ]);
+
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  let websiteError;
+  try{
+  await websitePage.checkTheChatbot();
+  } 
+  catch(error)
+  {
+    websiteError=error
+    console.log(`Website error: ${error.message}`)
+  }
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  if(websiteError)
+    {
+      throw websiteError;
+    }
+  await this.page.waitForTimeout(5000);
+  console.log("Returned to original page");
 
  });
 
+ Then(
+  "I click on chatbot link and search for the prompt {string}",
+  { timeout: 50000 },
+  async function (promptForChatbot) {
+    const originalPage = this.page;
+    deepAgentPage.clickOnChatBotLink();
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+    ]);
+    await newPage.waitForLoadState();
+    this.page = newPage;
+    deepAgentPage = new DeepAgentPage(newPage);
+    await this.page.waitForTimeout(2000);
+    await deepAgentPage.enterPromapt(promptForChatbot);
+    await this.page.waitForTimeout(2000);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = firstElapsedTime;
+
+    console.log(
+      "Total elapsed time after follow up prompt:",
+      deepAgentPage.elapsedTime
+    );
+    // Close the new page and return to original
+    await newPage.close();
+    this.page = originalPage;
+    console.log("Returned to original page");
+
+    // Capture conversation URL
+    try {
+      const convoURL = await deepAgentPage.getConvoURL();
+      console.log(`\nConversation URL: ${convoURL}`);
+    } catch (error) {
+      console.log("Conversation URL not available");
+    }
+  }
+);
 
 
 
