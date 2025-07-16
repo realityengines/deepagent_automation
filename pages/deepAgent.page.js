@@ -1504,10 +1504,10 @@ export class DeepAgentPage {
       await this.emailField.fill("testuser@gmail.com");
   
       signupReport.push("Step 4: Filled in password");
-      await this.passwordField.fill("password123");
+      await this.passwordField.fill("Password@123");
   
       signupReport.push("Step 5: Confirmed password");
-      await this.confirmPasswordField.fill("password123");
+      await this.confirmPasswordField.fill("Password@123");
   
       await this.page.waitForTimeout(500);
       signupReport.push("Step 6: Clicked 'Create Account'");
