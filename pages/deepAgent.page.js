@@ -8,6 +8,17 @@ const __dirname = path.dirname(__filename);
 export class DeepAgentPage {
   constructor(page) {
     this.page = page;
+    // Checkpoint restore locators
+  this.restoreToCheckpointButton = page.locator('div').filter({ hasText: /^Restore to Checkpoint$/ }).nth(1);
+  this.cancelButton = page.getByRole('button', { name: 'Cancel' });
+  this.restoreButton = page.getByRole('button', { name: 'Restore' });
+
+  // Preview and restore locators
+  this.previewButtonExact = page.getByRole('button', { name: 'Preview', exact: true });
+  this.previewOlderText = page.getByText('You are previewing an older');
+  this.restoreButtonGeneral = page.getByRole('button', { name: 'Restore' });
+  
+ 
     this.chekoutButton = page.locator(
       '//button[contains(text(), "Check it out")]'
     );
@@ -1657,6 +1668,104 @@ export class DeepAgentPage {
     console.log(`Processing reservation task ${i + 1} of ${count}`);
     const element=await this.reservationTask.nth(i).isVisible();
     expect(element).to.be.true;
+  }
+}
+
+// Add this new method
+async clickOnCheckpointRestoreAndVerify() {
+  try {
+    console.log("Starting checkpoint restore process...");
+    
+    // Step 1: First click on "Restore to Checkpoint" button
+    console.log("Clicking on 'Restore to Checkpoint' button (first time)...");
+    await this.restoreToCheckpointButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.restoreToCheckpointButton.click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 2: Click Cancel button
+    console.log("Clicking 'Cancel' button...");
+    await this.cancelButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.cancelButton.click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 3: Click on "Restore to Checkpoint" button again
+    console.log("Clicking on 'Restore to Checkpoint' button (second time)...");
+    await this.restoreToCheckpointButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.restoreToCheckpointButton.click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 4: Click Restore button
+    console.log("Clicking 'Restore' button...");
+    await this.restoreButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.restoreButton.click();
+    await this.page.waitForTimeout(10000);
+    
+    // Step 5: Verify that "Restore to Checkpoint" button is no longer visible
+    console.log("Verifying that 'Restore to Checkpoint' button is no longer visible...");
+    await this.restoreToCheckpointButton.waitFor({ state: "hidden", timeout: 20000 });
+    
+    const isRestoreButtonVisible = await this.restoreToCheckpointButton.isVisible();
+    if (isRestoreButtonVisible) {
+      throw new Error("Restore to Checkpoint button is still visible after restore operation");
+    }
+    
+    console.log("✅ Checkpoint restore completed successfully - button is no longer visible");
+    return true;
+    
+  } catch (error) {
+    console.error("❌ Error during checkpoint restore process:", error.message);
+    throw error;
+  }
+}
+
+// Add this new method
+async verifyRestoredByPreviewAndRestore() {
+  try {
+    console.log("Starting preview and restore verification process...");
+    
+    // Step 1: Click Preview button
+    console.log("Clicking 'Preview' button...");
+    await this.previewButtonExact.waitFor({ state: "visible", timeout: 10000 });
+    await this.previewButtonExact.click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 2: Verify "You are previewing an older" text is visible
+    console.log("Verifying 'You are previewing an older' text is visible...");
+    await this.previewOlderText.waitFor({ state: "visible", timeout: 10000 });
+    const isPreviewTextVisible = await this.previewOlderText.isVisible();
+    
+    if (!isPreviewTextVisible) {
+      throw new Error("Preview older text is not visible");
+    }
+    console.log("✅ Preview older text is visible");
+    
+    // Step 3: Click first Restore button
+    console.log("Clicking first 'Restore' button...");
+    await this.restoreButtonGeneral.first().waitFor({ state: "visible", timeout: 5000 });
+    await this.restoreButtonGeneral.first().click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 4: Click second Restore button
+    console.log("Clicking second 'Restore' button...");
+    await this.restoreButtonGeneral.first().waitFor({ state: "visible", timeout: 5000 });
+    await this.restoreButtonGeneral.first().click();
+    await this.page.waitForTimeout(10000);
+    
+    // Step 5: Verify that "Restore to Checkpoint" button is no longer visible
+    console.log("Verifying that 'Restore to Checkpoint' button is no longer visible...");
+    await this.restoreToCheckpointButton.waitFor({ state: "hidden", timeout: 20000 });
+    
+    const isRestoreToCheckpointVisible = await this.restoreToCheckpointButton.isVisible();
+    if (isRestoreToCheckpointVisible) {
+      throw new Error("Restore to Checkpoint button is still visible after restore operation");
+    }
+    
+    console.log("✅ Preview and restore verification completed successfully - Restore to Checkpoint button is no longer visible");
+    return true;
+    
+  } catch (error) {
+    console.error("❌ Error during preview and restore verification process:", error.message);
+    throw error;
   }
 }
 

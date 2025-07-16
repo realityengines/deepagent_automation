@@ -47,6 +47,87 @@ When(
   }
 );
 
+
+// Add this new step definition
+Then("Verify restored by preview and restore", async function () {
+  try {
+    console.log("\n=== Starting Preview and Restore Verification Process ===");
+    
+    // Call the preview and restore verification method
+    const verificationSuccess = await deepAgentPage.verifyRestoredByPreviewAndRestore();
+    
+    if (verificationSuccess) {
+      console.log("✅ Preview and restore verification completed successfully");
+    }
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL after verification: ${convoURL}`);
+    
+    console.log("=== Preview and Restore Verification Process Completed ===\n");
+    
+  } catch (error) {
+    console.error("\n=== Error in Preview and Restore Verification Process ===");
+    console.error(error.message);
+    console.error("====\n");
+    throw error;
+  }
+});
+
+// ... rest of code remains same
+
+// Add this new step definition
+Then("Click on Checkpoint restored and Verify restored", async function () {
+  try {
+    console.log("\n=== Starting Checkpoint Restore Process ===");
+    
+    // Call the checkpoint restore method
+    const restoreSuccess = await deepAgentPage.clickOnCheckpointRestoreAndVerify();
+    
+    if (restoreSuccess) {
+      console.log("✅ Checkpoint restore verification completed successfully");
+    }
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL after restore: ${convoURL}`);
+    
+    console.log("=== Checkpoint Restore Process Completed ===\n");
+    
+  } catch (error) {
+    console.error("\n=== Error in Checkpoint Restore Process ===");
+    console.error(error.message);
+    console.error("====\n");
+    throw error;
+  }
+});
+
+// ... rest of code remains same
+
+// Add this new step definition after the existing When steps
+When(
+  "I search the prompt {string}",
+  async function (promptSearch) {
+    await deepAgentPage.enterPromaptQuery(promptSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    deepAgentPage.elapsedTime = secondElapsdTime;
+
+    const hasExpectedStatus = await deepAgentPage.getStatusOfTask("Completed");
+    console.log(`Status found: ${hasExpectedStatus}`);
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    
+    await deepAgentPage.getConvoId();
+  }
+);
+
+// ... rest of code remains same
+
 Then("I should see the status {string} for the task", async function (status) {
   await deepAgentPage.waitforStopButtonInvisble();
   await deepAgentPage.page.waitForTimeout(3000);

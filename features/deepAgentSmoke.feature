@@ -171,3 +171,23 @@ Feature: Deep Agent Functionality Test
     Examples:
       | prompt_user_search                                                                                          | follow_up_query                                                                          |
       | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now |
+
+
+@Checkpoint
+  Scenario Outline: Verify 
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    Then I should see the search results for the default sample task
+    And I should deploy the website
+    When I search the prompt "<follow_up_query2>"
+    Then Click on Checkpoint restored and Verify restored
+    When I search the prompt "<follow_up_query2>"
+    When I search the prompt "<restore_query>"
+    Then Verify restored by preview and restore
+ 
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                                                                                            | follow_up_query                                                                                                                                                         | follow_up_query2 | restore_query |
+      | Create a single-page website, that displays only a centered Home section. The page should have a clean, modern full-screen hero layout with the main heading: 'Welcome to Abacus.ai – Smarter AI-Powered Decisions for Your Business' and a subtitle below it: 'Accelerate innovation with deployable, real-time AI systems.' Include a prominent 'Get Started' button below the subtitle that links to https://abacus.ai. There should be no navigation bar or footer—just the centered landing content, styled responsively with good spacing and visual appeal. | Your call | Update the previously created single-page website by changing the hero section text. Replace the heading with: 'AI That Works for You – Build, Deploy & Scale with Abacus.ai' and the subtitle with: 'End-to-end AI platform to transform your data into business impact.' Keep the 'Get Started' button and its link to https://abacus.ai exactly as is. Maintain the same clean, responsive layout and styling. | restore my changes |
