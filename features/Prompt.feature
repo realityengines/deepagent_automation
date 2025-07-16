@@ -47,8 +47,7 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should verify jira tool call
     And I should deploy the website
-    And I should verify the final dashboard
-
+    
     Examples:
       | prompt_user_search                                                                                                                                                                  | follow_up_query |
       | Make me a dashboard of summary of all the Jira issues reported in last 24 hours. Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | You decide      |

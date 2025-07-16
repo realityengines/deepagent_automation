@@ -705,6 +705,7 @@ Then("I should verify gmail tool call", async function () {
 
  Then("I should verify the final dashboard", async function () {
   
+  await this.page.waitForTimeout(5000);
   await deepAgentPage.previewButton.click();
 
   // Wait for the new page to open when clicking the deploy link
@@ -732,6 +733,7 @@ Then("I should verify gmail tool call", async function () {
 
  Then("I check for the twitter link", async function () {
   
+  const originalPage = this.page;
   await this.page.waitForTimeout(5000);
   const [newPage] = await Promise.all([
     this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
@@ -742,7 +744,19 @@ Then("I should verify gmail tool call", async function () {
   websitePage = new WebsitePage(newPage);
   this.page = newPage;
   await newPage.waitForTimeout(3000);
-  await newPage.close()
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  console.log("Returned to original page");
+
+  await this.page.waitForTimeout(2000);
+  // Capture conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`\nConversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
 
  });
 

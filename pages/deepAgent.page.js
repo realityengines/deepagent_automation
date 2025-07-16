@@ -191,7 +191,7 @@ export class DeepAgentPage {
 
     // Twitter MCP-
     
-    this.searchAINews=page.locator("//*[text()='Searching']//following-sibling::*[contains(text(),'AI news')]");
+    this.searchAINews=page.locator("(//*[text()='Searching']//following-sibling::*[contains(text(),'AI news')])[1]");
     this.twitterLink=page.locator("(//*[contains(@href,'https://twitter.com/')])[1]")
 
     //Github Tool-
