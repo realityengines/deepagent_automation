@@ -10,11 +10,19 @@ const __dirname = path.dirname(__filename);
 const config = {
     // baseUrl: process.env.BASE_URL || 'https://apps.abacus.ai/chatllm',
     baseUrl: environmentConfig.baseUrl,
-    // Browser configuration for local testing
+
     browser: {
-        headless: process.env.HEADLESS !== 'false',
+        headless: process.env.CI === 'true' ? true : (process.env.HEADLESS !== 'false'),
         slowMo: parseInt(process.env.SLOW_MO || '0'),
-        timeout: parseInt(process.env.TIMEOUT || '2400000')
+        timeout: parseInt(process.env.TIMEOUT || '2400000'),
+        args: process.env.CI === 'true' ? [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor'
+        ] : []
     },
     reporter: [
         ['list'],
