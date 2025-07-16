@@ -121,7 +121,7 @@ Feature: Deep Agent Search and Task Execution
       | Create a simple landing page website for this consulting firm that helps corporates find out the gen AI usecases in their workflows. THe website should have a contact us form that takes inputs from user and saves it in DB. Add all the necessary relevant content                                                                                                                                                                                                                | Your call with limited functionality                                                                                             |
       | Create a simple fitness tracker website with a form page where users can log exercises by selecting the type, weight, and reps or log cardio with time and calories burnt, and also record their daily food intake by entering food items and corresponding calories; a progress page that displays a date-wise table of all food and exercise entries; and a dashboard page that visualizes daily calorie intake, calories burnt, and net calorie intake through interactive graphs | no auth, yes store the data betweeen sessions, color scheme sage green, add weight tracking too                                  |
 
-  @AppLLMDataSeeding 
+  @AppLLMDataSeeding
   Scenario Outline: Verify AppLLM, Data Seeding
     Given I click the check out from the welcome window
     When I search the long prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -142,7 +142,7 @@ Feature: Deep Agent Search and Task Execution
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should deploy the created website
-    Then Verify all the page links are are 200
+    Then Verify all the page links and buttons are working
 
     Examples:
       | prompt_user_search                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | follow_up_query                                                                                                                                                                                                                                                                                                                         |
@@ -278,7 +278,7 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                               | follow_up_query                                                                |
       | Build a resume evaluator - users can cut and paste a resume and we should evaluate it after click on submit button and give them insights on how well their resume is structured | general content quality, don't need score system, give improvement suggestions |
 
-  @AIAppsRecipeCreator
+  @LLMAPIS1
   Scenario Outline: Verify functionality for recipe generation
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
@@ -291,6 +291,18 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
       | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
       # | Generate an app with a form where users enter 3 ingredients. When they submit, the app uses an LLM to generate 4–5 unique recipes using those ingredients. Each recipe should have a title, list of ingredients, and step-by-step instructions. | Yes, ask the user and process it locally. Also, provide the status. |
+
+  @LLMAPIS2
+  Scenario Outline: Verify resume analysis functionality
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should deploy the website
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                                                                                                                                                                                                                                                                                                   | follow_up_query |
+      | You are building a minimal recruitment web app. Create an AI recruitment assistant for a company that is powered by LLM. User should have sign up and login flow. User can create a new role, add a job description. For each role - User can upload a resume in pdf format and the LLM should give a score to the resume depending on if the uploaded resume is a good candidate for the given role. For every application - the LLM should write 2 pros and 2 cons | you decide      |
 
   @AppLLMlongPrompt
   Scenario Outline: Verify website creation for long prompt
@@ -356,3 +368,29 @@ Feature: Deep Agent Search and Task Execution
     Examples:
       | prompt_user_search                                                                | follow_up_query              |
       | Find me a cheapest flight ticket from Bangalore to San Francisco in december 2025 | 1 ticket, dates are flexible |
+
+  @Chatbot1
+  Scenario Outline: Verify chatbot creation with personalized AI
+    Given I click the check out from the welcome window
+    When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And the compute points should not exceed 150k
+    And I should deploy the created website
+    Then I verify the website has a chatbot
+    Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
+
+    Examples:
+      | prompt_user_search                                                                                                     | follow_up_query | prompt_for_chatbot                                    |
+      | create a chatbot that is a NYC restaurant guide (manhattan, hot affordable spots) and make a website with this chatbot | you decide      | Are there any vegetarian-friendly spots in Manhattan? |
+
+  @Chatbot2
+  Scenario Outline: Verify chatbot creation with personalized AI
+    Given I click the check out from the welcome window
+    When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And the compute points should not exceed 150k
+    And I should deploy the created website
+    Then I verify the website has a chatbot
+    Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                                                                                                                                           | follow_up_query | prompt_for_chatbot                                            |
+      | Create a chatbot which is very knowledgeable on classic cars from the 90s. Then create a website where users can post listings to buy and sell their 90s classic cars. You should embed the chatbot we created into the website so users can ask questions and get information about the cars from this era. | you decide      | Which is better for performance, a 1990s Corvette or Mustang? |

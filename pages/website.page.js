@@ -15,6 +15,7 @@ export class WebsitePage {
         this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')]");
         this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
+        this.checkOut= this.page.locator("[role='checkbox']");
         this.submitButton=this.page.locator("[type='submit']");
         this.loginLink=this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
         this.username=this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'test')])[1]");
@@ -23,7 +24,7 @@ export class WebsitePage {
       
         // this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
         this.contactLink = this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Contact')])[1]");
-        this.fullnameField= this.page.locator("//*[contains(@id,'fullName')] | //*[contains(@name,'fullName')] | //*[contains(@placeholder,'Your full name')]");
+        this.fullnameField= this.page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
         this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
@@ -43,6 +44,13 @@ export class WebsitePage {
         this.evaluateResumeButton= this.page.locator("(//button[contains(text(),'Evaluate Resume')] | //button[contains(@class,'inline-flex')])[1]");
         
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
+
+        //HR website locators-
+        this.signUpLink=this.page.locator("//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up']");
+
+        //Chatbot-
+        // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
+        this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
     }
 
    async fillJoinUSForm()
@@ -55,6 +63,10 @@ export class WebsitePage {
     await this.emailField.fill("testuser@gmail.com");
     await this.passwordField.fill("Password@123");
     await this.confirmPasswordField.fill("Password@123");
+    if(await this.checkOut.isVisible())
+    {
+        await this.checkOut.click();
+    }
     await this.submitButton.click();
     await this.page.waitForTimeout(5000);
 
@@ -364,16 +376,39 @@ async analysisTheResume()
 
 async checkTheWebsiteHaveUsefulwords()
 {
-  const words=["reputation", "fearless", "1989", "lover"]
+  const words = ["reputation", "fearless", "1989", "lover"];
+
   for (const word of words) {
-      const isWordPresent = await this.page.locator(`text=${word}`).isVisible();
-      if (isWordPresent) {
-        console.log(`The word "${word}" is present on the website.`);
-      } else {
-        console.log(`The word "${word}" is not found on the website.`);
+    const locator = this.page.locator(`text=${word}`);
+    const count = await locator.count();
+  
+    let isVisible = false;
+  
+    for (let i = 0; i < count; i++) {
+      if (await locator.nth(i).isVisible()) {
+        isVisible = true;
+        break; // One visible match is enough
       }
+    }
+  
+    if (isVisible) {
+      console.log(`The word "${word}" is present on the website.`);
+    } else {
+      console.log(`The word "${word}" is not found on the website.`);
+    }
   }
 }
 
+async checkTheChatbot()
+{
+  await this.page.waitForTimeout(8000);
+  let chatbotVisible = await this.chatbotInputField.isVisible();
+  if(chatbotVisible)
+  {
+  await this.chatbotInputField.fill("Where can I find the best tacos in Manhattan?");
+  }
+
+  await this.page.waitForTimeout(5000)
+}
 
 }
