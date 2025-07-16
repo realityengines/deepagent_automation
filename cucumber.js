@@ -1,9 +1,11 @@
 const options = {
   parallel: 1,
   paths: ['features/**/*.feature'],
-  import: [
+  require: [
     'features/step_definitions/**/*.js',
-    'features/support/**/*.js',
+    'features/support/**/*.js'
+  ],
+  import: [
     'formatters/**/*.js'
   ],
   requireModule: ['@playwright/test'],

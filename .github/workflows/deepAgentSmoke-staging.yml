@@ -36,7 +36,7 @@ jobs:
             Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
             exit 1
           }
-          Write-Host "u2705 Slack token is configured"
+          Write-Host "✅ Slack token is configured"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           GITHUB_ACTIONS: "true"
@@ -87,13 +87,48 @@ jobs:
           }
           npx playwright install --with-deps
 
+      - name: Setup test directories and cleanup
+        shell: pwsh
+        run: |
+          Write-Host "🧹 Setting up test directories and cleaning up..."
+          # Create required directories
+          $directories = @("reports", "test-reports", "downloadfile", "jsonReport", "llm-judge/results", "urlData")
+          foreach ($dir in $directories) {
+            if (-not (Test-Path -Path $dir)) {
+              New-Item -ItemType Directory -Path $dir -Force
+              Write-Host "Created directory: $dir"
+            } else {
+              Write-Host "Directory already exists: $dir"
+            }
+          }
+          
+          # Clean existing reports
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -File | Remove-Item -Force
+            Write-Host "Cleaned reports directory"
+          }
+          
+          Write-Host "✅ Test environment setup complete"
+
       - name: Run all tests (no tag specified)
         if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
         shell: pwsh
         run: |
-          npx cucumber-js --tags "@smoke" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
+          Write-Host "🚀 Running smoke tests with improved configuration..."
+          # Use our improved test runner with reduced parallelism
+          npx cucumber-js --tags "@smoke" --parallel 2 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
           $exitCode = $LASTEXITCODE
+          Write-Host "Test execution completed with exit code: $exitCode"
+          
+          # Generate reports
           npm run report
+          
+          # List generated files for debugging
+          Write-Host "📁 Generated report files:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.FullName)" }
+          }
+          
           exit $exitCode
         env:
           CI: true
@@ -103,9 +138,21 @@ jobs:
         if: ${{ github.event.inputs.tags != '' && github.event_name == 'workflow_dispatch' }}
         shell: pwsh
         run: |
-          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
+          Write-Host "🚀 Running tests with tag: @${{ github.event.inputs.tags }}"
+          # Use reduced parallelism for better stability
+          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 2 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
           $exitCode = $LASTEXITCODE
+          Write-Host "Test execution completed with exit code: $exitCode"
+          
+          # Generate reports
           npm run report
+          
+          # List generated files for debugging
+          Write-Host "📁 Generated report files:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.FullName)" }
+          }
+          
           exit $exitCode
         env:
           CI: true
@@ -116,9 +163,18 @@ jobs:
         shell: pwsh
         run: |
           if (Test-Path -Path "reports/cucumber-report.json") {
+            Write-Host "📊 Generating test summary..."
             node generate-summary.js
+            Write-Host "✅ Test summary generated successfully"
           } else {
-            Write-Host "Warning: reports/cucumber-report.json not found. Skipping summary generation."
+            Write-Host "⚠️ Warning: reports/cucumber-report.json not found. Skipping summary generation."
+            # List what files are actually present
+            Write-Host "Available files in reports directory:"
+            if (Test-Path -Path "reports") {
+              Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.Name)" }
+            } else {
+              Write-Host "  - reports directory does not exist"
+            }
           }
 
       - name: Report Location Information
@@ -130,6 +186,7 @@ jobs:
           Write-Host "=============================================" -ForegroundColor Green
           Write-Host "HTML Report: $PWD/test-reports/index.html" -ForegroundColor Cyan
           Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
+          Write-Host "Screenshots: $PWD/reports/failure-*.png" -ForegroundColor Cyan
           Write-Host "=============================================\n" -ForegroundColor Green
           
           # Create a marker file with report locations for easy reference
@@ -138,14 +195,31 @@ jobs:
           =============================================
           HTML Report: $PWD/test-reports/index.html
           JSON Report: $PWD/reports/cucumber-report.json
+          Screenshots: $PWD/reports/failure-*.png
           =============================================
           "@ | Out-File -FilePath "report-locations.txt"
 
       - name: Debug - List report files
+        if: always()
         shell: pwsh
         run: |
-          Write-Host "Listing all files in reports/"
-          Get-ChildItem -Recurse reports
+          Write-Host "📁 Listing all files in reports directory:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Recurse reports | ForEach-Object { 
+              Write-Host "  - $($_.FullName) (Size: $($_.Length) bytes)"
+            }
+          } else {
+            Write-Host "  - reports directory does not exist"
+          }
+          
+          Write-Host "📁 Listing all files in test-reports directory:"
+          if (Test-Path -Path "test-reports") {
+            Get-ChildItem -Recurse test-reports | ForEach-Object { 
+              Write-Host "  - $($_.FullName) (Size: $($_.Length) bytes)"
+            }
+          } else {
+            Write-Host "  - test-reports directory does not exist"
+          }
 
       - name: Upload test results
         if: always()
@@ -157,6 +231,7 @@ jobs:
             test-reports/**
             cucumber-report.html
             cucumber-report.json
+            urlData/**
           retention-days: 30
           if-no-files-found: warn
           
@@ -177,6 +252,7 @@ jobs:
           path: |
             reports/traces/
             reports/screenshots/
+            reports/failure-*.png
           retention-days: 30
           if-no-files-found: ignore
           
@@ -184,7 +260,7 @@ jobs:
         if: success()
         shell: pwsh
         run: |
-          Write-Host "Sending success notification to Slack..."
+          Write-Host "📢 Sending success notification to Slack..."
           if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
@@ -212,7 +288,7 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
-          Write-Host "Sending failure notification to Slack..."
+          Write-Host "📢 Sending failure notification to Slack..."
           if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
