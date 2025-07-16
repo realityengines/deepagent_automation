@@ -41,7 +41,7 @@ const config = {
     },
     // Environment configuration
     // Execution mode: 'local' or 'lambda'
-    executionMode: process.env.EXECUTION_MODE || 'lambda'
+    executionMode: process.env.EXECUTION_MODE 
 };
 // Helper function to check if running on LambdaTest
 const isLambdaTest = () => config.executionMode === 'lambda';
