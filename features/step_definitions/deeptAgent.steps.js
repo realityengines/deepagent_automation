@@ -693,6 +693,65 @@ Then("I should deploy the created website", async function () {
 //   }
 // );
 
+Then("I should verify gmail tool call", async function () {
+  await deepAgentPage.verifyGmailTool();
+  
+ });
+
+ Then("I should verify jira tool call", async function () {
+  await deepAgentPage.verifyJiraTool();
+  
+ });
+
+ Then("I should verify the final dashboard", async function () {
+  
+  await deepAgentPage.previewButton.click();
+
+  // Wait for the new page to open when clicking the deploy link
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
+  ]);
+
+  await newPage.waitForLoadState();
+  this.page = newPage;
+  websitePage = new WebsitePage(newPage);
+
+  await websitePage.verifyJiraDashboard();
+ });
+
+ Then("I check web search about AI news", async function () {
+  
+  await deepAgentPage.searchAINews.isVisible();
+ });
+
+ Then("I should verify twitter tool call", async function () {
+  
+  await deepAgentPage.checkTwitterMCP();
+ });
+
+ Then("I check for the twitter link", async function () {
+  
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    await deepAgentPage.checkTwitterLink(), // Now properly awaited in Promise.all
+  ]);
+  
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await newPage.waitForTimeout(3000);
+  await newPage.close()
+
+ });
+
+ Then("I should verify github tool call", async function () {
+  
+  await deepAgentPage.verifyGithubTools();
+ });
+
+
 Then(
   "the website should display correct tabs, graphs, and navigation bar",
   async function () {

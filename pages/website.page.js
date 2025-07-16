@@ -50,7 +50,13 @@ export class WebsitePage {
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
-        this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
+        this.chatbotInputField=this.page.locator("(//textarea[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask')])");
+        this.chatbotInputField=this.page.locator("textarea[placeholder*='Write something...']");
+        this.chatbotIcon=this.page.locator("button[class] [class*='lucide lucide-message']")
+        // this.chatbotField=this.page.locator("[placeholder*='Ask']")
+
+        // Jira-
+        this.jiraDashboard=this.page.locator("//*[contains(text(),'Dashboard')]");
     }
 
    async fillJoinUSForm()
@@ -401,7 +407,21 @@ async checkTheWebsiteHaveUsefulwords()
 
 async checkTheChatbot()
 {
-  await this.page.waitForTimeout(8000);
+  await this.page.waitForTimeout(5000);
+  let chatBotIconVisible=await this.chatbotIcon.isVisible();
+  if(chatBotIconVisible)
+  {
+    await this.chatbotIcon.click();
+    await this.page.waitForTimeout(3000);
+    await this.chatbotInputField.fill("Tell about this chatbot");
+    await this.page.keyboard.press('Enter');
+    await this.page.waitForTimeout(5000);
+  }
+   // Scroll to the bottom of the page first
+   await this.page.evaluate(() => {
+    window.scrollTo(0, 800);
+  });
+  await this.page.waitForTimeout(10000);
   let chatbotVisible = await this.chatbotInputField.isVisible();
   if(chatbotVisible)
   {
@@ -409,6 +429,20 @@ async checkTheChatbot()
   }
 
   await this.page.waitForTimeout(5000)
+}
+
+async verifyJiraDashboard()
+{
+    await this.page.waitForTimeout(5000);
+    const count=await this.jiraDashboard.count();
+
+    for(let i=0; i<count; i++)
+    {
+        const element = await this.jiraDashboard.nth(i);
+        await element.isVisible();
+    }
+
+  
 }
 
 }

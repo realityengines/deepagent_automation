@@ -180,13 +180,22 @@ export class DeepAgentPage {
     this.taskButton= page.locator("//*[text()='Tasks']");
     this.reservationTask= page.locator("//*[contains(text(),'View Results')]");
     this.browserUse= page.locator("//*[text()='Browser']")
-    this.gmailTool= page.locator("//*[contains(text(),'gmail_tool')]")
+    this.gmailTool= page.locator("//*[contains(text(),'gmail_tool')]");
+    this.jiraTool=page.locator("//*[contains(text(),'jira_tool')]")
     this.twitterMCPTool= page.locator("//*[text()='twitter-mcp_post_tweet output']");
 
 
     // new locators
     this.dropdownOptions = page.locator('[role*="option"]');
     this.rowPresent= page.locator("(//*[@role='row'])[1]");
+
+    // Twitter MCP-
+    
+    this.searchAINews=page.locator("//*[text()='Searching']//following-sibling::*[contains(text(),'AI news')]");
+    this.twitterLink=page.locator("(//*[contains(@href,'https://twitter.com/')])[1]")
+
+    //Github Tool-
+    this.githubTool = page.locator("//*[contains(text(),'tool github')]");
 
     this.elapsedTime = 0;
   }
@@ -1681,4 +1690,58 @@ async verifyDataSeeding()
   }
 
 }
+
+async verifyGmailTool()
+{
+  await this.page.waitForTimeout(3000);
+  const count = await this.gmailTool.count();
+  expect(count).to.be.greaterThan(0);
+  for(let i = 0; i < count; i++) 
+  {
+    const element = await this.gmailTool.nth(i);
+    const isVisible = await element.isVisible();
+    expect(isVisible).to.be.true;
+    await element.click();
+  }
+
+}
+
+ async verifyJiraTool()
+ {
+  await this.page.waitForTimeout(3000);
+  const count = await this.jiraTool.count();
+  expect(count).to.be.greaterThan(0);
+  for(let i = 0; i < count; i++) 
+  {
+    const element = await this.jiraTool.nth(i);
+    const isVisible = await element.isVisible();
+    expect(isVisible).to.be.true;
+    await element.click();
+  }
+
+ }
+
+ async verifyGithubTools()
+ {
+
+  await this.page.waitForTimeout(3000);
+  const count = await this.githubTool.count();
+  expect(count).to.be.greaterThan(0);
+  for(let i = 0; i < count; i++) 
+  {
+    const element = await this.githubTool.nth(i);
+    const isVisible = await element.isVisible();
+    expect(isVisible).to.be.true;
+    await element.click();
+  }
+
+ }
+
+ async checkTwitterLink()
+ {
+  await this.page.waitForTimeout(3000)
+  await this.twitterLink.click();
+  await this.page.waitForTimeout(5000)
+ }
+
 }

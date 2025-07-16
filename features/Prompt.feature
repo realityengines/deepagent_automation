@@ -9,23 +9,77 @@ Feature: Deep Agent Search and Task Execution
     Then I should be logged in successfully
     And I select the default LLM "RouteLLM"
     When I click the deep Agent option
+  # @IntegrationPrompts
+  # Scenario Outline: Verify Deep Agent integrate
+  #   Given I click the check out from the welcome window
+  #   When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+  #   And I should see the status "Completed" for the task
+  #   And the compute points should not exceed 150k
+  #   And I should download the generated summary
+  #   And I should fetch the search results
+  #   Examples:
+  #     | prompt_user_search                                                                                                                                                                                     | follow_up_query                                                                                                     |
+  #     | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview                                                                                                                | your call                                                                                                           |
+  #     | Make me a dashboard of summary of all the open Jira issues reported by me in the last 3 sprints. \n Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
+  #     # | Connect To Gmail And Automate Work                                                      | Find sent emails with no replies                                                                                    |
+  #     # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
+  #     # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
 
-  @IntegrationPrompts
-  Scenario Outline: Verify Deep Agent integrate
+  @MCP1 @MCP
+  Scenario Outline: Verify gmail MCP
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
+    And I should verify gmail tool call
     And I should download the generated summary
     And I should fetch the search results
 
     Examples:
-      | prompt_user_search                                                                                                                                                                                     | follow_up_query                                                                                                     |
-      | Fetch my emails from Gmail and summarise the activity in the past day. Give an overview                                                                                                                | your call                                                                                                           |
-      | Make me a dashboard of summary of all the open Jira issues reported by me in the last 3 sprints. \n Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | https://abacusai.atlassian.net/ — summarize all project high-priority tasks; dark grey theme with chat graph & icon |
-      # | Connect To Gmail And Automate Work                                                      | Find sent emails with no replies                                                                                    |
-      # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
-      # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
+      | prompt_user_search                                                                         | follow_up_query |
+      | Connect To Gmail to Automate Work. Summarise the last 5 days emails and create a pdf file. | You decide      |
+
+  @MCP2 @MCP
+  Scenario Outline: Verify jira MCP
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should verify jira tool call
+    And I should deploy the website
+    And I should verify the final dashboard
+
+    Examples:
+      | prompt_user_search                                                                                                                                                                  | follow_up_query |
+      | Make me a dashboard of summary of all the Jira issues reported in last 24 hours. Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | You decide      |
+
+  @MCP3 @MCP
+  Scenario Outline: Verify github MCP
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I should verify github tool call
+    And I should download the generated summary
+    And I should fetch the search results
+
+    Examples:
+      | prompt_user_search                                                                                    | follow_up_query |
+      | Summarize this github PR https://github.com/realityengines/code/pull/67288 Analyze any bugs or issues | You decide      |
+
+  @MCP4 @MCP
+  Scenario Outline: Verify twitter MCP
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And I should see the status "Completed" for the task
+    And the compute points should not exceed 150k
+    And I check web search about AI news
+    And I should verify twitter tool call
+    And I check for the twitter link
+
+    Examples:
+      | prompt_user_search                                                | follow_up_query |
+      | Connect to my Twitter / X and post one tweet about latest AI news | You decide      |
 
   @AppLLMDataAnalysis
   Scenario Outline: Verify AppLLM Data Analysis
@@ -379,8 +433,8 @@ Feature: Deep Agent Search and Task Execution
     Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
 
     Examples:
-      | prompt_user_search                                                                                                     | follow_up_query | prompt_for_chatbot                                    |
-      | create a chatbot that is a NYC restaurant guide (manhattan, hot affordable spots) and make a website with this chatbot | you decide      | Are there any vegetarian-friendly spots in Manhattan? |
+      | prompt_user_search                                                                                                                                                                                                              | follow_up_query | prompt_for_chatbot                                    |
+      | create a chatbot that is a NYC restaurant guide (manhattan, hot affordable spots) and make a website with this chatbot. You should embed the chatbot we created into the website so users can ask questions and get information | you decide      | Are there any vegetarian-friendly spots in Manhattan? |
 
   @Chatbot2
   Scenario Outline: Verify chatbot creation with personalized AI
