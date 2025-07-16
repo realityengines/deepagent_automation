@@ -7,7 +7,7 @@ export class DashboardPage {
       "//div[@role='dialog']//b[contains(text(),'RouteLLM')]"
     );
     this.deepAgentTextName = page.locator(
-      '//div[contains(text(), "DeepAgent")]'
+      '//div[contains(@class,"justify-center")]//div[contains(text(), "DeepAgent")]'
     );
     this.SkipButton=page.locator("//button[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'skip')]");
   }
