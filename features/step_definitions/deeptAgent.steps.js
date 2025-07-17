@@ -813,6 +813,11 @@ Then("I should see the generated video", async function () {
   await deepAgentPage.verifyVideoGeneration();
 });
 
+Then("I should verify that the video duration is more than 15 seconds", async function () {
+  await this.page.waitForTimeout(15000)
+  await deepAgentPage.verifyVideoDuration();
+});
+
 Then(
   "I can see the custom chat and perform some action and search the prompt {string}",
   async function (promptSearchForCustomChatbot) {
@@ -1640,9 +1645,10 @@ Then("verify that the website contains some useful words", async function () {
   { timeout: 50000 },
   async function (promptForChatbot) {
     const originalPage = this.page;
-    deepAgentPage.clickOnChatBotLink();
+    
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent("page"),
+      deepAgentPage.clickOnChatBotLink()
     ]);
     await newPage.waitForLoadState();
     this.page = newPage;
@@ -1673,6 +1679,47 @@ Then("verify that the website contains some useful words", async function () {
     }
   }
 );
+
+Then("I click on the Use AI Workflow and upload the CSV file", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnUseAIWorkFlow(), // Now properly awaited in Promise.all
+  ]);
+
+  await newPage.waitForLoadState();
+  this.page = newPage;
+  deepAgentPage = new DeepAgentPage(newPage);
+  await this.page.waitForTimeout(2000);
+  await deepAgentPage.uploadCSVFile();
+  await deepAgentPage.page.waitForTimeout(3000);
+  await newPage.close();
+  this.page = originalPage;
+  console.log("Returned to original page");
+
+  deepAgentPage=new DeepAgentPage(originalPage);
+  // Capture conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`\nConversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+
+
+});
+
+Then("I serach the prompt {string}", async function (promatSearch) {
+  
+  await deepAgentPage.enterPromapt(promatSearch);
+  await deepAgentPage.clickSendButton();
+  await deepAgentPage.page.waitForTimeout(3000);
+  const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+
+});
+
 
 
 

@@ -47,7 +47,7 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should verify jira tool call
     And I should deploy the website
-    
+
     Examples:
       | prompt_user_search                                                                                                                                                                  | follow_up_query |
       | Make me a dashboard of summary of all the Jira issues reported in last 24 hours. Highlight blockers and suggest which ones I should prioritize this week based on effort vs impact. | You decide      |
@@ -275,6 +275,7 @@ Feature: Deep Agent Search and Task Execution
     When I search for the prompt for video generation "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
     And I should see the generated video
+    And I should verify that the video duration is more than 15 seconds
 
     Examples:
       | prompt_user_search                                                                                                                                                                                    | follow_up_query |
@@ -447,3 +448,15 @@ Feature: Deep Agent Search and Task Execution
     Examples:
       | prompt_user_search                                                                                                                                                                                                                                                                                           | follow_up_query | prompt_for_chatbot                                            |
       | Create a chatbot which is very knowledgeable on classic cars from the 90s. Then create a website where users can post listings to buy and sell their 90s classic cars. You should embed the chatbot we created into the website so users can ask questions and get information about the cars from this era. | you decide      | Which is better for performance, a 1990s Corvette or Mustang? |
+
+  @AIWorkFlow
+  Scenario Outline: Verify chatbot creation with personalized AI
+    Given I click the check out from the welcome window
+    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+    And the compute points should not exceed 150k
+    And I click on the Use AI Workflow and upload the CSV file
+    And I serach the prompt "<another_prompt>"
+
+    Examples:
+      | prompt_user_search    | follow_up_query                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | another_prompt                                                                                                                                                                                                                                                                                             |
+      | Create an AI Workflow | Build an AI agent that accepts a CSV file as input. Each row has Name, Email, and Company Name. For every row:\n\n1. Research the given company online to understand what it does and its industry challenges.\n2. Read about our product \\"DeepAgent\\" from the following pages: https://abacus.ai/help/howTo/chatllm/deepagent_how_to\n3. Draft a nicely formatted personalized email to the person (use their name and company context) explaining how DeepAgent can help their business. Use a professional, helpful tone.\n4. Send the email through my Gmail account\n\nAfter sending, generate an updated CSV with the Name, Email, Company, Generated Email Text, and Status (Sent/Failed).\n\nThe agent should:\n\nRetry failed sends up to 2 times\n\nOutput a downloadable CSV file | Read the latest email received in my gmail account from no-reply@abacus.ai in the last 5 minutes. Please check if it is tailored to the Walmart company and a promotional email about DeepAgent. Give output in this format only. No other TEXT strictly. YES Time of the received email - <Date and Time> |

@@ -101,7 +101,7 @@ Feature: Deep Agent Functionality Test
     When I search for the prompt for video generation "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
     And I should see the generated video
-
+  
     Examples:
       | prompt_user_search                                       | follow_up_query |
       | Can you create a video on the top 2 most expensive cars? | your call       |
