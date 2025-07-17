@@ -7,10 +7,11 @@ When("I click the deep Agent option", { timeout: 50000 }, async function () {
   dashboardPage = new DashboardPage(this.page);
   const [newPage] = await Promise.all([
     this.page.context().waitForEvent("page"),
+    // await page.getByRole('button', { name: 'DeepAgent' }).click(),
     dashboardPage.clickOnDeepAgent(),
   ]);
 
-  await newPage.waitForLoadState();
+  await newPage.waitForLoadState(); 
   this.page = newPage;
   await this.page.waitForTimeout(2000);
 });
