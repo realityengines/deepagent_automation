@@ -48,7 +48,7 @@ class BrowserType extends World {
           args: ['--start-maximized']
         });
         this.context = await this.browser.newContext({
-          // viewport: { width: 1800, height: 900 },
+          viewport: { width: 1920, height: 1080 },
           viewport: null,
           timeout: config.browser.timeout,
         });

@@ -241,6 +241,7 @@ export class DeepAgentPage {
     const maxWaitTime = 30000000; // 50 minutes in milliseconds
     const checkInterval = 10000; // Check every 10 seconds
     let isVisible = true;
+    let sendbuttonVisible = false;
     // let elapsedTime = 0;
     while (isVisible && Date.now() - startTime < maxWaitTime) {
       try {
@@ -248,8 +249,13 @@ export class DeepAgentPage {
         isVisible = await this.stopButton.isVisible({ timeout: 1000 });
         if (!isVisible) {
           // Button is no longer visible, exit the loop
-          this.elapsedTime = Date.now() - startTime;
-          break;
+          sendbuttonVisible = this.sendButton.isVisible({ timeout: 3000 })
+          if(sendbuttonVisible){
+            this.elapsedTime = Date.now() - startTime;
+            break;
+          }else {
+          await this.page.reload({ waitUntil: 'networkidle' });
+          }
         }
         // Log status every 30 seconds for debugging
         this.elapsedTime = Date.now() - startTime;

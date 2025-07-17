@@ -30,7 +30,7 @@ When(
     const hasExpectedStatus = await deepAgentPage.getStatusOfTask("Completed");
     console.log(`Status found: ${hasExpectedStatus}`);
 
-    // Send fallback prompt only if status not found
+    // // Send fallback prompt only if status not found
     if (!hasExpectedStatus) {
       console.log("Status not found, sending fallback prompt...");
       await deepAgentPage.enterPromaptQuery("your call");

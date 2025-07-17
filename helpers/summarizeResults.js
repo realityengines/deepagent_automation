@@ -1,6 +1,9 @@
-const fs = require('fs');
-const { WebClient } = require('@slack/web-api');
-const path = require('path');
+import { WebClient } from '@slack/web-api';
+import fs from 'fs';
+import path from 'path';
+// const { WebClient } = require('@slack/web-api');
+// const fs = import('fs');
+// const path = require('path');
 
 function stripAnsiCodes(text) {
   // More comprehensive ANSI code stripping

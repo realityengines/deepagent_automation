@@ -7,21 +7,36 @@ import { fileURLToPath } from 'url';
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 const config = {
-    // baseUrl: process.env.BASE_URL || 'https://apps.abacus.ai/chatllm',
     baseUrl: environmentConfig.baseUrl,
-    // Browser configuration for local testing
+    // Remove duplicate - keep only this one that reads from environment
+    executionMode: process.env.EXECUTION_MODE || 'local', 
+
     browser: {
-        headless: process.env.HEADLESS !== 'false',
+        headless: process.env.CI === 'true' ? true : (process.env.HEADLESS !== 'false'),
         slowMo: parseInt(process.env.SLOW_MO || '0'),
-        timeout: parseInt(process.env.TIMEOUT || '2400000')
+        timeout: parseInt(process.env.TIMEOUT || '240000'),
+        args: process.env.CI === 'true' ? [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding'
+        ] : []
     },
+    
     reporter: [
         ['list'],
         [path.resolve(__dirname, '../helpers/smokeReporter'), {}],
         ['html', { outputFolder: path.resolve(__dirname, '../smoke-playwright-report') }],
         ['json', { outputFile: path.resolve(__dirname, '../smoke-playwright-report/smoke-report.json') }]
     ],
+    
     // LambdaTest configuration
     lambdaTest: {
         username: process.env.LT_USERNAME,
@@ -38,13 +53,13 @@ const config = {
         plugin: 'node_js-mocha',
         tunnel: process.env.TUNNEL === 'true',
         queueTimeout: 900
-    },
-    // Environment configuration
-    // Execution mode: 'local' or 'lambda'
-    executionMode: process.env.EXECUTION_MODE || 'lambda'
+    }
+    // Remove the duplicate executionMode: 'local' line
 };
+
 // Helper function to check if running on LambdaTest
 const isLambdaTest = () => config.executionMode === 'lambda';
+
 // Helper function to get browser capabilities
 const getBrowserCapabilities = () => {
     if (isLambdaTest()) {
@@ -68,6 +83,7 @@ const getBrowserCapabilities = () => {
     }
     return config.browser;
 };
+
 // Helper function to get the WebDriver URL
 const getDriverUrl = () => {
     if (isLambdaTest()) {
@@ -75,8 +91,10 @@ const getDriverUrl = () => {
     }
     return 'http://localhost:4444/wd/hub'; // Default local Selenium server
 };
+
 // Add helper functions to config object
 config.isLambdaTest = isLambdaTest;
 config.getBrowserCapabilities = getBrowserCapabilities;
 config.getDriverUrl = getDriverUrl;
+
 export default config;
