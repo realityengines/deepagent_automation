@@ -18,12 +18,12 @@ jobs:
       SLACK_CHANNEL_ID: "C0189FJRC9E"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
       EXECUTION_MODE: "local"
-      
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-        # Add this step after the "Checkout code" step
+      # Add this step after the "Checkout code" step
       - name: Send initial Slack notification
         id: slack-initial
         shell: pwsh
@@ -176,7 +176,7 @@ jobs:
             }
           }
 
-       - name: Send success Slack notification
+      - name: Send success Slack notification
         if: success()
         shell: pwsh
         run: |
@@ -232,7 +232,6 @@ jobs:
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
-      
 
       - name: Report Location Information
         if: always()
@@ -291,7 +290,7 @@ jobs:
             urlData/**
           retention-days: 30
           if-no-files-found: warn
-          
+      
       - name: Upload report locations
         if: always()
         uses: actions/upload-artifact@v4
