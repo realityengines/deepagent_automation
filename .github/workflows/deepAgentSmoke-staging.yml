@@ -1,6 +1,6 @@
 name: Deep Agent Smoke Suite - Staging
 
-on:  
+on:
   workflow_dispatch:
     inputs:
       tags:
@@ -15,13 +15,51 @@ jobs:
       # Fixed environment - always staging
       TEST_ENV: "staging"
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      SLACK_CHANNEL_ID: "C0189FJRC9E" 
+      SLACK_CHANNEL_ID: "C07FJG27D2L"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
       EXECUTION_MODE: "local"
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+        # Add this step after the "Checkout code" step
+      - name: Send initial Slack notification
+        id: slack-initial
+        shell: pwsh
+        run: |
+          npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
+          $githubActor = "${{ github.actor }}"
+          $environment = "${{ env.TEST_ENV }}"
+          $buildName = "Deep Agent Smoke Tests"
+          Write-Host "Sending initial Slack message with parameters:"
+          Write-Host "  GitHub Actor: $githubActor"
+          Write-Host "  Environment: $environment"
+          Write-Host "  Build Name: $buildName"
+
+          $output = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          Write-Host "Slack script output:"
+          $output | ForEach-Object { Write-Host $_ }
+
+          # Look for the thread_ts line in the output
+          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
+
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
+            $threadTs = "0"
+          }
+
+          Write-Host "Extracted thread_ts: $threadTs"
+          echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          GITHUB_ACTIONS: "true"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,13 +97,13 @@ jobs:
               Write-Host "Directory already exists: $dir"
             }
           }
-          
+
           # Clean existing reports
           if (Test-Path -Path "reports") {
             Get-ChildItem -Path "reports" -File | Remove-Item -Force
             Write-Host "Cleaned reports directory"
           }
-          
+
           Write-Host "✅ Test environment setup complete"
 
       - name: Run all tests
@@ -138,6 +176,34 @@ jobs:
             }
           }
 
+      - name: Send success Slack notification
+        if: success()
+        shell: pwsh
+        run: |
+          Write-Host "Sending success notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "success" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+
       - name: Report Location Information
         if: always()
         shell: pwsh
@@ -149,7 +215,7 @@ jobs:
           Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
           Write-Host "Screenshots: $PWD/reports/failure-*.png" -ForegroundColor Cyan
           Write-Host "====`n" -ForegroundColor Green
-          
+
           # Create a marker file with report locations for easy reference
           @"
           TEST REPORT LOCATIONS:
@@ -172,7 +238,7 @@ jobs:
           } else {
             Write-Host "  - reports directory does not exist"
           }
-          
+
           Write-Host "📁 Listing all files in test-reports directory:"
           if (Test-Path -Path "test-reports") {
             Get-ChildItem -Recurse test-reports | ForEach-Object { 
@@ -195,7 +261,7 @@ jobs:
             urlData/**
           retention-days: 30
           if-no-files-found: warn
-      
+
       - name: Upload report locations
         if: always()
         uses: actions/upload-artifact@v4
