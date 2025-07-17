@@ -5,9 +5,9 @@ let dashboardPage;
 
 When("I click the deep Agent option", { timeout: 50000 }, async function () {
   dashboardPage = new DashboardPage(this.page);
+
   const [newPage] = await Promise.all([
-    this.page.context().waitForEvent("page"),
-    // await page.getByRole('button', { name: 'DeepAgent' }).click(),
+    this.page.context().waitForEvent("page", { timeout: 5000 }),
     dashboardPage.clickOnDeepAgent(),
   ]);
 
@@ -24,5 +24,5 @@ Then("I select the default LLM {string}", async function (llmRoute) {
   await dashboardPage.searchLLm.fill(llmRoute);
   await dashboardPage.page.waitForTimeout(2000);
   await dashboardPage.routeLlm.click();
-  await dashboardPage.page.waitForTimeout(4000);
+  await dashboardPage.page.waitForTimeout(2000);
 });
