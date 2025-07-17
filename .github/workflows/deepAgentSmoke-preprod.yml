@@ -23,6 +23,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+        # Add this step after the "Checkout code" step
+      - name: Send initial Slack notification
+        id: slack-initial
+        shell: pwsh
+        run: |
+          npm install
+          Write-Host "Checking Slack token availability..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::error::SLACK_TOKEN environment variable is not set. Please check your GitHub secrets."
+            exit 1
+          }
+          $githubActor = "${{ github.actor }}"
+          $environment = "${{ env.TEST_ENV }}"
+          $buildName = "Deep Agent Smoke Tests"
+          Write-Host "Sending initial Slack message with parameters:"
+          Write-Host "  GitHub Actor: $githubActor"
+          Write-Host "  Environment: $environment"
+          Write-Host "  Build Name: $buildName"
+
+          $output = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          Write-Host "Slack script output:"
+          $output | ForEach-Object { Write-Host $_ }
+
+          # Look for the thread_ts line in the output
+          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
+
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
+            $threadTs = "0"
+          }
+
+          Write-Host "Extracted thread_ts: $threadTs"
+          echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          GITHUB_ACTIONS: "true"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -137,6 +175,64 @@ jobs:
               Write-Host "  - reports directory does not exist"
             }
           }
+
+       - name: Send success Slack notification
+        if: success()
+        shell: pwsh
+        run: |
+          Write-Host "Sending success notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "success" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+
+      - name: Send failure Slack notification
+        if: failure()
+        shell: pwsh
+        run: |
+          Write-Host "Sending failure notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+          
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+          
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "failure" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+      
 
       - name: Report Location Information
         if: always()
