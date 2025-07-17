@@ -68,12 +68,12 @@ jobs:
           
           Write-Host "✅ Test environment setup complete"
 
-      - name: Run all tests (no tag specified)
+      - name: Run all tests
         if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
         shell: pwsh
         run: |
           Write-Host "🚀 Running smoke tests using npm script..."
-          npm run test:smoke:ci
+          npx cucumber-js --parallel 6 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
           $exitCode = $LASTEXITCODE
           Write-Host "Test execution completed with exit code: $exitCode"
 
@@ -99,7 +99,7 @@ jobs:
         run: |
           Write-Host "🚀 Running tests with tag: @${{ github.event.inputs.tags }}"
           # Use reduced parallelism for better stability
-          npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 1 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
+          npx cucumber-js --parallel 6 --tags "@${{ github.event.inputs.tags }}" --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
           $exitCode = $LASTEXITCODE
           Write-Host "Test execution completed with exit code: $exitCode"
 
