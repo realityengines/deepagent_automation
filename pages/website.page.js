@@ -50,7 +50,11 @@ export class WebsitePage {
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
+
+       // ifrmae 
+        this.iframechatbot=this.page.locator('iframe[role*="presentation"]');
         this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
+        
     }
 
    async fillJoinUSForm()
@@ -399,16 +403,53 @@ async checkTheWebsiteHaveUsefulwords()
   }
 }
 
-async checkTheChatbot()
-{
+// async checkTheChatbot()
+// {
+//   await this.page.waitForTimeout(8000);
+
+//   let chatbotVisible = await this.chatbotInputField.isVisible();
+//   if(chatbotVisible)
+//   {
+//   await this.chatbotInputField.fill("Where can I find the best tacos in Manhattan?");
+//   }
+
+//   await this.page.waitForTimeout(5000)
+// }
+
+// }
+
+
+async checkTheChatbot() {
   await this.page.waitForTimeout(8000);
-  let chatbotVisible = await this.chatbotInputField.isVisible();
-  if(chatbotVisible)
-  {
-  await this.chatbotInputField.fill("Where can I find the best tacos in Manhattan?");
+
+  const iframeElements = await this.page.$$('iframe');
+  let chatbotFrame = null;
+
+  for (const iframeElement of iframeElements) {
+    const frame = await iframeElement.contentFrame();
+    if (!frame) continue;
+
+    const inputSelector = "xpath=(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])";
+    const inputVisible = await frame.isVisible(inputSelector).catch(() => false);
+
+    if (inputVisible) {
+      chatbotFrame = frame;
+      break;
+    }
   }
 
-  await this.page.waitForTimeout(5000)
+  if (!chatbotFrame) {
+    console.warn("❌ Chatbot iframe not found.");
+    return;
+  }
+
+  const inputSelector = "xpath=(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])";
+  await chatbotFrame.fill(inputSelector, "Where can I find the best tacos in Manhattan?");
+  await this.page.waitForTimeout(8000);
+
+  const sendButtonSelector = "button [data-icon*='paper-plane']";
+  await chatbotFrame.click(sendButtonSelector);
+  await this.page.waitForTimeout(15000);
 }
 
 }
