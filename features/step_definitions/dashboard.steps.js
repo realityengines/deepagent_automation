@@ -4,6 +4,8 @@ import { DashboardPage } from "../../pages/dashboard.page.js";
 let dashboardPage;
 
 When("I click the deep Agent option", { timeout: 50000 }, async function () {
+  await this.page.setViewportSize({ width: 1920, height: 1080 });
+  
   dashboardPage = new DashboardPage(this.page);
 
   const [newPage] = await Promise.all([
@@ -14,6 +16,7 @@ When("I click the deep Agent option", { timeout: 50000 }, async function () {
   await newPage.waitForLoadState(); 
   this.page = newPage;
   await this.page.waitForTimeout(2000);
+  await this.page.setViewportSize({ width: 1920, height: 1080 });
 });
 
 Then("I select the default LLM {string}", async function (llmRoute) {
