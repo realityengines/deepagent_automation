@@ -15,7 +15,7 @@ jobs:
       # Fixed environment - always staging
       TEST_ENV: "staging"
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      SLACK_CHANNEL_ID: "C07FJG27D2L" 
+      SLACK_CHANNEL_ID: "C0189FJRC9E" 
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
       EXECUTION_MODE: "local"
     
