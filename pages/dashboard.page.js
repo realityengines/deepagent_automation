@@ -17,7 +17,6 @@ export class DashboardPage {
 }
 
   async clickOnDeepAgent() {
-    await this.page.getByRole('button', { name: 'DeepAgent' }).click();
-    // await this.deepAgentTextName.click();
+    await this.deepAgentTextName.click();
   }
 }

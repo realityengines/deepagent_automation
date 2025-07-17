@@ -4,13 +4,13 @@ import { DashboardPage } from "../../pages/dashboard.page.js";
 let dashboardPage;
 
 When("I click the deep Agent option", { timeout: 50000 }, async function () {
+  await this.page.setViewportSize({ width: 1920, height: 1080 });
+  
   dashboardPage = new DashboardPage(this.page);
-
-  this.page.getByRole('button', { name: 'DeepAgent' }).click();
 
   const [newPage] = await Promise.all([
     this.page.context().waitForEvent("page"),
-    // dashboardPage.clickOnDeepAgent(),
+    dashboardPage.clickOnDeepAgent(),
   ]);
 
   await newPage.waitForLoadState(); 
