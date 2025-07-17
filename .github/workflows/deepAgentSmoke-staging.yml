@@ -73,7 +73,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "🚀 Running smoke tests using npm script..."
-          npx cucumber-js --parallel 6 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json --format progress
+          npx cucumber-js --tags "@smoke" --parallel 6 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
           $exitCode = $LASTEXITCODE
           Write-Host "Test execution completed with exit code: $exitCode"
 
