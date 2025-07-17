@@ -385,9 +385,9 @@ Feature: Deep Agent Search and Task Execution
   @Chatbot2
   Scenario Outline: Verify chatbot creation with personalized AI
     Given I click the check out from the welcome window
-    When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+     When I search the chat bot prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
     And the compute points should not exceed 150k
-    And I should deploy the created website
+     And I should deploy the created website
     Then I verify the website has a chatbot
     Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
 

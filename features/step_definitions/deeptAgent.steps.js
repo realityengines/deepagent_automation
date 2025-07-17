@@ -1534,8 +1534,8 @@ Then("verify that the website contains some useful words", async function () {
   const originalPage = this.page;
   await this.page.waitForTimeout(5000);
   const [newPage] = await Promise.all([
-    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
-    deepAgentPage.clickOnDeployLink(), // Now properly awaited in Promise.all
+    this.page.context().waitForEvent("page", { timeout: 60000 }), 
+    deepAgentPage.clickOnDeployLink(), 
   ]);
 
   await newPage.waitForLoadState();
