@@ -1,6 +1,6 @@
 name: Deep Agent Smoke Suite - Prod
 
-on:    
+on:
   workflow_dispatch:
     inputs:
       tags:
@@ -18,18 +18,16 @@ jobs:
       SLACK_CHANNEL_ID: "C0189FJRC9E"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
       EXECUTION_MODE: "local"
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Add this step after the "Checkout code" step
+        # Add this step after the "Checkout code" step
       - name: Send initial Slack notification
         id: slack-initial
         shell: pwsh
-        run
-
-: |
+        run: |
           npm install
           Write-Host "Checking Slack token availability..."
           if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
@@ -49,9 +47,7 @@ jobs:
           $output | ForEach-Object { Write-Host $_ }
 
           # Look for the thread_ts line in the output
-          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups
-
-[1].Value })
+          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
 
           if ([string]::IsNullOrEmpty($threadTs)) {
             Write-Host "::warning::Could not extract thread_ts from output. Using default value."
@@ -80,9 +76,7 @@ jobs:
         shell: pwsh
         run: |
           # First run npm install to generate package-lock.json if it doesn't exist
-          if (-not (Test-Path -Path "package-lock
-
-.json")) {
+          if (-not (Test-Path -Path "package-lock.json")) {
             npm install
           } else {
             npm ci
@@ -103,16 +97,14 @@ jobs:
               Write-Host "Directory already exists: $dir"
             }
           }
-          
+
           # Clean existing reports
           if (Test-Path -Path "reports") {
             Get-ChildItem -Path "reports" -File | Remove-Item -Force
             Write-Host "Cleaned reports directory"
           }
-          
-          Write-Host "
 
-✅ Test environment setup complete"
+          Write-Host "✅ Test environment setup complete"
 
       - name: Run all tests
         if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
@@ -139,9 +131,7 @@ jobs:
           HEADLESS: true
           EXECUTION_MODE: local
 
-      
-
-- name: Run tests with specific tag
+      - name: Run tests with specific tag
         if: ${{ github.event.inputs.tags != '' && github.event_name == 'workflow_dispatch' }}
         shell: pwsh
         run: |
@@ -163,9 +153,7 @@ jobs:
           exit $exitCode
         env:
           CI: true
-          TEST_ENV: $
-
-{{ env.TEST_ENV }}
+          TEST_ENV: ${{ env.TEST_ENV }}
           HEADLESS: true
           EXECUTION_MODE: local
 
@@ -189,9 +177,7 @@ jobs:
           }
 
       - name: Send success Slack notification
-        
-
-if: success()
+        if: success()
         shell: pwsh
         run: |
           Write-Host "Sending success notification to Slack..."
@@ -215,39 +201,6 @@ if: success()
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
-          GITHUB_ACTOR: $
-
-{{ github.actor }}
-          GITHUB_ACTIONS: "true"
-
-      - name: Send failure Slack notification
-        if: failure()
-        shell: pwsh
-        run: |
-          Write-Host "Sending failure notification to Slack..."
-          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
-            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
-            exit 0
-          }
-          
-          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
-          }
-          
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "failure" "$threadTs"
-        env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
-          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
-
-
-          GITHUB_SERVER_URL: ${{ github.server_url }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
@@ -262,13 +215,11 @@ if: success()
           Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
           Write-Host "Screenshots: $PWD/reports/failure-*.png" -ForegroundColor Cyan
           Write-Host "====`n" -ForegroundColor Green
-          
+
           # Create a marker file with report locations for easy reference
           @"
           TEST REPORT LOCATIONS:
-          
-
-====
+          ====
           HTML Report: $PWD/test-reports/index.html
           JSON Report: $PWD/reports/cucumber-report.json
           Screenshots: $PWD/reports/failure-*.png
@@ -287,16 +238,14 @@ if: success()
           } else {
             Write-Host "  - reports directory does not exist"
           }
-          
+
           Write-Host "📁 Listing all files in test-reports directory:"
           if (Test-Path -Path "test-reports") {
             Get-ChildItem -Recurse test-reports | ForEach-Object { 
               Write-Host "  - $($_.FullName) (Size: $($_.Length) bytes)"
             }
           } else {
-            Write-Host "  -
-
- test-reports directory does not exist"
+            Write-Host "  - test-reports directory does not exist"
           }
 
       - name: Upload test results
@@ -312,7 +261,7 @@ if: success()
             urlData/**
           retention-days: 30
           if-no-files-found: warn
-      
+
       - name: Upload report locations
         if: always()
         uses: actions/upload-artifact@v4
@@ -329,8 +278,6 @@ if: success()
           name: playwright-traces-${{ github.run_id }}-${{ env.TEST_ENV }}
           path: |
             reports/traces/
-
-
             reports/screenshots/
             reports/failure-*.png
           retention-days: 30
