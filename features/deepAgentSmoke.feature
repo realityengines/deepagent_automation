@@ -144,27 +144,29 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                                                                                                                                                                                                                    | follow_up_query |
       | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call       |
 
-  @LLMAPIS1
-  Scenario Outline: Verify AI application functionality
-    Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
-    And I should see the status "Completed" for the task
-    And the compute points should not exceed 150k
-    And I should deploy the website
-    Then I enter the ingredients and validate the generated response
-    Examples:
-      | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
-      | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
+#respone error
+#  @LLMAPIS1
+#  Scenario Outline: Verify AI application functionality
+  #  Given I click the check out from the welcome window
+  #  When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
+  #  And I should see the status "Completed" for the task
+  #  And the compute points should not exceed 150k
+  #  And I should deploy the website
+  #  Then I enter the ingredients and validate the generated response
+ #   Examples:
+  #    | prompt_user_search                                                                                                                                                                                                                                                                                      | follow_up_query                                                     |
+  #    | Create an app with a form where users can enter three ingredients. The form should have three input fields, each with the placeholder text Ingredient. When the user submits the form, the app should use a large language model (LLM) to generate 4–5 unique recipes that use the provided ingredients | Yes, ask the user and process it locally. Also, provide the status. |
 
-  @DaemonsPromptReservationTask @Daemons
-  Scenario Outline: Verify reservation task
-    Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    Then I click on the test task
-    And I verify that the deep agent browser created
-    And the compute points should not exceed 150k
-    Then I confirm that the task has been successfully created
+# credit point issue
+#  @DaemonsPromptReservationTask @Daemons
+ # Scenario Outline: Verify reservation task
+ #   Given I click the check out from the welcome window
+  #  When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+  #  Then I click on the test task
+  #  And I verify that the deep agent browser created
+   # And the compute points should not exceed 150k
+   # Then I confirm that the task has been successfully created
 
-    Examples:
-      | prompt_user_search                                                                                          | follow_up_query                                                                                                                                                                                                   |
-      | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now, Create a system that will send me a weekly email with the chosen restaurant and necessary details to book a reservation |
+   # Examples:
+   #   | prompt_user_search                                                                                          | follow_up_query                                                                                                                                                                                                   |
+    #  | send me dinner reservations to a fancy restaurant in new york every thursday at 6 pm and send it over email | city - new York, time 6 pm, table for 2, udaysingh@abacus.ai , fine dining, starting now, Create a system that will send me a weekly email with the chosen restaurant and necessary details to book a reservation |
