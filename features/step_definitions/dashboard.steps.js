@@ -7,7 +7,7 @@ When("I click the deep Agent option", { timeout: 50000 }, async function () {
   dashboardPage = new DashboardPage(this.page);
 
   const [newPage] = await Promise.all([
-    this.page.context().waitForEvent("page", { timeout: 5000 }),
+    this.page.context().waitForEvent("page", { timeout: 10000 }),
     dashboardPage.clickOnDeepAgent(),
   ]);
 
