@@ -8,6 +8,8 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+     "test:smoke:ci": "node run-tests.js",
+    "report": "node configs/reporter.js",
     "setup": "node setup-project.js",
     "test-slack": "node helpers/testSlackIntegration.js",
     "check-slack": "node helpers/checkSlackConfig.js",
