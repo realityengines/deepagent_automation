@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = import('fs');
 const { WebClient } = require('@slack/web-api');
 const path = require('path');
 
