@@ -144,7 +144,7 @@ Feature: Deep Agent Functionality Test
       | prompt_user_search                                                                                                                                                                                                                                                                                    | follow_up_query |
       | Create a clean, simple multi-page website for a small store with three pages: Home, Items, and Contact. Each page should have the store name at the top, a navigation menu with links to all pages in the header, footer, and also inside the main content. Use only internal links between the pages | Your Call       |
 
-#respone error
+#response error
 #  @LLMAPIS1
 #  Scenario Outline: Verify AI application functionality
   #  Given I click the check out from the welcome window
