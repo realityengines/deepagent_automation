@@ -30,15 +30,15 @@ When(
     const hasExpectedStatus = await deepAgentPage.getStatusOfTask("Completed");
     console.log(`Status found: ${hasExpectedStatus}`);
 
-    // Send fallback prompt only if status not found
-    if (!hasExpectedStatus) {
-      console.log("Status not found, sending fallback prompt...");
-      await deepAgentPage.enterPromaptQuery("your call");
-      await deepAgentPage.page.waitForTimeout(3000);
-      await deepAgentPage.clickSendButton();
-      const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-      deepAgentPage.elapsedTime += thirdElapsedTime;
-    }
+    // // Send fallback prompt only if status not found
+    // if (!hasExpectedStatus) {
+    //   console.log("Status not found, sending fallback prompt...");
+    //   await deepAgentPage.enterPromaptQuery("your call");
+    //   await deepAgentPage.page.waitForTimeout(3000);
+    //   await deepAgentPage.clickSendButton();
+    //   const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    //   deepAgentPage.elapsedTime += thirdElapsedTime;
+    // }
 
     console.log("Total elapsed time after prompts:", deepAgentPage.elapsedTime);
     const convoURL = await deepAgentPage.getConvoURL();
@@ -476,13 +476,13 @@ When(
       await deepAgentPage.page.waitForTimeout(3000);
       thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
       deployOptionVisible = await deepAgentPage.deployOption.isVisible();
-      if (!deployOptionVisible) {
-        await deepAgentPage.enterPromapt("Your call");
-        await deepAgentPage.clickSendButton();
-        await deepAgentPage.page.waitForTimeout(3000);
-        fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-        deployOptionVisible = await deepAgentPage.deployOption.isVisible();
-      }
+      // if (!deployOptionVisible) {
+      //   await deepAgentPage.enterPromapt("Your call");
+      //   await deepAgentPage.clickSendButton();
+      //   await deepAgentPage.page.waitForTimeout(3000);
+      //   fourthElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+      //   deployOptionVisible = await deepAgentPage.deployOption.isVisible();
+      // }
     }
     let dataBaseVisible = false;
     dataBaseVisible = await deepAgentPage.dataBase.isVisible();
@@ -1253,14 +1253,14 @@ When(/^I search the long prompt "(.*)" with follow-up query "(.*)"$/s, async fun
   console.log(`Status found: ${hasExpectedStatus}`);
 
   // Send fallback prompt only if status not found
-  if (!hasExpectedStatus) {
-    console.log("Status not found, sending fallback prompt...");
-    await deepAgentPage.enterPromaptQuery("your call");
-    await deepAgentPage.page.waitForTimeout(3000);
-    await deepAgentPage.clickSendButton();
-    const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
-    deepAgentPage.elapsedTime += thirdElapsedTime;
-  }
+  // if (!hasExpectedStatus) {
+  //   console.log("Status not found, sending fallback prompt...");
+  //   await deepAgentPage.enterPromaptQuery("your call");
+  //   await deepAgentPage.page.waitForTimeout(3000);
+  //   await deepAgentPage.clickSendButton();
+  //   const thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+  //   deepAgentPage.elapsedTime += thirdElapsedTime;
+  // }
 
   console.log("Total elapsed time after prompts:", deepAgentPage.elapsedTime);
   const convoURL = await deepAgentPage.getConvoURL();

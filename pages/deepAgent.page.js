@@ -248,8 +248,12 @@ export class DeepAgentPage {
         isVisible = await this.stopButton.isVisible({ timeout: 1000 });
         if (!isVisible) {
           // Button is no longer visible, exit the loop
-          this.elapsedTime = Date.now() - startTime;
-          break;
+          if(this.sendButton.isVisible({ timeout: 1000 })){
+            this.elapsedTime = Date.now() - startTime;
+            break;
+          }else {
+          await this.page.reload({ waitUntil: 'networkidle' });
+          }
         }
         // Log status every 30 seconds for debugging
         this.elapsedTime = Date.now() - startTime;
