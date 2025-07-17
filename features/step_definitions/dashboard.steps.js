@@ -24,5 +24,5 @@ Then("I select the default LLM {string}", async function (llmRoute) {
   await dashboardPage.searchLLm.fill(llmRoute);
   await dashboardPage.page.waitForTimeout(2000);
   await dashboardPage.routeLlm.click();
-  await dashboardPage.page.waitForTimeout(2000);
+  await dashboardPage.page.waitForTimeout(4000);
 });
