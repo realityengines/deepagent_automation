@@ -203,6 +203,50 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
+
+      - name: Send failure Slack notification
+        if: failure()
+        shell: pwsh
+        run: |
+          Write-Host "Sending failure notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          Write-Host "Retrieved thread_ts from previous step: '$threadTs'"
+          
+          if ([string]::IsNullOrEmpty($threadTs) -or $threadTs -eq "0") {
+            Write-Host "::warning::Invalid thread_ts value: '$threadTs'. This may cause notification issues."
+          }
+
+          Write-Host "Calling postBuildStatus.js with parameters:"
+          Write-Host "  Status: failure"
+          Write-Host "  Thread TS: $threadTs"
+          
+          try {
+            $output = node helpers/postBuildStatus.js "failure" "$threadTs" 2>&1
+            Write-Host "postBuildStatus.js output:"
+            $output | ForEach-Object { Write-Host $_ }
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "::warning::postBuildStatus.js failed with exit code: $LASTEXITCODE"
+            }
+          } catch {
+            Write-Host "::warning::Exception occurred while running postBuildStatus.js: $_"
+          }
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+
       - name: Report Location Information
         if: always()
         shell: pwsh

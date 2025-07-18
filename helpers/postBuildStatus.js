@@ -379,6 +379,9 @@ async function getScenarioStatuses() {
   }
 }
 
+
+// ... rest of code remains same until the postBuildStatus function ...
+
 async function postBuildStatus(status, threadTs) {
   try {
     const buildUrl = `${process.env.GITHUB_SERVER_URL || ''}/${process.env.GITHUB_REPOSITORY || ''}/actions/runs/${process.env.GITHUB_RUN_ID || ''}`;
@@ -407,7 +410,7 @@ async function postBuildStatus(status, threadTs) {
       summaryText += `:chart_with_upwards_trend: Total Scenarios: ${totalScenarios}\n`;
       summaryText += `:white_check_mark: Passed: ${passedScenarios}\n`;
 
-       if (failedScenarios > 0) {
+      if (failedScenarios > 0) {
         summaryText += `:x: Failed: ${failedScenarios}\n`;
       }
     }
@@ -432,34 +435,64 @@ async function postBuildStatus(status, threadTs) {
       }
     }
     
-    // Build the message
-    const message = {
-      text: `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
-      channel: targetChannelId,
-      mrkdwn: true
-    };
+    // Build the main message text
+    const messageText = `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`;
     
-    // If thread_ts is provided, post in thread
-    if (threadTs) {
-      message.thread_ts = threadTs;
+    // Always try to post to the thread first if threadTs is provided and valid
+    let threadPostSuccess = false;
+    if (threadTs && threadTs !== '0' && threadTs !== 'null' && threadTs.trim() !== '') {
+      try {
+        const threadMessage = {
+          text: messageText,
+          channel: targetChannelId,
+          thread_ts: threadTs,
+          mrkdwn: true
+        };
+        
+        console.log(`Attempting to post ${status} message to thread ${threadTs} in channel ${targetChannelId}`);
+        const threadResult = await slackClient.chat.postMessage(threadMessage);
+        console.log('Thread message posted successfully', threadResult.ts);
+        threadPostSuccess = true;
+      } catch (threadError) {
+        console.error('Error posting to thread:', threadError);
+        console.log('Will fall back to posting as standalone message');
+        threadPostSuccess = false;
+      }
+    } else {
+      console.log(`No valid thread_ts provided (received: "${threadTs}"), posting as standalone message`);
     }
     
-    // Post to Slack
-    console.log(`Posting ${status} message to Slack channel ${targetChannelId}`);
-    const result = await slackClient.chat.postMessage(message);
-    console.log('Message posted to Slack', result.ts);
-    
-    // If build failed, also post to failure channel
-    if (status === 'failure' && failureChannelId && failureChannelId !== mainChannelId) {
-      const failureMessage = {
-        text: `Build Failed ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
-        channel: failureChannelId,
+    // If thread posting failed or no valid thread_ts provided, post as standalone message
+    if (!threadPostSuccess) {
+      const standaloneMessage = {
+        text: messageText,
+        channel: targetChannelId,
         mrkdwn: true
       };
       
-      console.log(`Posting failure message to Slack channel ${failureChannelId}`);
-      const failureResult = await slackClient.chat.postMessage(failureMessage);
-      console.log('Failure message posted to Slack', failureResult.ts);
+      console.log(`Posting ${status} message as standalone to channel ${targetChannelId}`);
+      const result = await slackClient.chat.postMessage(standaloneMessage);
+      console.log('Standalone message posted to Slack', result.ts);
+    }
+    
+    // If build failed, also post to failure channel (but only if it's different from main channel)
+    // This should NOT be posted to thread - it's a separate notification
+    if (status === 'failure' && failureChannelId && failureChannelId !== targetChannelId) {
+      try {
+        const failureMessage = {
+          text: `🚨 *Build Failed* ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`,
+          channel: failureChannelId,
+          mrkdwn: true
+          // Note: No thread_ts here - this is a separate notification
+        };
+        
+        console.log(`Posting failure message to failure channel ${failureChannelId}`);
+        const failureResult = await slackClient.chat.postMessage(failureMessage);
+        console.log('Failure message posted to failure channel', failureResult.ts);
+      } catch (failureError) {
+        console.error('Error posting to failure channel:', failureError);
+        // Don't fail the entire function if failure channel posting fails
+      }
     }
     
     return true;
@@ -469,15 +502,4 @@ async function postBuildStatus(status, threadTs) {
   }
 }
 
-// Get status and thread_ts from command-line arguments
-const status = process.argv[2] || 'success';
-const threadTs = process.argv[3] || null;
-
-// Post build status to Slack
-postBuildStatus(status, threadTs).then(() => {
-  console.log('Done posting build status to Slack');
-  process.exit(0);
-}).catch(error => {
-  console.error('Error in postBuildStatus:', error);
-  process.exit(1);
-});
+// ... rest of code remains same ...

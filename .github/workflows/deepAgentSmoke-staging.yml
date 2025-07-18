@@ -204,6 +204,36 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
+            # Add this step after the existing success notification step
+      - name: Send failure Slack notification
+        if: failure()
+        shell: pwsh
+        run: |
+          Write-Host "Sending failure notification to Slack..."
+          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
+            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
+            exit 0
+          }
+
+          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Using default value."
+            $threadTs = "0"
+          }
+
+          Write-Host "Using thread_ts: $threadTs"
+          node helpers/postBuildStatus.js "failure" "$threadTs"
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_ACTIONS: "true"
+
       - name: Report Location Information
         if: always()
         shell: pwsh

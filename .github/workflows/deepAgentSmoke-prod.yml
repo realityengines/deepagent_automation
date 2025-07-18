@@ -224,7 +224,9 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
-      # Add this new step for failure notifications
+      
+# ... rest of code remains same until the failure notification step ...
+
       - name: Send failure Slack notification
         if: failure()
         shell: pwsh
@@ -259,7 +261,8 @@ jobs:
           }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
@@ -267,6 +270,7 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
+# ... rest of code remains same ...
     # ... rest of code remains same
       - name: Report Location Information
         if: always()

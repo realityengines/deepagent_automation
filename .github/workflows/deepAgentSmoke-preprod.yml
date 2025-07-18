@@ -213,15 +213,29 @@ jobs:
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
           }
-          
+
           $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
-          }
+          Write-Host "Retrieved thread_ts from previous step: '$threadTs'"
           
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "failure" "$threadTs"
+          if ([string]::IsNullOrEmpty($threadTs) -or $threadTs -eq "0") {
+            Write-Host "::warning::Invalid thread_ts value: '$threadTs'. This may cause notification issues."
+          }
+
+          Write-Host "Calling postBuildStatus.js with parameters:"
+          Write-Host "  Status: failure"
+          Write-Host "  Thread TS: $threadTs"
+          
+          try {
+            $output = node helpers/postBuildStatus.js "failure" "$threadTs" 2>&1
+            Write-Host "postBuildStatus.js output:"
+            $output | ForEach-Object { Write-Host $_ }
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "::warning::postBuildStatus.js failed with exit code: $LASTEXITCODE"
+            }
+          } catch {
+            Write-Host "::warning::Exception occurred while running postBuildStatus.js: $_"
+          }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
