@@ -1,4 +1,4 @@
-name: Deep Agent Smoke Suite - Staging Latest
+name: Deep Agent Smoke Suite - stagingLatest
 
 on:
   workflow_dispatch:
@@ -17,12 +17,13 @@ jobs:
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       SLACK_CHANNEL_ID: "C0189FJRC9E"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
-      EXECUTION_MODE: "local" # Added missing EXECUTION_MODE
+      EXECUTION_MODE: "local"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Improved initial Slack notification with better thread_ts handling
       - name: Send initial Slack notification
         id: slack-initial
         shell: pwsh
@@ -45,15 +46,53 @@ jobs:
           Write-Host "Slack script output:"
           $output | ForEach-Object { Write-Host $_ }
 
-          # Look for the thread_ts line in the output
-          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
-
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
-            $threadTs = "0"
+          # Improved thread_ts extraction with multiple patterns
+          $threadTs = $null
+          
+          # Try different patterns to extract thread_ts
+          $patterns = @(
+            "thread_ts=([\d.]+)",
+            "thread_ts:\s*([\d.]+)",
+            '"ts":\s*"([\d.]+)"',
+            "ts=([\d.]+)"
+          )
+          
+          foreach ($pattern in $patterns) {
+            $match = ($output | Select-String -Pattern $pattern | Select-Object -First 1)
+            if ($match) {
+              $threadTs = $match.Matches.Groups[1].Value
+              Write-Host "Found thread_ts using pattern '$pattern': $threadTs"
+              break
+            }
           }
 
-          Write-Host "Extracted thread_ts: $threadTs"
+          # If still no thread_ts found, try to parse JSON output
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "Attempting to parse JSON output for thread_ts..."
+            try {
+              $jsonOutput = $output | Where-Object { $_ -match '^\s*{.*}\s*$' } | Select-Object -First 1
+              if ($jsonOutput) {
+                $parsed = $jsonOutput | ConvertFrom-Json
+                if ($parsed.ts) {
+                  $threadTs = $parsed.ts
+                  Write-Host "Extracted thread_ts from JSON: $threadTs"
+                }
+              }
+            } catch {
+              Write-Host "Failed to parse JSON output: $_"
+            }
+          }
+
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::error::Could not extract thread_ts from Slack response. Thread functionality will not work."
+            Write-Host "Raw output for debugging:"
+            $output | ForEach-Object { Write-Host "DEBUG: $_" }
+            # Don't set a default - let it be empty so we know it failed
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Successfully extracted thread_ts: $threadTs"
+          }
+
           echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -70,6 +109,9 @@ jobs:
         run: |
           echo "Selected Environment: $env:TEST_ENV"
           echo "Execution Mode: $env:EXECUTION_MODE"
+          echo "Thread TS from previous step: ${{ steps.slack-initial.outputs.thread_ts }}"
+
+      # ... rest of the setup steps remain the same ...
 
       - name: Install dependencies
         shell: pwsh
@@ -175,6 +217,7 @@ jobs:
             }
           }
 
+      # Improved success notification with better thread handling
       - name: Send success Slack notification
         if: success()
         shell: pwsh
@@ -186,13 +229,21 @@ jobs:
           }
 
           $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
+          Write-Host "Retrieved thread_ts: '$threadTs'"
+          
           if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
+            Write-Host "::warning::thread_ts is empty. Message will be sent as new message instead of thread reply."
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Using thread_ts for threaded reply: $threadTs"
           }
 
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "success" "$threadTs"
+          try {
+            node helpers/postBuildStatus.js "success" "$threadTs"
+            Write-Host "✅ Success notification sent successfully"
+          } catch {
+            Write-Host "::error::Failed to send success notification: $_"
+          }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
@@ -203,7 +254,7 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
-
+      # Improved failure notification with better thread handling
       - name: Send failure Slack notification
         if: failure()
         shell: pwsh
@@ -215,26 +266,20 @@ jobs:
           }
 
           $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          Write-Host "Retrieved thread_ts from previous step: '$threadTs'"
+          Write-Host "Retrieved thread_ts: '$threadTs'"
           
-          if ([string]::IsNullOrEmpty($threadTs) -or $threadTs -eq "0") {
-            Write-Host "::warning::Invalid thread_ts value: '$threadTs'. This may cause notification issues."
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Message will be sent as new message instead of thread reply."
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Using thread_ts for threaded reply: $threadTs"
           }
 
-          Write-Host "Calling postBuildStatus.js with parameters:"
-          Write-Host "  Status: failure"
-          Write-Host "  Thread TS: $threadTs"
-          
           try {
-            $output = node helpers/postBuildStatus.js "failure" "$threadTs" 2>&1
-            Write-Host "postBuildStatus.js output:"
-            $output | ForEach-Object { Write-Host $_ }
-            
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "::warning::postBuildStatus.js failed with exit code: $LASTEXITCODE"
-            }
+            node helpers/postBuildStatus.js "failure" "$threadTs"
+            Write-Host "✅ Failure notification sent successfully"
           } catch {
-            Write-Host "::warning::Exception occurred while running postBuildStatus.js: $_"
+            Write-Host "::error::Failed to send failure notification: $_"
           }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -247,6 +292,7 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
 
+      # ... rest of the steps remain the same ...
       - name: Report Location Information
         if: always()
         shell: pwsh
@@ -325,32 +371,3 @@ jobs:
             reports/failure-*.png
           retention-days: 30
           if-no-files-found: ignore
-
-      - name: Send failure Slack notification
-        if: failure()
-        shell: pwsh
-        run: |
-          Write-Host "Sending failure notification to Slack..."
-          if ([string]::IsNullOrEmpty($env:SLACK_TOKEN)) {
-            Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
-            exit 0
-          }
-
-          $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
-          }
-
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "failure" "$threadTs"
-        env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
-          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
-          GITHUB_SERVER_URL: ${{ github.server_url }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_WORKFLOW: ${{ github.workflow }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_ACTIONS: "true"

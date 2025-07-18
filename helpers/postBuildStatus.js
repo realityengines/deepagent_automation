@@ -1,9 +1,9 @@
+
 import { WebClient } from '@slack/web-api';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-//import testData from '../configs/testData.json' assert { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,8 +12,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const slackToken = process.env.SLACK_TOKEN;
-const mainChannelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E"; // Replace with your main channel ID Prod_release = C0189FJRC9E , Automation_regression_build= C07FJG27D2L
-const failureChannelId = process.env.FAILURE_SLACK_CHANNEL_ID || "C07FJG27D2L"; // Replace with your failure channel ID
+const mainChannelId = process.env.SLACK_CHANNEL_ID || "C0189FJRC9E";
+const failureChannelId = process.env.FAILURE_SLACK_CHANNEL_ID || "C07FJG27D2L";
 
 // Determine which workflow is running based on GITHUB_WORKFLOW environment variable
 const workflowName = process.env.GITHUB_WORKFLOW || '';
@@ -21,16 +21,15 @@ let targetChannelId = mainChannelId;
 
 if (workflowName.toLowerCase().includes('regression')) {
   console.log('Detected regression workflow, using regression channel');
-  targetChannelId = "C07FJG27D2L"; // Regression Build Channel
+  targetChannelId = "C07FJG27D2L";
 } else if (workflowName.toLowerCase().includes('smoke')) {
   console.log('Detected smoke workflow, using smoke channel');
-  targetChannelId = "C0189FJRC9E"; // Prod Release Channel
+  targetChannelId = "C0189FJRC9E";
 } else {
   console.log(`Using default channel from environment: ${targetChannelId}`);
 }
 
 if (!slackToken) {
-  // Check if we're running in GitHub Actions
   if (process.env.GITHUB_ACTIONS === 'true') {
     console.error('SLACK_TOKEN environment variable is not set in GitHub Actions');
     console.error('Please ensure the SLACK_BOT_TOKEN secret is properly configured in your repository settings.');
@@ -48,342 +47,166 @@ if (!slackToken) {
 
 const slackClient = new WebClient(slackToken);
 
-// Function to extract examples from feature files
-async function extractExamplesFromFeatureFiles() {
-  const featuresDir = path.join(process.cwd(), 'features');
-  const examples = {};
+// Helper function to validate thread_ts
+function isValidThreadTs(threadTs) {
+  if (!threadTs) {
+    console.log('thread_ts is null, undefined, or empty');
+    return false;
+  }
+  
+  const threadTsStr = String(threadTs).trim();
+  
+  // Check for invalid values
+  const invalidValues = ['', '0', 'null', 'undefined', 'false'];
+  if (invalidValues.includes(threadTsStr.toLowerCase())) {
+    console.log(`thread_ts is invalid value: "${threadTsStr}"`);
+    return false;
+  }
+  
+  // Check if it matches Slack timestamp format (should be a decimal number)
+  const timestampRegex = /^\d+\.\d+$/;
+  if (!timestampRegex.test(threadTsStr)) {
+    console.log(`thread_ts doesn't match expected format: "${threadTsStr}"`);
+    return false;
+  }
+  
+  console.log(`thread_ts is valid: "${threadTsStr}"`);
+  return true;
+}
+
+// Helper function to extract examples from feature files
+function extractExamplesFromFeatureFiles() {
+  const examplePrompts = [];
+  const featuresDir = path.join(__dirname, '..', 'features');
   
   try {
-    // Get all feature files
-    const featureFiles = fs.readdirSync(featuresDir)
-      .filter(file => file.endsWith('.feature'));
-    
-    console.log(`Found ${featureFiles.length} feature files`);
+    if (!fs.existsSync(featuresDir)) {
+      console.log('Features directory not found, skipping example extraction');
+      return examplePrompts;
+    }
+
+    const featureFiles = fs.readdirSync(featuresDir).filter(file => file.endsWith('.feature'));
     
     for (const file of featureFiles) {
       const filePath = path.join(featuresDir, file);
       const content = fs.readFileSync(filePath, 'utf8');
-      console.log(`Processing feature file: ${file}`);
       
-      // Extract scenario outlines and their examples
-      const scenarioOutlines = content.match(/Scenario Outline:([\s\S]*?)(?=\n\s*(?:Scenario|Feature|@|$))/g) || [];
-      console.log(`Found ${scenarioOutlines.length} scenario outlines in ${file}`);
+      // Extract examples from scenario outlines
+      const exampleMatches = content.match(/Examples:\s*\n([\s\S]*?)(?=\n\s*(?:Scenario|Feature|$))/g);
       
-      for (const outline of scenarioOutlines) {
-        // Get scenario name
-        const nameMatch = outline.match(/Scenario Outline:\s*(.+)/);
-        if (!nameMatch) continue;
-        
-        const scenarioName = nameMatch[1].trim();
-        console.log(`Processing scenario outline: ${scenarioName}`);
-        
-        // Extract examples table
-        const examplesMatch = outline.match(/Examples:[\s\S]*?\|([^\|]+)\|([^\|]+)\|/g);
-        if (!examplesMatch) {
-          console.log(`No examples table found for scenario: ${scenarioName}`);
-          continue;
-        }
-        
-        // Process the examples table
-        const lines = examplesMatch[0].split('\n').filter(line => line.trim().startsWith('|'));
-        
-        if (lines.length >= 2) { // Need at least header and one data row
-          const headerCells = lines[0].split('|').map(cell => cell.trim()).filter(cell => cell);
-          const dataCells = lines[1].split('|').map(cell => cell.trim()).filter(cell => cell);
+      if (exampleMatches) {
+        for (const exampleBlock of exampleMatches) {
+          const lines = exampleBlock.split('\n').filter(line => line.trim());
           
-          console.log(`Examples table headers: ${headerCells.join(', ')}`);
+          // Skip the "Examples:" line and header line
+          const dataLines = lines.slice(2);
           
-          // Find the prompt column index - look for various column names that might contain prompts
-          const promptIndex = headerCells.findIndex(header => 
-            header.toLowerCase().includes('prompt') || 
-            header.toLowerCase().includes('search') || 
-            header.toLowerCase().includes('query') || 
-            header.toLowerCase().includes('text') || 
-            header.toLowerCase().includes('input'));
-          
-          if (promptIndex !== -1 && promptIndex < dataCells.length) {
-            examples[scenarioName] = dataCells[promptIndex];
-            console.log(`Extracted example for ${scenarioName}: ${dataCells[promptIndex].substring(0, 30)}...`);
-          } else {
-            console.log(`Could not find prompt column in examples table for ${scenarioName}`);
+          for (const line of dataLines) {
+            if (line.trim() && line.includes('|')) {
+              const columns = line.split('|').map(col => col.trim()).filter(col => col);
+              
+              // Assuming the first column contains the prompt
+              if (columns.length > 0 && columns[0]) {
+                examplePrompts.push({
+                  prompt: columns[0],
+                  source: file,
+                  promptSource: 'feature-file'
+                });
+              }
+            }
           }
         }
       }
-      
-      // Also extract regular scenarios with docstrings or quoted text
-      const scenarios = content.match(/Scenario:([\s\S]*?)(?=\n\s*(?:Scenario|Scenario Outline|Feature|@|$))/g) || [];
-      console.log(`Found ${scenarios.length} regular scenarios in ${file}`);
-      
-      for (const scenario of scenarios) {
-        // Get scenario name
-        const nameMatch = scenario.match(/Scenario:\s*(.+)/);
-        if (!nameMatch) continue;
-        
-        const scenarioName = nameMatch[1].trim();
-        console.log(`Processing regular scenario: ${scenarioName}`);
-        
-        // Look for docstrings (text between """ markers)
-        const docstringMatch = scenario.match(/"""([\s\S]*?)"""/); 
-        if (docstringMatch && docstringMatch.length > 1) {
-          examples[scenarioName] = docstringMatch[1].trim();
-          console.log(`Extracted docstring for ${scenarioName}: ${examples[scenarioName].substring(0, 30)}...`);
-          continue;
-        }
-        
-        // Look for quoted text in steps
-        const quotedTextMatch = scenario.match(/"([^"]+)"/); 
-        if (quotedTextMatch && quotedTextMatch.length > 1) {
-          examples[scenarioName] = quotedTextMatch[1];
-          console.log(`Extracted quoted text for ${scenarioName}: ${examples[scenarioName]}`);
-        }
-      }
     }
-    
-    console.log(`Extracted examples for ${Object.keys(examples).length} scenarios`);
-    return examples;
   } catch (error) {
     console.error('Error extracting examples from feature files:', error);
-    return {};
   }
+  
+  return examplePrompts;
 }
 
-// Function to parse Cucumber JSON report and extract scenario statuses
+// Helper function to get scenario statuses from Cucumber report
 async function getScenarioStatuses() {
-  const reportPath = path.join(process.cwd(), 'reports', 'cucumber-report.json');
-  
   try {
-    // Get examples from feature files as fallback
-    const featureExamples = await extractExamplesFromFeatureFiles();
-    console.log('Feature examples extracted:', Object.keys(featureExamples).length);
+    const reportPath = path.join(__dirname, '..', 'reports', 'cucumber-report.json');
     
     if (!fs.existsSync(reportPath)) {
-      console.warn(`Cucumber report not found at ${reportPath}`);
-      return null;
+      console.log('Cucumber report not found, trying to extract from feature files');
+      return extractExamplesFromFeatureFiles();
     }
+
+    const reportContent = fs.readFileSync(reportPath, 'utf8');
+    const report = JSON.parse(reportContent);
     
-    const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-    console.log(`Parsed report data with ${reportData ? reportData.length : 0} features`);
+    const scenarios = [];
     
-    const scenarioStatuses = [];
-    
-    // Process each feature
-    for (const feature of reportData || []) {
-      if (!feature.elements) {
-        console.log(`Feature without elements: ${feature.name || 'unnamed'}`);
-        continue;
-      }
-      
-      console.log(`Processing feature: ${feature.name}, with ${feature.elements.length} elements`);
-      
-      // Process each element (scenario or background)
-      for (const element of feature.elements) {
-        // Skip backgrounds
-        if (!element || element.type === 'background') continue;
-        
-        // Get scenario name
-        const scenarioName = element.name || 'Unnamed Scenario';
-        let scenarioStatus = 'passed'; // Default to passed, will be set to failed if any step fails
-        let promptText = null;
-        let promptSource = 'none';
-        
-        console.log(`Processing scenario: ${scenarioName}`);
-        
-        if (element.steps) {
-          console.log(`Scenario has ${element.steps.length} steps`);
+    for (const feature of report) {
+      for (const element of feature.elements || []) {
+        if (element.type === 'scenario') {
+          // Determine scenario status
+          const steps = element.steps || [];
+          const hasFailedStep = steps.some(step => step.result && step.result.status === 'failed');
+          const status = hasFailedStep ? 'failed' : 'passed';
           
-          for (const step of element.steps) {
-            // Look for steps that contain the prompt text or any step with docstring/arguments
-            if (step && step.name) {
-              // Check for specific step patterns
-              const searchPatterns = [
-                'I search the prompt',
-                'I search a prompt',
-                'I search for a prompt',
-                'I search the chat bot prompt',
-                'I search the long prompt',
-                'I search for',
-                'I enter',
-                'I type',
-                'with prompt'
-              ];
-              
-              const matchesPattern = searchPatterns.some(pattern => step.name.includes(pattern));
-              
-              if (matchesPattern) {
-                console.log(`Found step with search pattern: ${step.name}`);
-                
-                // Extract the prompt text from the step arguments
-                if (step.arguments && step.arguments.length > 0 && step.arguments[0].content) {
-                  promptText = step.arguments[0].content;
-                  promptSource = 'step_arguments';
-                  console.log(`Extracted prompt from step arguments: ${promptText.substring(0, 30)}...`);
-                } else if (step.match && step.match.arguments && step.match.arguments.length > 0) {
-                  // Try to extract from match arguments
-                  promptText = step.match.arguments[0].val;
-                  promptSource = 'step_match_arguments';
-                  console.log(`Extracted prompt from step match arguments: ${promptText.substring(0, 30)}...`);
-                } else if (step.name.includes('"')) {
-                  // Try to extract text between quotes
-                  const matches = step.name.match(/"([^"]+)"/); 
-                  if (matches && matches.length > 1) {
-                    promptText = matches[1];
-                    promptSource = 'step_name_quotes';
-                    console.log(`Extracted prompt from quotes in step name: ${promptText.substring(0, 30)}...`);
-                  }
-                }
-              } else if (!promptText && step.arguments && step.arguments.length > 0 && step.arguments[0].content) {
-                // If we haven't found a prompt yet, check any step with docstring
-                promptText = step.arguments[0].content;
-                promptSource = 'any_step_with_docstring';
-                console.log(`Extracted prompt from any step with docstring: ${promptText.substring(0, 30)}...`);
-              }
-            }
-            
-            // Check if any step failed
-            if (step.result && step.result.status === 'failed') {
-              scenarioStatus = 'failed';
-              console.log(`Scenario has failed step: ${step.name || 'unnamed step'}`);
-            }
-          }
-        } else {
-          console.log(`Scenario has no steps: ${scenarioName}`);
-        }
-        
-        // If we couldn't find the prompt text in the steps, try to get it from the examples
-        if (!promptText && element.examples && element.examples.length > 0) {
-          const examples = element.examples[0];
-          if (examples && examples.rows && examples.rows.length > 1) { // First row is header
-            const headerRow = examples.rows[0].cells;
-            const dataRow = examples.rows[1].cells;
-            
-            if (headerRow && dataRow) {
-              // Find the index of the prompt column
-              const promptIndex = headerRow.findIndex(cell => 
-                cell && cell.value && (
-                  cell.value.toLowerCase().includes('prompt') || 
-                  cell.value.toLowerCase().includes('search') || 
-                  cell.value.toLowerCase().includes('query')
-                ));
-              
-              if (promptIndex !== -1 && dataRow[promptIndex] && dataRow[promptIndex].value) {
-                promptText = dataRow[promptIndex].value;
-                promptSource = 'examples_table';
-                console.log(`Extracted prompt from examples table: ${promptText.substring(0, 30)}...`);
-              } else {
-                console.log(`Could not find prompt column in examples table. Headers: ${headerRow.map(h => h.value).join(', ')}`);
+          // Extract prompt from scenario name or steps
+          let prompt = element.name || 'Unknown scenario';
+          let conversationURL = null;
+          let promptSource = 'cucumber-report';
+          
+          // Try to extract prompt from steps
+          for (const step of steps) {
+            if (step.name && (step.name.includes('prompt') || step.name.includes('ask') || step.name.includes('query'))) {
+              // Extract quoted text from step
+              const quotedMatch = step.name.match(/"([^"]+)"/);
+              if (quotedMatch) {
+                prompt = quotedMatch[1];
+                break;
               }
             }
           }
-        }
-        
-        // If we still don't have the prompt text, try the fallback from feature files
-        if (!promptText && featureExamples[scenarioName]) {
-          promptText = featureExamples[scenarioName];
-          promptSource = 'feature_file_fallback';
-          console.log(`Extracted prompt from feature file fallback: ${promptText.substring(0, 30)}...`);
-        }
-        
-        // Try to extract from the scenario name itself if it contains a prompt-like pattern
-        if (!promptText && scenarioName) {
-          if (scenarioName.includes('"')) {
-            // Extract text between quotes
-            const matches = scenarioName.match(/"([^"]+)"/); 
-            if (matches && matches.length > 1) {
-              promptText = matches[1];
-              promptSource = 'scenario_name_quotes';
-              console.log(`Extracted prompt from quotes in scenario name: ${promptText.substring(0, 30)}...`);
-            }
-          } else if (scenarioName.toLowerCase().includes('search') || 
-                    scenarioName.toLowerCase().includes('prompt') || 
-                    scenarioName.toLowerCase().includes('query')) {
-            // If the scenario name contains keywords, use the whole name as a last resort
-            promptText = scenarioName;
-            promptSource = 'scenario_name_keywords';
-            console.log(`Using scenario name as prompt (last resort): ${promptText}`);
-          }
-        }
-        
-        // Try to get conversation URL from the logs or attachments
-        let conversationURL = null;
-        try {
-          // First check attachments (more reliable)
-          if (element.embeddings) {
-            for (const embedding of element.embeddings) {
-              if (embedding && embedding.data && embedding.mime_type === 'text/plain') {
-                try {
-                  // Decode base64 data if needed
-                  let data = embedding.data;
-                  if (Buffer.isBuffer(data)) {
-                    data = data.toString('utf8');
-                  } else if (typeof data === 'string') {
-                    // Try to decode if it looks like base64
-                    if (/^[A-Za-z0-9+/=]+$/.test(data)) {
-                      try {
-                        data = Buffer.from(data, 'base64').toString('utf8');
-                      } catch (e) {
-                        // Not base64, use as is
-                      }
-                    }
-                  }
-                  
-                  // Check if it contains a conversation URL
-                  const urlMatch = data.match(/Conversation URL: (https?:\/\/[^\s]+)/i);
-                  if (urlMatch && urlMatch[1]) {
-                    conversationURL = urlMatch[1];
-                    console.log(`Found conversation URL in attachment: ${conversationURL}`);
+          
+          // Try to extract conversation URL from step outputs or embeddings
+          for (const step of steps) {
+            if (step.embeddings) {
+              for (const embedding of step.embeddings) {
+                if (embedding.data && typeof embedding.data === 'string') {
+                  const urlMatch = embedding.data.match(/https?:\/\/[^\s]+/);
+                  if (urlMatch) {
+                    conversationURL = urlMatch[0];
                     break;
                   }
-                } catch (decodeError) {
-                  console.log(`Error decoding attachment: ${decodeError.message}`);
                 }
               }
             }
+            if (conversationURL) break;
           }
           
-          // If not found in attachments, look in step outputs
-          if (!conversationURL && element.steps) {
-            for (const step of element.steps) {
-              if (step && step.output) {
-                const urlMatch = step.output.match(/Conversation URL: (https?:\/\/[^\s]+)/i);
-                if (urlMatch && urlMatch[1]) {
-                  conversationURL = urlMatch[1];
-                  console.log(`Found conversation URL in step output: ${conversationURL}`);
-                  break;
-                }
-              }
-            }
-          }
-        } catch (urlError) {
-          console.log(`Error extracting conversation URL: ${urlError.message}`);
-        }
-
-        // Add to our results
-        scenarioStatuses.push({
-          name: scenarioName,
-          status: scenarioStatus,
-          prompt: promptText || 'N/A',
-          promptSource: promptSource,
-          conversationURL: conversationURL
-        });
-        
-        if (!promptText) {
-          console.log(`WARNING: Could not extract prompt for scenario: ${scenarioName}`);
+          scenarios.push({
+            name: element.name,
+            status: status,
+            prompt: prompt,
+            conversationURL: conversationURL,
+            promptSource: promptSource
+          });
         }
       }
     }
     
-    return scenarioStatuses;
+    return scenarios;
   } catch (error) {
-    console.error('Error parsing Cucumber report:', error);
-    return null;
+    console.error('Error reading scenario statuses:', error);
+    // Fallback to feature file extraction
+    return extractExamplesFromFeatureFiles();
   }
 }
-
-
-// ... rest of code remains same until the postBuildStatus function ...
 
 async function postBuildStatus(status, threadTs) {
   try {
+    console.log(`=== postBuildStatus called ===`);
+    console.log(`Status: ${status}`);
+    console.log(`Thread TS received: "${threadTs}" (type: ${typeof threadTs})`);
+    console.log(`Target Channel: ${targetChannelId}`);
+    
     const buildUrl = `${process.env.GITHUB_SERVER_URL || ''}/${process.env.GITHUB_REPOSITORY || ''}/actions/runs/${process.env.GITHUB_RUN_ID || ''}`;
     
     // Get scenario statuses from Cucumber report
@@ -438,41 +261,81 @@ async function postBuildStatus(status, threadTs) {
     // Build the main message text
     const messageText = `Build ${status === 'success' ? 'Succeeded' : 'Failed'} ${buildUrl ? `(<${buildUrl}|View Build>)` : ''}${summaryText}${scenarioStatusText}`;
     
-    // Always try to post to the thread first if threadTs is provided and valid
+    // Validate and attempt thread posting
     let threadPostSuccess = false;
-    if (threadTs && threadTs !== '0' && threadTs !== 'null' && threadTs.trim() !== '') {
+    const validThreadTs = isValidThreadTs(threadTs);
+    
+    if (validThreadTs) {
       try {
         const threadMessage = {
           text: messageText,
           channel: targetChannelId,
-          thread_ts: threadTs,
+          thread_ts: String(threadTs).trim(),
           mrkdwn: true
         };
         
-        console.log(`Attempting to post ${status} message to thread ${threadTs} in channel ${targetChannelId}`);
+        console.log(`Attempting to post ${status} message to thread`);
+        console.log(`Thread message payload:`, {
+          channel: threadMessage.channel,
+          thread_ts: threadMessage.thread_ts,
+          text_length: threadMessage.text.length
+        });
+        
         const threadResult = await slackClient.chat.postMessage(threadMessage);
-        console.log('Thread message posted successfully', threadResult.ts);
-        threadPostSuccess = true;
+        
+        if (threadResult.ok) {
+          console.log(`✅ Thread message posted successfully: ${threadResult.ts}`);
+          threadPostSuccess = true;
+        } else {
+          console.error(`❌ Thread message failed:`, threadResult.error);
+          threadPostSuccess = false;
+        }
       } catch (threadError) {
-        console.error('Error posting to thread:', threadError);
+        console.error('❌ Error posting to thread:', {
+          message: threadError.message,
+          code: threadError.code,
+          data: threadError.data
+        });
+        
+        // Log specific Slack API errors
+        if (threadError.data && threadError.data.error) {
+          console.error(`Slack API Error: ${threadError.data.error}`);
+          if (threadError.data.error === 'thread_not_found') {
+            console.error('The thread_ts provided does not exist or is not accessible');
+          } else if (threadError.data.error === 'channel_not_found') {
+            console.error('The channel ID provided does not exist or bot is not a member');
+          }
+        }
+        
         console.log('Will fall back to posting as standalone message');
         threadPostSuccess = false;
       }
     } else {
-      console.log(`No valid thread_ts provided (received: "${threadTs}"), posting as standalone message`);
+      console.log(`❌ Invalid thread_ts provided: "${threadTs}", posting as standalone message`);
     }
     
     // If thread posting failed or no valid thread_ts provided, post as standalone message
     if (!threadPostSuccess) {
-      const standaloneMessage = {
-        text: messageText,
-        channel: targetChannelId,
-        mrkdwn: true
-      };
-      
-      console.log(`Posting ${status} message as standalone to channel ${targetChannelId}`);
-      const result = await slackClient.chat.postMessage(standaloneMessage);
-      console.log('Standalone message posted to Slack', result.ts);
+      try {
+        const standaloneMessage = {
+          text: messageText,
+          channel: targetChannelId,
+          mrkdwn: true
+        };
+        
+        console.log(`Posting ${status} message as standalone to channel ${targetChannelId}`);
+        const result = await slackClient.chat.postMessage(standaloneMessage);
+        
+        if (result.ok) {
+          console.log(`✅ Standalone message posted successfully: ${result.ts}`);
+        } else {
+          console.error(`❌ Standalone message failed:`, result.error);
+          throw new Error(`Failed to post standalone message: ${result.error}`);
+        }
+      } catch (standaloneError) {
+        console.error('❌ Error posting standalone message:', standaloneError);
+        throw standaloneError;
+      }
     }
     
     // If build failed, also post to failure channel (but only if it's different from main channel)
@@ -488,18 +351,50 @@ async function postBuildStatus(status, threadTs) {
         
         console.log(`Posting failure message to failure channel ${failureChannelId}`);
         const failureResult = await slackClient.chat.postMessage(failureMessage);
-        console.log('Failure message posted to failure channel', failureResult.ts);
+        
+        if (failureResult.ok) {
+          console.log(`✅ Failure message posted to failure channel: ${failureResult.ts}`);
+        } else {
+          console.error(`❌ Failure message to failure channel failed:`, failureResult.error);
+        }
       } catch (failureError) {
-        console.error('Error posting to failure channel:', failureError);
+        console.error('❌ Error posting to failure channel:', failureError);
         // Don't fail the entire function if failure channel posting fails
       }
     }
     
+    console.log(`=== postBuildStatus completed successfully ===`);
     return true;
   } catch (error) {
-    console.error('Error posting to Slack:', error);
+    console.error('❌ Error in postBuildStatus:', error);
     return false;
   }
 }
 
-// ... rest of code remains same ...
+// Handle command line arguments
+const args = process.argv.slice(2);
+if (args.length >= 1) {
+  const status = args[0];
+  const threadTs = args[1] || null;
+  
+  console.log(`Command line execution:`);
+  console.log(`  Status: ${status}`);
+  console.log(`  Thread TS: ${threadTs}`);
+  
+  postBuildStatus(status, threadTs)
+    .then(success => {
+      if (success) {
+        console.log('✅ Build status posted successfully');
+        process.exit(0);
+      } else {
+        console.error('❌ Failed to post build status');
+        process.exit(1);
+      }
+    })
+    .catch(error => {
+      console.error('❌ Error:', error);
+      process.exit(1);
+    });
+}
+
+export { postBuildStatus };
