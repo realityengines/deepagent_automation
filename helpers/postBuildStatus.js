@@ -74,7 +74,131 @@ function isValidThreadTs(threadTs) {
   return true;
 }
 
-// ... (keep all the existing functions: extractExamplesFromFeatureFiles, getScenarioStatuses) ...
+// Helper function to extract examples from feature files
+function extractExamplesFromFeatureFiles() {
+  const examplePrompts = [];
+  const featuresDir = path.join(__dirname, '..', 'features');
+  
+  try {
+    if (!fs.existsSync(featuresDir)) {
+      console.log('Features directory not found, skipping example extraction');
+      return examplePrompts;
+    }
+
+    const featureFiles = fs.readdirSync(featuresDir).filter(file => file.endsWith('.feature'));
+    
+    for (const file of featureFiles) {
+      const filePath = path.join(featuresDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      // Extract examples from scenario outlines
+      const exampleMatches = content.match(/Examples:\s*\n([\s\S]*?)(?=\n\s*(?:Scenario|Feature|$))/g);
+      
+      if (exampleMatches) {
+        for (const exampleBlock of exampleMatches) {
+          const lines = exampleBlock.split('\n').filter(line => line.trim());
+          
+          // Skip the "Examples:" line and header line
+          const dataLines = lines.slice(2);
+          
+          for (const line of dataLines) {
+            if (line.trim() && line.includes('|')) {
+              const columns = line.split('|').map(col => col.trim()).filter(col => col);
+              
+              // Assuming the first column contains the prompt
+              if (columns.length > 0 && columns[0]) {
+                examplePrompts.push({
+                  prompt: columns[0],
+                  source: file,
+                  promptSource: 'feature-file'
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error extracting examples from feature files:', error);
+  }
+  
+  return examplePrompts;
+}
+
+// Helper function to get scenario statuses from Cucumber report
+async function getScenarioStatuses() {
+  try {
+    const reportPath = path.join(__dirname, '..', 'reports', 'cucumber-report.json');
+    
+    if (!fs.existsSync(reportPath)) {
+      console.log('Cucumber report not found, trying to extract from feature files');
+      return extractExamplesFromFeatureFiles();
+    }
+
+    const reportContent = fs.readFileSync(reportPath, 'utf8');
+    const report = JSON.parse(reportContent);
+    
+    const scenarios = [];
+    
+    for (const feature of report) {
+      for (const element of feature.elements || []) {
+        if (element.type === 'scenario') {
+          // Determine scenario status
+          const steps = element.steps || [];
+          const hasFailedStep = steps.some(step => step.result && step.result.status === 'failed');
+          const status = hasFailedStep ? 'failed' : 'passed';
+          
+          // Extract prompt from scenario name or steps
+          let prompt = element.name || 'Unknown scenario';
+          let conversationURL = null;
+          let promptSource = 'cucumber-report';
+          
+          // Try to extract prompt from steps
+          for (const step of steps) {
+            if (step.name && (step.name.includes('prompt') || step.name.includes('ask') || step.name.includes('query'))) {
+              // Extract quoted text from step
+              const quotedMatch = step.name.match(/"([^"]+)"/);
+              if (quotedMatch) {
+                prompt = quotedMatch[1];
+                break;
+              }
+            }
+          }
+          
+          // Try to extract conversation URL from step outputs or embeddings
+          for (const step of steps) {
+            if (step.embeddings) {
+              for (const embedding of step.embeddings) {
+                if (embedding.data && typeof embedding.data === 'string') {
+                  const urlMatch = embedding.data.match(/https?:\/\/[^\s]+/);
+                  if (urlMatch) {
+                    conversationURL = urlMatch[0];
+                    break;
+                  }
+                }
+              }
+            }
+            if (conversationURL) break;
+          }
+          
+          scenarios.push({
+            name: element.name,
+            status: status,
+            prompt: prompt,
+            conversationURL: conversationURL,
+            promptSource: promptSource
+          });
+        }
+      }
+    }
+    
+    return scenarios;
+  } catch (error) {
+    console.error('Error reading scenario statuses:', error);
+    // Fallback to feature file extraction
+    return extractExamplesFromFeatureFiles();
+  }
+}
 
 async function postBuildStatus(status, threadTs) {
   try {
