@@ -406,7 +406,10 @@ async function postBuildStatus(status, threadTs) {
       summaryText = '\n\n*Summary:*\n';
       summaryText += `:chart_with_upwards_trend: Total Scenarios: ${totalScenarios}\n`;
       summaryText += `:white_check_mark: Passed: ${passedScenarios}\n`;
-      summaryText += `:x: Failed: ${failedScenarios}\n`;
+
+       if (failedScenarios > 0) {
+        summaryText += `:x: Failed: ${failedScenarios}\n`;
+      }
     }
     
     // Build the message with scenario statuses
