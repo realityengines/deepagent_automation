@@ -45,7 +45,9 @@ class BrowserType extends World {
         this.browser = await chromium.launch({
           headless: config.browser.headless,
           slowMo: config.browser.slowMo,
-          args: ['--start-maximized']
+          args: ['--start-maximized',
+            '--window-size=1920,1080',
+          ]
         });
         this.context = await this.browser.newContext({
           viewport: { width: 1920, height: 1080 },
