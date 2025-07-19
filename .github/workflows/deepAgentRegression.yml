@@ -1,3 +1,4 @@
+
 name: Deep Agent Regression Suite
 
 on:
@@ -27,8 +28,11 @@ jobs:
       # fallback for TEST_ENV if not set from manual dispatch
       TEST_ENV: ${{ github.event.inputs.Environment || 'prod' }}
       SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      SLACK_CHANNEL_ID: "C07FJG27D2L"
+      # Fixed: Use C08PQT0GPDE for both initial message and follow-up status
+      SLACK_CHANNEL_ID: "C08PQT0GPDE"
       FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
+      EXECUTION_MODE: "local"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,10 +52,13 @@ jobs:
             exit 1
           }
           Write-Host "✅ Slack token is configured"
+          Write-Host "✅ Regression channel configured: $env:SLACK_CHANNEL_ID"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
           GITHUB_ACTIONS: "true"
 
+      # Improved initial Slack notification with better thread_ts handling
       - name: Send initial Slack notification
         id: slack-initial
         shell: pwsh
@@ -65,27 +72,75 @@ jobs:
           $githubActor = "${{ github.actor }}"
           $environment = "${{ env.TEST_ENV }}"
           $buildName = "Deep Agent Regression Tests"
+          Write-Host "Sending initial Slack message with parameters:"
+          Write-Host "  GitHub Actor: $githubActor"
+          Write-Host "  Environment: $environment"
+          Write-Host "  Build Name: $buildName"
+          Write-Host "  Target Channel: $env:SLACK_CHANNEL_ID"
+
           $output = node helpers/sendInitialSlackMessage.js "$githubActor" "$environment" "$buildName"
+          Write-Host "Slack script output:"
+          $output | ForEach-Object { Write-Host $_ }
+
+          # Improved thread_ts extraction with multiple patterns
+          $threadTs = $null
           
-          # Look for the thread_ts line in the output
-          $threadTs = ($output | Select-String -Pattern "thread_ts=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value })
+          # Try different patterns to extract thread_ts
+          $patterns = @(
+            "thread_ts=([\d.]+)",
+            "thread_ts:\s*([\d.]+)",
+            '"ts":\s*"([\d.]+)"',
+            "ts=([\d.]+)"
+          )
           
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::Could not extract thread_ts from output. Using default value."
-            $threadTs = "0"
+          foreach ($pattern in $patterns) {
+            $match = ($output | Select-String -Pattern $pattern | Select-Object -First 1)
+            if ($match) {
+              $threadTs = $match.Matches.Groups[1].Value
+              Write-Host "Found thread_ts using pattern '$pattern': $threadTs"
+              break
+            }
           }
-          
-          Write-Host "Extracted thread_ts: $threadTs"
+
+          # If still no thread_ts found, try to parse JSON output
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "Attempting to parse JSON output for thread_ts..."
+            try {
+              $jsonOutput = $output | Where-Object { $_ -match '^\s*{.*}\s*$' } | Select-Object -First 1
+              if ($jsonOutput) {
+                $parsed = $jsonOutput | ConvertFrom-Json
+                if ($parsed.ts) {
+                  $threadTs = $parsed.ts
+                  Write-Host "Extracted thread_ts from JSON: $threadTs"
+                }
+              }
+            } catch {
+              Write-Host "Failed to parse JSON output: $_"
+            }
+          }
+
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::error::Could not extract thread_ts from Slack response. Thread functionality will not work."
+            Write-Host "Raw output for debugging:"
+            $output | ForEach-Object { Write-Host "DEBUG: $_" }
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Successfully extracted thread_ts: $threadTs"
+          }
+
           echo "thread_ts=$threadTs" >> $env:GITHUB_OUTPUT
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
           GITHUB_ACTIONS: "true"
 
       - name: Debug - Environment Variables
         shell: pwsh
         run: |
           echo "Selected Environment: $env:TEST_ENV"
+          echo "Execution Mode: $env:EXECUTION_MODE"
+          echo "Thread TS from previous step: ${{ steps.slack-initial.outputs.thread_ts }}"
+          echo "Regression Channel: $env:SLACK_CHANNEL_ID"
 
       - name: Install dependencies
         shell: pwsh
@@ -98,65 +153,141 @@ jobs:
           }
           npx playwright install --with-deps
 
+      - name: Setup test directories and cleanup
+        shell: pwsh
+        run: |
+          Write-Host "🧹 Setting up test directories and cleaning up..."
+          # Create required directories
+          $directories = @("reports", "test-reports", "downloadfile", "jsonReport", "llm-judge/results", "urlData")
+          foreach ($dir in $directories) {
+            if (-not (Test-Path -Path $dir)) {
+              New-Item -ItemType Directory -Path $dir -Force
+              Write-Host "Created directory: $dir"
+            } else {
+              Write-Host "Directory already exists: $dir"
+            }
+          }
+
+          # Clean existing reports
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -File | Remove-Item -Force
+            Write-Host "Cleaned reports directory"
+          }
+
+          Write-Host "✅ Test environment setup complete"
+
       - name: Run all tests (no tag specified)
         if: ${{ github.event.inputs.tags == '' || github.event_name != 'workflow_dispatch' }}
         shell: pwsh
         run: |
+          Write-Host "🚀 Running regression tests using npm script..."
           npx cucumber-js --tags "@regression" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
           $exitCode = $LASTEXITCODE
+          Write-Host "Test execution completed with exit code: $exitCode"
+
+          # Generate reports
           npm run report
+
+          # List generated files for debugging
+          Write-Host "📁 Generated report files:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.FullName)" }
+          }
+
           exit $exitCode
         env:
           CI: true
           TEST_ENV: ${{ env.TEST_ENV }}
+          HEADLESS: true
+          EXECUTION_MODE: local
 
       - name: Run tests with specific tag
         if: ${{ github.event.inputs.tags != '' && github.event_name == 'workflow_dispatch' }}
         shell: pwsh
         run: |
+          Write-Host "🚀 Running regression tests with tag: @${{ github.event.inputs.tags }}"
           npx cucumber-js --tags "@${{ github.event.inputs.tags }}" --parallel 4 --format html:reports/cucumber-report.html --format json:reports/cucumber-report.json
           $exitCode = $LASTEXITCODE
+          Write-Host "Test execution completed with exit code: $exitCode"
+
+          # Generate reports
           npm run report
+
+          # List generated files for debugging
+          Write-Host "📁 Generated report files:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.FullName)" }
+          }
+
           exit $exitCode
         env:
           CI: true
           TEST_ENV: ${{ env.TEST_ENV }}
+          HEADLESS: true
+          EXECUTION_MODE: local
 
       - name: Generate Test Summary Report
         if: always()
         shell: pwsh
         run: |
           if (Test-Path -Path "reports/cucumber-report.json") {
-            node generate-summary.js
+            Write-Host "📊 Generating test summary..."
+            node helpers/summarizeResults.js reports/cucumber-report.json
+            Write-Host "✅ Test summary generated successfully"
           } else {
-            Write-Host "Warning: reports/cucumber-report.json not found. Skipping summary generation."
+            Write-Host "⚠️ Warning: reports/cucumber-report.json not found. Skipping summary generation."
+            # List what files are actually present
+            Write-Host "Available files in reports directory:"
+            if (Test-Path -Path "reports") {
+              Get-ChildItem -Path "reports" -Recurse | ForEach-Object { Write-Host "  - $($_.Name)" }
+            } else {
+              Write-Host "  - reports directory does not exist"
+            }
           }
 
       - name: Report Location Information
         if: always()
         shell: pwsh
         run: |
-          Write-Host "\n=============================================" -ForegroundColor Green
+          Write-Host "`n====" -ForegroundColor Green
           Write-Host "TEST REPORT LOCATIONS:" -ForegroundColor Green
-          Write-Host "=============================================" -ForegroundColor Green
+          Write-Host "====" -ForegroundColor Green
           Write-Host "HTML Report: $PWD/test-reports/index.html" -ForegroundColor Cyan
           Write-Host "JSON Report: $PWD/reports/cucumber-report.json" -ForegroundColor Cyan
-          Write-Host "=============================================\n" -ForegroundColor Green
+          Write-Host "Screenshots: $PWD/reports/failure-*.png" -ForegroundColor Cyan
+          Write-Host "====`n" -ForegroundColor Green
           
           # Create a marker file with report locations for easy reference
           @"
           TEST REPORT LOCATIONS:
-          =============================================
+          ====
           HTML Report: $PWD/test-reports/index.html
           JSON Report: $PWD/reports/cucumber-report.json
-          =============================================
+          Screenshots: $PWD/reports/failure-*.png
+          ====
           "@ | Out-File -FilePath "report-locations.txt"
 
       - name: Debug - List report files
+        if: always()
         shell: pwsh
         run: |
-          Write-Host "Listing all files in reports/"
-          Get-ChildItem -Recurse reports
+          Write-Host "📁 Listing all files in reports directory:"
+          if (Test-Path -Path "reports") {
+            Get-ChildItem -Recurse reports | ForEach-Object { 
+              Write-Host "  - $($_.FullName) (Size: $($_.Length) bytes)"
+            }
+          } else {
+            Write-Host "  - reports directory does not exist"
+          }
+
+          Write-Host "📁 Listing all files in test-reports directory:"
+          if (Test-Path -Path "test-reports") {
+            Get-ChildItem -Recurse test-reports | ForEach-Object { 
+              Write-Host "  - $($_.FullName) (Size: $($_.Length) bytes)"
+            }
+          } else {
+            Write-Host "  - test-reports directory does not exist"
+          }
 
       - name: Upload test results
         if: always()
@@ -168,9 +299,10 @@ jobs:
             test-reports/**
             cucumber-report.html
             cucumber-report.json
+            urlData/**
           retention-days: 30
           if-no-files-found: warn
-          
+      
       - name: Upload report locations
         if: always()
         uses: actions/upload-artifact@v4
@@ -188,9 +320,11 @@ jobs:
           path: |
             reports/traces/
             reports/screenshots/
+            reports/failure-*.png
           retention-days: 30
           if-no-files-found: ignore
-          
+      
+      # Improved success notification with better thread handling
       - name: Send success Slack notification
         if: success()
         shell: pwsh
@@ -200,25 +334,35 @@ jobs:
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
           }
-          
+
           $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
-          }
+          Write-Host "Retrieved thread_ts: '$threadTs'"
+          Write-Host "Target channel: $env:SLACK_CHANNEL_ID"
           
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "success" "$threadTs"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Message will be sent as new message instead of thread reply."
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Using thread_ts for threaded reply: $threadTs"
+          }
+
+          try {
+            node helpers/postBuildStatus.js "success" "$threadTs"
+            Write-Host "✅ Success notification sent successfully"
+          } catch {
+            Write-Host "::error::Failed to send success notification: $_"
+          }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_ACTIONS: "true"
-          
+      
+      # Improved failure notification with better thread handling
       - name: Send failure Slack notification
         if: failure()
         shell: pwsh
@@ -228,19 +372,28 @@ jobs:
             Write-Host "::warning::SLACK_TOKEN environment variable is not set. Skipping Slack notification."
             exit 0
           }
-          
+
           $threadTs = "${{ steps.slack-initial.outputs.thread_ts }}"
-          if ([string]::IsNullOrEmpty($threadTs)) {
-            Write-Host "::warning::thread_ts is empty. Using default value."
-            $threadTs = "0"
-          }
+          Write-Host "Retrieved thread_ts: '$threadTs'"
+          Write-Host "Target channel: $env:SLACK_CHANNEL_ID"
           
-          Write-Host "Using thread_ts: $threadTs"
-          node helpers/postBuildStatus.js "failure" "$threadTs"
+          if ([string]::IsNullOrEmpty($threadTs)) {
+            Write-Host "::warning::thread_ts is empty. Message will be sent as new message instead of thread reply."
+            $threadTs = ""
+          } else {
+            Write-Host "✅ Using thread_ts for threaded reply: $threadTs"
+          }
+
+          try {
+            node helpers/postBuildStatus.js "failure" "$threadTs"
+            Write-Host "✅ Failure notification sent successfully"
+          } catch {
+            Write-Host "::error::Failed to send failure notification: $_"
+          }
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: "C07FJG27D2L"
-          FAILURE_SLACK_CHANNEL_ID: "C07FJG27D2L"
+          SLACK_CHANNEL_ID: ${{ env.SLACK_CHANNEL_ID }}
+          FAILURE_SLACK_CHANNEL_ID: ${{ env.FAILURE_SLACK_CHANNEL_ID }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}

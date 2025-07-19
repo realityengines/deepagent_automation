@@ -21,7 +21,7 @@ let targetChannelId = mainChannelId;
 
 if (workflowName.toLowerCase().includes('regression')) {
   console.log('Detected regression workflow, using regression channel');
-  targetChannelId = "C07FJG27D2L";
+  targetChannelId = "C08PQT0GPDE";
 } else if (workflowName.toLowerCase().includes('smoke')) {
   console.log('Detected smoke workflow, using smoke channel');
   targetChannelId = "C0189FJRC9E";
