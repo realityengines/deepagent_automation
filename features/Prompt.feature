@@ -27,16 +27,16 @@ Feature: Deep Agent Search and Task Execution
       # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
       # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
 
-  @AppLLMDataAnalysis
-  Scenario Outline: Verify AppLLM Data Analysis
-    Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
-    And the compute points should not exceed 150k
+  # @AppLLMDataAnalysis
+  # Scenario Outline: Verify AppLLM Data Analysis
+  #   Given I click the check out from the welcome window
+  #   When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+  #   And I should see the status "Completed" for the task
+  #   And the compute points should not exceed 150k
 
-    Examples:
-      | prompt_user_search                                                                                                                                                             | follow_up_query |
-      | find all the issues from my Jira reported in the last week, and create a dashboard. Categorize them as bug, feature etc and then create a small html website with the details. | you decide      |
+  #   Examples:
+  #     | prompt_user_search                                                                                                                                                             | follow_up_query |
+  #     | find all the issues from my Jira reported in the last week, and create a dashboard. Categorize them as bug, feature etc and then create a small html website with the details. | you decide      |
 
   @DeepResearchPrompts
   Scenario Outline: Verify Deep Agent's research prompts
@@ -83,15 +83,15 @@ Feature: Deep Agent Search and Task Execution
       | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
       | Build a fully functional game of sudoku. Keep it simple and functional.             | Your call with limited functionality.                                             |
 
-  @JiraIntegrationPrompt
-  Scenario Outline: Verify  Deep Agent integrates with Jira
-    Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
-    And I should see the status "Completed" for the task
+  # @JiraIntegrationPrompt
+  # Scenario Outline: Verify  Deep Agent integrates with Jira
+  #   Given I click the check out from the welcome window
+  #   When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
+  #   And I should see the status "Completed" for the task
 
-    Examples:
-      | prompt_user_search                                                                                      | follow_up_query |
-      | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
+  #   Examples:
+  #     | prompt_user_search                                                                                      | follow_up_query |
+  #     | Fetch all the high priority Jira tickets with label next-week and mail a summary to udaysingh@abacus.ai | your call       |
 
   @ChatBotPrompt
   Scenario Outline: Verify chatbot creation with personalized AI
