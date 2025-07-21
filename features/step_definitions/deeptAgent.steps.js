@@ -712,20 +712,34 @@ Then(
 
     const softAssert = async (label, locator) => {
       try {
-        console.log(`Checking ${label}...`);
-        await locator.waitFor({ state: "visible", timeout: 10000 });
-        const isVisible = await locator.isVisible();
-        console.log(`${label} visible: ${isVisible}`);
-        if (!isVisible) {
-          console.warn(`⚠️ Warning: ${label} is not visible.`);
+        console.log(`🔍 Checking ${label}...`);
+        const elements = await locator.elementHandles();
+    
+        if (elements.length === 0) {
+          throw new Error(`No elements found for ${label}`);
+        }
+    
+        let anyVisible = false;
+    
+        for (const element of elements) {
+          if (await element.isVisible()) {
+            anyVisible = true;
+            break;
+          }
+        }
+    
+        if (!anyVisible) {
+          console.warn(`⚠️ Warning: None of the elements for ${label} are visible.`);
           throw new Error(`${label} is not visible`);
         }
+    
+        console.log(`✅ ${label} is visible`);
       } catch (e) {
-        console.warn(`⚠️ Warning: Failed to verify ${label}: ${e.message}`);
-        throw e; // Rethrow to fail the test
+        console.warn(`❌ Failed to verify ${label}: ${e.message}`);
+        throw e; // Fail the test
       }
     };
-
+    
     await softAssert("analytics link", deepAgentPage.analyticsLink);
     await softAssert("calculator link", deepAgentPage.calculator);
     await softAssert("calendar link", deepAgentPage.calender);
