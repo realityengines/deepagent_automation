@@ -1543,7 +1543,7 @@ Then("verify that the website contains some useful words", async function () {
   }
 });
 
- Then("I verify the website has a chatbot", async function () {
+Then("I verify the website has a chatbot {string}", async function (chatbot) {
   
   const originalPage = this.page;
   await this.page.waitForTimeout(5000);
@@ -1557,7 +1557,7 @@ Then("verify that the website contains some useful words", async function () {
   this.page = newPage;
   let websiteError;
   try{
-  await websitePage.checkTheChatbot();
+  await websitePage.checkTheChatbot(chatbot);
   } 
   catch(error)
   {
@@ -1575,6 +1575,7 @@ Then("verify that the website contains some useful words", async function () {
   console.log("Returned to original page");
 
  });
+
 
  Then(
   "I click on chatbot link and search for the prompt {string}",
@@ -1614,6 +1615,83 @@ Then("verify that the website contains some useful words", async function () {
     }
   }
 );
+
+Then("Verify all the page images are loaded and not broken", async function () {
+  try {
+    console.log("\n=== Verifying All Page Images ===\n");
+
+    const originalPage = this.page;
+
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent("page"),
+      deepAgentPage.deploymentUrl.click(),
+    ]);
+
+    await newPage.waitForLoadState("domcontentloaded");
+    console.log(`New page opened: ${await newPage.title()}`);
+
+    this.page = newPage;
+    await newPage.waitForTimeout(2000);
+
+    const images = await newPage.evaluate(() => {
+      const nodes = Array.from(document.querySelectorAll("img[src]"));
+      return nodes.map((img) => ({
+        src: img.src,
+        alt: img.alt,
+        type: img.src.split(".").pop().split("?")[0],
+      }));
+    });
+
+    console.log(`Found ${images.length} images to verify`);
+
+    let successCount = 0;
+    let failedImages = [];
+    const statusMessages = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const { src, alt, type } = images[i];
+      try {
+        const response = await newPage.request.get(src);
+        const status = response.status();
+        if (status === 200) {
+          console.log(`✅ Image ${i + 1}/${images.length}: ${src.split("/").pop()} [${type}] - ${alt || "No alt text"} - Status: ${status}`);
+          statusMessages.push(`✅ Image ${i + 1}/${images.length}: ${src.split("/").pop()} [${type}] - ${alt || "No alt text"} - Status: ${status}`);
+          successCount++;
+        } else {
+          console.warn(`❌ Image ${i + 1}/${images.length}: ${src.split("/").pop()} - Status: ${status}`);
+          failedImages.push({ src, alt, type, status });
+          statusMessages.push(`❌ Image ${i + 1}/${images.length}: ${src.split("/").pop()} - Status: ${status}`);
+        }
+      } catch (error) {
+        console.error(`❌ Image ${i + 1}/${images.length}: ${src.split("/").pop()} - Error: ${error.message}`);
+        failedImages.push({ src, alt, type, error: error.message });
+        statusMessages.push(`❌ Image ${i + 1}/${images.length}: ${src.split("/").pop()} - Error: ${error.message}`);
+      }
+    }
+
+    const report = [
+      "=== IMAGE VERIFICATION RESULTS ===",
+      `Total Images: ${images.length}`,
+      `Successful (200): ${successCount}`,
+      `Failed: ${failedImages.length}`,
+      "",
+      ...statusMessages,
+    ].join("\n");
+
+    console.log("\n" + report);
+    await this.attach(report, "text/plain");
+
+    this.page = originalPage;
+    await newPage.close();
+
+    expect(failedImages.length).to.equal(0, `${failedImages.length} images failed to load correctly.`);
+
+  } catch (error) {
+    console.error("\n=== Error Verifying Images ===\n");
+    console.error(error);
+    throw error;
+  }
+});
 
 
 
