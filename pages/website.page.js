@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { expect } from "chai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,13 @@ export class WebsitePage {
         this.iframechatbot=this.page.locator('iframe[role*="presentation"]');
         this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
         
+        //LLM-
+        this.successsMessage=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'successfully')]");
+        this.newRoleButton=this.page.locator("//*[contains(text(),'New Role')]");
+        this.roleNameField=this.page.locator("(//*[@id='name'] | //*[@name='name'])");
+        this.experienceField=this.page.locator("(//*[@id='experience'] | //*[@name='experience'])")
+        this.skillsField=this.page.locator("(//*[@id='skills'] | //*[@name='skills'])");
+        this.locationField=this.page.locator("(//*[@id='location'] | //*[@name='location'])")
     }
 
    async fillJoinUSForm()
@@ -503,5 +511,36 @@ async checkTheChatbot(chatbot) {
       fullPage: true,
     });
   }
+}
+
+async performSignUp()
+{
+  const signInIsVisible=await this.loginLink.isVisible()
+  if(signInIsVisible)
+  {
+    await this.loginLink.click()
+  }
+
+  await this.signUpLink.click()
+  await this.fullnameField.fill("testqa");
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.confirmPasswordField.fill("Password@1234");
+  await this.submitButton.click();
+  await expect(this.successsMessage).toBeVisible();
+  await this.page.waitForTimeout(5000)
+}
+
+async createNewRole()
+{
+  await this.newRoleButton.waitFor({ state: 'visible', timeout: 10000 });
+  await this.newRoleButton.click();
+  await this.roleNameField.fill("Software testing");
+  await this.experienceField.fill("5");
+  await this.skillsField.fill("Selenium wiht java");
+  await this.locationField.fill("Bangalore");
+  await this.submitButton.click();
+  await expect(this.successsMessage).toBeVisible();
+
 }
 }

@@ -1693,6 +1693,35 @@ Then("Verify all the page images are loaded and not broken", async function () {
   }
 });
 
+Then("I complete the sign-up process", async function (promatSearch) {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 120000 }), // 2 min
+    deepAgentPage.clickOnDeployLink(), // trigger new tab
+  ]);
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await websitePage.performSignUp();
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+
+
+});
+
+Then("I create a new job role", async function (promatSearch) {
+  
+
+});
+
+Then("I upload a candidate resume for analysis", async function (promatSearch) {
+  
+
+});
+
 
 
 

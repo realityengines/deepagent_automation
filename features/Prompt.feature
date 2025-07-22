@@ -301,6 +301,9 @@ Feature: Deep Agent Search and Task Execution
     And I should see the status "Completed" for the task
     And the compute points should not exceed 150k
     And I should deploy the website
+    And I complete the sign-up process
+    Then I create a new job role
+    Then I upload a candidate resume for analysis
 
     Examples:
       | prompt_user_search                                                                                                                                                                                                                                                                                                                                                                                                                                                   | follow_up_query |
