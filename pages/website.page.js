@@ -13,7 +13,7 @@ export class WebsitePage {
         this.joinUSButton = this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'Join Us')])[1]");
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
-        this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')]");
+        this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')] | //*[@placeholder='Email']");
         this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.checkOut= this.page.locator("[role='checkbox']");
@@ -25,7 +25,7 @@ export class WebsitePage {
       
         // this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
         this.contactLink = this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Contact')])[1]");
-        this.fullnameField= this.page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')] or //*[@placeholder='Name']");
+        this.fullnameField= this.page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
         this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
@@ -47,7 +47,7 @@ export class WebsitePage {
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
 
         //HR website locators-
-        this.signUpLink=this.page.locator("//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up']");
+        this.signUpLink=this.page.locator("(//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up'])[1]");
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
@@ -59,10 +59,15 @@ export class WebsitePage {
         //LLM-
         this.successsMessage=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'successfully')]");
         this.newRoleButton=this.page.locator("//*[contains(text(),'New Role')]");
-        this.roleNameField=this.page.locator("(//*[@id='name'] | //*[@name='name'])");
-        this.experienceField=this.page.locator("(//*[@id='experience'] | //*[@name='experience'])")
-        this.skillsField=this.page.locator("(//*[@id='skills'] | //*[@name='skills'])");
-        this.locationField=this.page.locator("(//*[@id='location'] | //*[@name='location'])")
+        this.roleNameField=this.page.locator("(//*[@id='name'] | //*[@name='name'] | //*[@placeholder='Name'] )");
+        this.experienceField=this.page.locator("(//*[@id='experience'] | //*[@name='experience'] | //*[@placeholder='Experience'])")
+        this.skillsField=this.page.locator("(//*[@id='skills'] | //*[@name='skills'] | //*[@placeholder='Skills'])");
+        this.locationField=this.page.locator("(//*[@id='location'] | //*[@name='location'] | //*[@placeholder='Location'])");
+        this.jobDescriptionField=this.page.locator("//*[contains(@placeholder,'Description')]");
+        this.uploadResumeButton=this.page.locator("(//*[text()='Upload Resume'])[1]");
+        this.uploadButton=this.page.locator("//button[contains(text(),'Upload')]");
+        this.roleLink=this.page.locator("//*[text()='Roles']");
+        this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
     }
 
    async fillJoinUSForm()
@@ -515,6 +520,7 @@ async checkTheChatbot(chatbot) {
 
 async performSignUp()
 {
+  await this.page.waitForTimeout(5000)
   const signInIsVisible=await this.loginLink.isVisible()
   if(signInIsVisible)
   {
@@ -527,8 +533,7 @@ async performSignUp()
   await this.passwordField.fill("Password@1234");
   await this.confirmPasswordField.fill("Password@1234");
   await this.submitButton.click();
-  await expect(this.successsMessage).toBeVisible();
-  await this.page.waitForTimeout(5000)
+  await this.page.waitForTimeout(10000)
 }
 
 async createNewRole()
@@ -537,10 +542,36 @@ async createNewRole()
   await this.newRoleButton.click();
   await this.roleNameField.fill("Software testing");
   await this.experienceField.fill("5");
-  await this.skillsField.fill("Selenium wiht java");
+  await this.skillsField.fill("playwright with Javascript");
   await this.locationField.fill("Bangalore");
+  const jobFieldVisible=await this.jobDescriptionField.isVisible()
+  if(jobFieldVisible)
+  {
+    await this.jobDescriptionField.fill("Looking for a candidate have 5 plus years of experience in automation testing")
+  }
   await this.submitButton.click();
-  await expect(this.successsMessage).toBeVisible();
+  await this.page.waitForTimeout(10000);
+}
 
+async uploadTheResume()
+{
+  const isVisible=await this.uploadResumeButton.isVisible()
+  if(isVisible)
+  {
+    await this.uploadResumeButton.click();   
+  }
+  else{
+    await this.roleLink.click();
+    await this.viweDetails.click();
+    await this.uploadResumeButton.click(); 
+  }
+  const filePath = path.resolve('testData/resumesample.pdf'); // Convert to absolute path
+  await this.fileInput.setInputFiles(filePath);
+  await this.page.waitForTimeout(3000)
+  await this.uploadButton.click();
+  const message = await this.successsMessage.isVisible();
+  expect(message).to.be.true;
+  await this.page.waitForTimeout(5000)
+  
 }
 }

@@ -1693,7 +1693,7 @@ Then("Verify all the page images are loaded and not broken", async function () {
   }
 });
 
-Then("I complete the sign-up process", async function (promatSearch) {
+Then("I complete the sign-up process create new role and upload the resume", async function () {
   
   const originalPage = this.page;
   await this.page.waitForTimeout(5000);
@@ -1705,22 +1705,58 @@ Then("I complete the sign-up process", async function (promatSearch) {
   websitePage = new WebsitePage(newPage);
   this.page = newPage;
   await websitePage.performSignUp();
+  await websitePage.createNewRole();
+  await websitePage.uploadTheResume();
   await newPage.close();
   this.page = originalPage;
   deepAgentPage = new DeepAgentPage(originalPage);
-
-
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`🔗 Conversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+ 
 });
 
-Then("I create a new job role", async function (promatSearch) {
+Then("I click on the Use AI Workflow and upload the CSV file", async function () {
   
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnUseAIWorkFlow(), // Now properly awaited in Promise.all
+  ]);
 
+  await newPage.waitForLoadState();
+  this.page = newPage;
+  deepAgentPage = new DeepAgentPage(newPage);
+  await this.page.waitForTimeout(2000);
+  await deepAgentPage.uploadCSVFile();
+  await deepAgentPage.page.waitForTimeout(3000);
+  await newPage.close();
+  this.page = originalPage;
+  console.log("Returned to original page");
+
+  deepAgentPage=new DeepAgentPage(originalPage);
+  // Capture conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`\nConversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
 });
 
-Then("I upload a candidate resume for analysis", async function (promatSearch) {
+Then("I serach the prompt {string}", async function (promatSearch) {
   
+  await deepAgentPage.enterPromapt(promatSearch);
+  await deepAgentPage.clickSendButton();
+  await deepAgentPage.page.waitForTimeout(3000);
+  const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
 
 });
+
 
 
 
