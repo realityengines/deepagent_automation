@@ -392,7 +392,7 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should deploy the created website
     Then I verify the website has a chatbot "<prompt_for_chatbot>"
-    # Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
+    Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
 
     Examples:
       | prompt_user_search                                                                                                     | follow_up_query | prompt_for_chatbot                                    |
@@ -405,7 +405,7 @@ Feature: Deep Agent Search and Task Execution
     And the compute points should not exceed 150k
     And I should deploy the created website
     Then I verify the website has a chatbot "<prompt_for_chatbot>"
-    # Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
+    Then I click on chatbot link and search for the prompt "<prompt_for_chatbot>"
 
     Examples:
       | prompt_user_search                                                                                                                                                                                                                                                                                           | follow_up_query | prompt_for_chatbot                                            |
