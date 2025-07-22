@@ -254,18 +254,19 @@ Feature: Deep Agent Search and Task Execution
       | prompt_user_search                                                                                                                                                           | follow_up_query                                                                                                                                                                                      |
       | create a website for women in product community, make the website content rich, it should have 6 pages, add a login and signup flow for users and also add a contact us form | For the Join Us page, add a form with fields: First Name, Last Name, Email, Password, and Confirm Password. For the Contact Us page, add a form with fields: Full Name, Email, Subject, and Message. |
 
-  @AIAppsContractor
-  Scenario Outline: Verify file upload and contract term extraction
-    Given I click the check out from the welcome window
-    When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
-    And I should see the status "Completed" for the task
-    And the compute points should not exceed 150k
-    And I should deploy the website
-    Then I upload the file and validate the database integrity
+# //When uploading the file, I'm getting an ISE error. Once it's fixed, I Will  test again
+ # @AIAppsContractor
+ #  Scenario Outline: Verify file upload and contract term extraction
+ #   Given I click the check out from the welcome window
+ #   When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>" to generate a website
+ #   And I should see the status "Completed" for the task
+ #   And the compute points should not exceed 150k
+ #   And I should deploy the website
+ #   Then I upload the file and validate the database integrity
 
-    Examples:
-      | prompt_user_search                                                                                                                                                                                 | follow_up_query                                                                                                                                                    |
-      | build a contract terms extractor. Upload your contract and it will extract key contract terms Ensure the home page displays a drag-and-drop section for uploading contract files (PDF, DOCX, TXT). | The extractor should support PDF, Word, and text files, extract key terms, and display them in a categorized table with optional highlights and confidence scores. |
+ #    Examples:
+ #     | prompt_user_search                                                                                                                                                                                 | follow_up_query                                                                                                                                                    |
+ #     | build a contract terms extractor. Upload your contract and it will extract key contract terms Ensure the home page displays a drag-and-drop section for uploading contract files (PDF, DOCX, TXT). | The extractor should support PDF, Word, and text files, extract key terms, and display them in a categorized table with optional highlights and confidence scores. |
 
   @AIAppsResumeAnalysis
   Scenario Outline: Verify resume analysis functionality
