@@ -13,7 +13,7 @@ export class WebsitePage {
         this.joinUSButton = this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'Join Us')])[1]");
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
-        this.emailField = this.page.locator("(//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')])[1]");
+        this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')]");
         this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
         this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
         this.checkOut= this.page.locator("[role='checkbox']");
@@ -25,7 +25,7 @@ export class WebsitePage {
       
         // this.contactLink=this.page.locator("(//a[contains(text(),'Contact')])[1]");
         this.contactLink = this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Contact')])[1]");
-        this.fullnameField= this.page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
+        this.fullnameField= this.page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')] or //*[@placeholder='Name']");
         this.subjectTextField= this.page.locator("//*[contains(@id,'subject')] | //*[contains(@name,'subject')]");
         this.messageTextField = this.page.locator("//*[contains(@id,'message')] | //*[contains(@name,'message')] | //*[contains(@placeholder,'Tell us more about')]");
         this.statusVisible= this.page.locator("(//li[@role='status'])[1]");
