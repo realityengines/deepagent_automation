@@ -406,12 +406,25 @@ async checkTheWebsiteHaveUsefulwords()
 async checkTheChatbot(chatbot) {
   await this.page.waitForLoadState("domcontentloaded");
   await this.page.waitForFunction(() => document.readyState === "complete");
-  await this.page.waitForTimeout(8000);
+  await this.page.waitForTimeout(3000);
 
+  const chatIconSelector = ".lucide.lucide-message-circle";
   const inputSelector =
     "xpath=(//textarea[contains(@placeholder, 'Write') or contains(@placeholder, 'Ask')] | //div[@contenteditable='true' and not(@aria-hidden='true')])";
 
-  console.log("🔍 Searching for chatbot input...");
+  console.log("🔍 Checking for chatbot icon...");
+
+  const chatIcon = await this.page.$(chatIconSelector);
+  if (chatIcon) {
+    console.log("🟢 Chatbot icon found. Clicking to open chat...");
+    await chatIcon.scrollIntoViewIfNeeded();
+    await chatIcon.click();
+    await this.page.waitForTimeout(15000); // Wait for chat to open
+  } else {
+    console.warn("⚠️ Chatbot icon not found. Skipping icon click.");
+  }
+
+  console.log("🔍 Searching for chatbot input (in or outside iframes)...");
 
   const allFrames = this.page.frames();
   let inputElement = null;
@@ -421,50 +434,47 @@ async checkTheChatbot(chatbot) {
     try {
       const candidates = await frame.$$(inputSelector);
       if (candidates.length > 0) {
-        console.log(`✅ Found ${candidates.length} input(s) in frame.`);
+        console.log(`✅ Found ${candidates.length} input(s) in a frame.`);
         for (const input of candidates) {
-          // Try scroll into view
           try {
             await input.scrollIntoViewIfNeeded({ timeout: 2000 });
-            console.log(
-              "🟢 Scrolled into view using scrollIntoViewIfNeeded."
-            );
           } catch {
-            // Fallback scroll
-            await frame.evaluate(
-              (el) =>
-                el.scrollIntoView({ behavior: "smooth", block: "center" }),
-              input
-            );
-            console.log("🟡 Scrolled using fallback scrollIntoView.");
+            await frame.evaluate(el =>
+              el.scrollIntoView({ behavior: "smooth", block: "center" }), input);
           }
 
-          // Check visibility after scroll
           const box = await input.boundingBox();
           if (box) {
             inputElement = input;
             chatbotFrame = frame;
             break;
-          } else {
-            console.warn(
-              "⚠️ Element exists but still not visible after scroll."
-            );
           }
         }
       }
     } catch (err) {
-      console.warn("⚠️ Error checking frame:", err.message);
+      console.warn("⚠️ Frame check failed:", err.message);
     }
 
     if (inputElement) break;
   }
 
+  // Fallback: check main page if not found in frames
+  if (!inputElement) {
+    try {
+      const mainInput = await this.page.$(inputSelector);
+      if (mainInput) {
+        console.log("✅ Found chatbot input directly on page.");
+        inputElement = mainInput;
+        chatbotFrame = this.page;
+      }
+    } catch (err) {
+      console.warn("⚠️ Error checking main page for input:", err.message);
+    }
+  }
+
   if (!inputElement || !chatbotFrame) {
-    console.warn("❌ No visible chatbot input found in any frame.");
-    await this.page.screenshot({
-      path: "chatbot_not_found.png",
-      fullPage: true,
-    });
+    console.warn("❌ No visible chatbot input found.");
+    await this.page.screenshot({ path: "chatbot_not_found.png", fullPage: true });
     return;
   }
 
@@ -481,27 +491,20 @@ async checkTheChatbot(chatbot) {
   const sendButtonSelector = "button [data-icon*='paper-plane']";
 
   try {
-    const sendButton = await chatbotFrame.waitForSelector(
-      sendButtonSelector,
-      { timeout: 5000 }
-    );
+    const sendButton = await chatbotFrame.waitForSelector(sendButtonSelector, { timeout: 5000 });
     await sendButton.click();
     console.log("✅ Clicked send button.");
+
     await this.page.waitForSelector('[class*="animate-spin"]', {
-      state: "detached", // or use 'hidden' if it's not removed from DOM
+      state: "detached",
       timeout: 20000,
     });
+
     console.log("✅ Chatbot response completed — spinner disappeared.");
     await this.page.waitForTimeout(15000);
   } catch (err) {
-    console.warn(
-      "❌ Failed to click send button or wait for spinner to finish:",
-      err.message
-    );
-    await this.page.screenshot({
-      path: "send_click_failed.png",
-      fullPage: true,
-    });
+    console.warn("❌ Failed to send or wait for spinner:", err.message);
+    await this.page.screenshot({ path: "send_click_failed.png", fullPage: true });
   }
 }
 }
