@@ -70,7 +70,7 @@ export class WebsitePage {
         this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
 
         //LLM-
-        this.registrationLink=this.page.locator("(//*[@href='/auth/signup'] | //*[@href='/register'])[1]");
+        this.registrationLink=this.page.locator("//*[contains(text(),'have an account?')]/a");
         this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
         this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
         this.startDate=this.page.locator("(//*[@type='date'])[1]")
@@ -604,7 +604,7 @@ async performSignInAction()
   {
     await this.logout.click();
   }
-  
+
   await this.emailField.fill("testuser@gmail.com");
   await this.passwordField.fill("Password@1234");
   await this.submitButton.click();
