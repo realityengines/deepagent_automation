@@ -75,6 +75,7 @@ export class WebsitePage {
         this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
         this.startDate=this.page.locator("(//*[@type='date'])[1]")
         this.endDate=this.page.locator("(//*[@type='date'])[2]")
+        this.leaveTypeField=this.page.locator("[placeholder='Leave Type']")
         this.reasonInputField=this.page.locator("[placeholder='reason']");
         
     }
@@ -603,6 +604,7 @@ async performSignInAction()
   {
     await this.logout.click();
   }
+  
   await this.emailField.fill("testuser@gmail.com");
   await this.passwordField.fill("Password@1234");
   await this.submitButton.click();
@@ -634,18 +636,19 @@ async applyForALeave() {
   await this.startDate.fill(formatDate(tomorrow));          // Fill tomorrow's date
   await this.endDate.fill(formatDate(dayAfterTomorrow));    // Fill day-after-tomorrow's date
 
-  await this.dropDown.click();
-  await this.page.waitForTimeout(2000);
+  // await this.dropDown.click();
+  // await this.page.waitForTimeout(2000);
 
-  const count = await this.dropdownOptions.count();
-  for (let i = 0; i < count; i++) {
-    const text = await this.dropdownOptions.nth(i).innerText();
-    if (text.trim().toLowerCase() === 'sick leave') {
-      await this.dropdownOptions.nth(i).click();
-      break;
-    }
-  }
+  // const count = await this.dropdownOptions.count();
+  // for (let i = 0; i < count; i++) {
+  //   const text = await this.dropdownOptions.nth(i).innerText();
+  //   if (text.trim().toLowerCase() === 'sick leave') {
+  //     await this.dropdownOptions.nth(i).click();
+  //     break;
+  //   }
+  // }
 
+  await this.leaveTypeField.fill("sick leave");
   await this.reasonInputField.fill("Taking sick leave for two days due to cold and fever.");
   await this.submitButton.click();
   await this.page.waitForTimeout(5000);
