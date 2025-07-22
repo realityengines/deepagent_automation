@@ -1758,6 +1758,38 @@ Then("I serach the prompt {string}", async function (promatSearch) {
 });
 
 
+Then("I complete the sign-up process and submit a leave application", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 120000 }), // 2 min
+    deepAgentPage.clickOnDeployLink(), // trigger new tab
+  ]);
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await websitePage.performRegisteration();
+  await websitePage.performSignInAction()
+  await websitePage.applyForALeave()
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  await deepAgentPage.verifyDataBase([
+    "users",
+    "user",
+    "User",
+    "Users"
+  ]);
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`🔗 Conversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+ 
+});
+
 
 
 

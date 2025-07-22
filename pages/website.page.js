@@ -56,7 +56,7 @@ export class WebsitePage {
         this.iframechatbot=this.page.locator('iframe[role*="presentation"]');
         this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
         
-        //LLM-
+        //LLMAPIS-
         this.successsMessage=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'successfully')]");
         this.newRoleButton=this.page.locator("//*[contains(text(),'New Role')]");
         this.roleNameField=this.page.locator("(//*[@id='name'] | //*[@name='name'] | //*[@placeholder='Name'] )");
@@ -68,6 +68,15 @@ export class WebsitePage {
         this.uploadButton=this.page.locator("//button[contains(text(),'Upload')]");
         this.roleLink=this.page.locator("//*[text()='Roles']");
         this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
+
+        //LLM-
+        this.registrationLink=this.page.locator("(//*[@href='/auth/signup'] | //*[@href='/register'])[1]");
+        this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
+        this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
+        this.startDate=this.page.locator("(//*[@type='date'])[1]")
+        this.endDate=this.page.locator("(//*[@type='date'])[2]")
+        this.reasonInputField=this.page.locator("[placeholder='reason']");
+        
     }
 
    async fillJoinUSForm()
@@ -574,4 +583,72 @@ async uploadTheResume()
   await this.page.waitForTimeout(5000)
   
 }
+
+async performRegisteration()
+{
+  await this.page.waitForTimeout(5000)
+  await this.registrationLink.click()
+  await this.fullnameField.fill("testqa");
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.confirmPasswordField.fill("Password@1234");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(10000)
+}
+
+async performSignInAction()
+{
+  const logoutVisible=await this.logout.isVisible();
+  if(logoutVisible)
+  {
+    await this.logout.click();
+  }
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(5000);
+
+}
+
+async applyForALeave() {
+  // Generate tomorrow's and day-after-tomorrow's dates
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const dayAfterTomorrow = new Date(today);
+  dayAfterTomorrow.setDate(today.getDate() + 2);
+
+  // Format date to yyyy-mm-dd for <input type="date">
+  const formatDate = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  await this.page.waitForTimeout(5000);
+  await this.leaveRequestLink.click();
+  await this.newRequestButton.click();
+  
+  await this.startDate.fill(formatDate(tomorrow));          // Fill tomorrow's date
+  await this.endDate.fill(formatDate(dayAfterTomorrow));    // Fill day-after-tomorrow's date
+
+  await this.dropDown.click();
+  await this.page.waitForTimeout(2000);
+
+  const count = await this.dropdownOptions.count();
+  for (let i = 0; i < count; i++) {
+    const text = await this.dropdownOptions.nth(i).innerText();
+    if (text.trim().toLowerCase() === 'sick leave') {
+      await this.dropdownOptions.nth(i).click();
+      break;
+    }
+  }
+
+  await this.reasonInputField.fill("Taking sick leave for two days due to cold and fever.");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(5000);
+}
+
 }
