@@ -154,7 +154,7 @@ export class DeepAgentPage {
     this.htmlCode = page.locator("(//span[.='html'])[1]");
 
     //  Perform the registration process-
-    this.signUpButton = page.locator("(//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up')])[1]");
+    this.signUpButton = page.locator("(//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up') or  contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'get started')])[1]");
     this.nameField = page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
     this.emailField = page.locator("//*[translate(@id, 'EMAIL', 'email') = 'email' or contains(translate(@placeholder, 'EMAIL', 'email'), 'email')]");
     this.passwordField = page.locator("(//*[@type='password'])[1]");
