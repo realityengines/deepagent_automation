@@ -42,12 +42,65 @@ BeforeStep(function ({ pickleStep }) {
   console.log(`${pickleStep.text}`);
 });
 
-// Log step after execution with minimal output
-// Not adding status for each step to match the requested format
+// Log step after execution with detailed error information
 AfterStep(function ({ pickleStep, result }) {
   // We'll only log failures here, pass steps silently
   if (result.status !== 'PASSED') {
-    console.log(`${result.status}: ${pickleStep.text}`);
+    console.log(`    × failed`);
+
+    // Display detailed error information if available
+    if (result.exception) {
+      console.log(`      Error: ${result.exception.message}`);
+
+      // If it's a Playwright error, try to extract more details
+      if (result.exception.stack) {
+        const stackLines = result.exception.stack.split('\n');
+
+        // Look for locator information in the error message
+        if (result.exception.message.includes('locator')) {
+          const locatorMatch = result.exception.message.match(/locator\('([^']+)'\)/);
+          if (locatorMatch) {
+            console.log(`\n      Locator: locator('${locatorMatch[1]}')`);
+          }
+        }
+
+        // Show expected vs received if available
+        if (result.exception.message.includes('Expected:') && result.exception.message.includes('Received:')) {
+          const expectedMatch = result.exception.message.match(/Expected: ([^\n]+)/);
+          const receivedMatch = result.exception.message.match(/Received: ([^\n]+)/);
+
+          if (expectedMatch) {
+            console.log(`      Expected: ${expectedMatch[1]}`);
+          }
+          if (receivedMatch) {
+            console.log(`      Received: ${receivedMatch[1]}`);
+          }
+        }
+
+        // Show call log if it's a timeout error
+        if (result.exception.message.includes('Call log:')) {
+          const callLogMatch = result.exception.message.match(/Call log:([\s\S]*)/);
+          if (callLogMatch) {
+            console.log(`      Call log:`);
+            const callLogLines = callLogMatch[1].trim().split('\n');
+            callLogLines.forEach(line => {
+              if (line.trim()) {
+                console.log(`        ${line.trim()}`);
+              }
+            });
+          }
+        }
+
+        // Show the location where the error occurred
+        const locationLine = stackLines.find(line =>
+          line.includes('.js:') && !line.includes('node_modules')
+        );
+        if (locationLine) {
+          console.log(`\n          at ${locationLine.trim()}`);
+        }
+      }
+    }
+    console.log(''); // Add empty line for readability
   }
 });
 
@@ -79,7 +132,25 @@ After(async function ({ result, pickle }) {
         // Force the test to fail
         result.status = 'FAILED';
       }
+
       console.log('❌ TEST FAILURE DETECTED');
+
+      // Show detailed error information if available
+      if (result.exception) {
+        console.log(`\nFAILED: ${scenarioName}`);
+        console.log(`Error Details: ${result.exception.message}`);
+
+        // Show stack trace if available (first few lines for context)
+        if (result.exception.stack) {
+          const stackLines = result.exception.stack.split('\n').slice(0, 5);
+          console.log('\nStack trace:');
+          stackLines.forEach(line => {
+            if (line.trim()) {
+              console.log(`  ${line.trim()}`);
+            }
+          });
+        }
+      }
       
       // Display conversation URL prominently in console
       if (this.conversationUrl) {
