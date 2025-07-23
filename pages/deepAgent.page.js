@@ -1769,6 +1769,57 @@ async verifyRestoredByPreviewAndRestore() {
   }
 }
 
+// Fix the existing method (around line 1850)
+async verifyRestoredByPreviewAndPanelRestore() {
+  try {
+    console.log("Starting preview and restore verification process...");
+    
+    // Step 1: Click Preview button
+    console.log("Clicking 'Preview' button...");
+    await this.previewButtonExact.waitFor({ state: "visible", timeout: 10000 });
+    await this.previewButtonExact.click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 2: Verify "You are previewing an older" text is visible
+    console.log("Verifying 'You are previewing an older' text is visible...");
+    await this.previewOlderText.waitFor({ state: "visible", timeout: 10000 });
+    const isPreviewTextVisible = await this.previewOlderText.isVisible();
+    
+    if (!isPreviewTextVisible) {
+      throw new Error("Preview older text is not visible");
+    }
+    console.log("✅ Preview older text is visible");
+    
+    // Step 3: Click 'Restore this Version' text
+    console.log("Clicking 'Restore this Version' text...");
+    await this.page.getByText('Restore this Version').waitFor({ state: "visible", timeout: 5000 });
+    await this.page.getByText('Restore this Version').click();
+    await this.page.waitForTimeout(2000);
+    
+    // Step 4: Click second Restore button
+    console.log("Clicking second 'Restore' button...");
+    await this.restoreButtonGeneral.first().waitFor({ state: "visible", timeout: 5000 });
+    await this.restoreButtonGeneral.first().click();
+    await this.page.waitForTimeout(10000);
+    
+    // Step 5: Verify that "Restore to Checkpoint" button is no longer visible
+    console.log("Verifying that 'Restore to Checkpoint' button is no longer visible...");
+    await this.restoreToCheckpointButton.waitFor({ state: "hidden", timeout: 20000 });
+    
+    const isRestoreToCheckpointVisible = await this.restoreToCheckpointButton.isVisible();
+    if (isRestoreToCheckpointVisible) {
+      throw new Error("Restore to Checkpoint button is still visible after restore operation");
+    }
+    
+    console.log("✅ Preview and panel restore verification completed successfully - Restore to Checkpoint button is no longer visible");
+    return true;
+    
+  } catch (error) {
+    console.error("❌ Error during preview and panel restore verification process:", error.message);
+    throw error;
+  }
+}
+
 async verifyDataSeeding()
 {
   await this.dataBase.click();

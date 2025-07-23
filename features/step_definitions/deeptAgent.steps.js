@@ -74,6 +74,35 @@ Then("Verify restored by preview and restore", async function () {
   }
 });
 
+
+// Add this new step definition after the existing "Verify restored by preview and restore" step
+Then("Verify restored by preview and panel restore", async function () {
+  try {
+    console.log("\n=== Starting Preview and Panel Restore Verification Process ===");
+    
+    // Call the preview and panel restore verification method
+    const verificationSuccess = await deepAgentPage.verifyRestoredByPreviewAndPanelRestore();
+    
+    if (verificationSuccess) {
+      console.log("✅ Preview and panel restore verification completed successfully");
+    }
+    
+    // Get and log the conversation URL
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL after verification: ${convoURL}`);
+    
+    console.log("=== Preview and Panel Restore Verification Process Completed ===\n");
+    
+  } catch (error) {
+    console.error("\n=== Error in Preview and Panel Restore Verification Process ===");
+    console.error(error.message);
+    console.error("====\n");
+    throw error;
+  }
+});
+
+// ... rest of code remains same
+
 // ... rest of code remains same
 
 // Add this new step definition
