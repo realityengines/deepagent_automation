@@ -70,7 +70,7 @@ export class WebsitePage {
         this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
 
         //LLM-
-        this.registrationLink=this.page.locator("//*[contains(text(),'have an account?')]/a");
+        this.registrationLink=this.page.locator("(//*[contains(text(),'have an account?')]/a | //a[contains(@href,'signup')])[1]");
         this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
         this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
         this.startDate=this.page.locator("(//*[@type='date'])[1]")

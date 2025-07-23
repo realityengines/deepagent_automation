@@ -151,6 +151,7 @@ export class DeepAgentPage {
       "[data-icon*='arrow-down-to-line']"
     );
 
+    this.videoDuration = page.locator("(//*[contains(text(), 'Duration')])[1]/..");
     this.htmlCode = page.locator("(//span[.='html'])[1]");
 
     //  Perform the registration process-
@@ -193,7 +194,12 @@ export class DeepAgentPage {
       this.fileInput = page.locator('[type="file"]');
       this.fileLoaderIcon=page.locator("[class*='fa-spin']")
       this.loaderIcon=page.locator("[src*='abacus_loader']");
-      this.downloadIcon=page.locator("[data-icon='arrow-down-to-line']")
+      this.downloadIcon=page.locator("[data-icon='arrow-down-to-line']");
+      this.dataIcon=page.locator("[data-icon='download']")
+      this.authDetails=page.locator("//*[text()='Auth Details']/ancestor::form/descendant::input[@type='text']");
+      this.startAiWorkFlowButton=page.locator("//*[text()='Start']");
+      this.successMessage=page.locator("//*[contains(text(),'started successfully')]");
+      this.taskconvo=page.locator("(//*[contains(@id,'task-convo')])[1]")
 
     this.elapsedTime = 0;
   }
@@ -1500,6 +1506,19 @@ export class DeepAgentPage {
     await download.saveAs(filePath);
   }
 
+  async verifyVideoDuration() {
+
+    const videoDurationText = await this.videoDuration.textContent();
+    const match = videoDurationText.match(/Duration:\s*"?\s*([\d.]+)\s*seconds/i);
+    const duration = match ? parseFloat(match[1]) : null;
+    console.log("Video duration extracted:", duration);
+    if (duration > 12) {
+        console.log("Video duration is more than 12 seconds.");
+    } else {
+        throw new Error("Video duration is less than or equal to 12 seconds.");
+    }
+  }
+
   async performSignUp(attachFn) {
     const signupReport = [];
     try {
@@ -1710,6 +1729,32 @@ async uploadCSVFile()
  await this.submitButton.click()
  await this.waitForLoaderInvisible(this.loaderIcon);
  await this.downloadIcon.waitFor({ state: "visible", timeout: 10000 });
+}
+
+async startTheAIWork()
+{
+  await this.page.waitForTimeout(2000)
+  await this.startAiWorkFlowButton.click();
+  await this.successMessage.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+  const isVisible=await this.successMessage.isVisible()
+  expect(isVisible).to.be.true
+  await this.taskconvo.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+  await this.page.waitForTimeout(8000)
+  await this.taskconvo.click()
+}
+
+async validateCsvFile(){
+  await this.page.waitForTimeout(2000)
+  await this.dataIcon.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
 }
 
 async waitForLoaderInvisible(element) {
