@@ -14,8 +14,8 @@ export class WebsitePage {
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
         this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')] | //*[@placeholder='Email']");
-        this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
-        this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
+        this.passwordField=this.page.locator("(//*[contains(@id,'password')] | //*[contains(@name,'password')] | //*[contains(@type,'password')])[1]");
+        this.confirmPasswordField = this.page.locator("(//*[contains(@id,'password')] | //*[contains(@name,'password')] | //*[contains(@type,'password')])[2]");
         this.checkOut= this.page.locator("[role='checkbox']");
         this.submitButton=this.page.locator("[type='submit']");
         this.loginLink=this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
