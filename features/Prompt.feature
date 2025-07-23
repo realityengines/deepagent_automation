@@ -27,7 +27,7 @@ Feature: Deep Agent Search and Task Execution
       # | Create a daily report of unresolved tickets from Slack messages                                                                        | Daily reporting                                                                                                     |
       # | Summarize key updates from the last 4 hours in #prod-releases on abacusai.slack.com, and email the PDF summary to udaysingh@abacus.ai. | Your Call                                                                                                           |
 
-  @AppLLMDataAnalysis
+  @AppLLMDataAnalysis  @IntegrationPrompts
   Scenario Outline: Verify AppLLM Data Analysis
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
@@ -83,7 +83,7 @@ Feature: Deep Agent Search and Task Execution
       | Create a registration website for summer classes at Bell Hotel, Sivakasi. Homepage: | Make sure it has a nice, cool pastel color palette and focuses on classic romance |
       | Build a fully functional game of sudoku. Keep it simple and functional.             | Your call with limited functionality.                                             |
 
-  @JiraIntegrationPrompt
+  @JiraIntegrationPrompt  @IntegrationPrompts
   Scenario Outline: Verify  Deep Agent integrates with Jira
     Given I click the check out from the welcome window
     When I search the prompt "<prompt_user_search>" with follow-up query "<follow_up_query>"
