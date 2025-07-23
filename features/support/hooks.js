@@ -1,4 +1,4 @@
-import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
+import { Before, After, BeforeAll, AfterAll, setDefaultTimeout, BeforeStep, AfterStep } from '@cucumber/cucumber';
 import fs from 'fs';
 import { cleanupDirectories } from '../../utils/cleanup.js';
 // Set default timeout to 50 minutes (30000000 milliseconds) for all steps
@@ -20,20 +20,44 @@ BeforeAll(async function () {
 });
 
 // Initialize the browser before each scenario
-Before(async function () {
+Before(async function (scenario) {
   try {
     await this.init();
     // Initialize conversation URL storage
     this.conversationUrl = null;
+    // Store the scenario information for later use
+    this.currentScenario = scenario;
+    const scenarioName = scenario?.pickle?.name || 'Unknown Scenario';
+    this.startTime = Date.now(); // Record start time
+    console.log(`Starting scenario: ${scenarioName}`);
   } catch (error) {
     console.error('Error in Before hook:', error);
     throw error;
   }
 });
 
+// Log step before execution
+BeforeStep(function ({ pickleStep }) {
+  // Only log the step text without additional formatting
+  console.log(`${pickleStep.text}`);
+});
+
+// Log step after execution with minimal output
+// Not adding status for each step to match the requested format
+AfterStep(function ({ pickleStep, result }) {
+  // We'll only log failures here, pass steps silently
+  if (result.status !== 'PASSED') {
+    console.log(`${result.status}: ${pickleStep.text}`);
+  }
+});
+
 // Cleanup after each scenario
-After(async function ({ result }) {
+After(async function ({ result, pickle }) {
   try {
+    // Get scenario name from pickle directly
+    const scenarioName = pickle?.name || 'Unknown Scenario';
+    const executionTime = Date.now() - this.startTime; // Calculate execution time
+    
     // Capture conversation URL if available
     if (this.page) {
       try {
@@ -51,34 +75,30 @@ After(async function ({ result }) {
     if (result.status === 'FAILED' || result.status === 'SKIPPED' || result.status === 'PENDING') {
       // If status is SKIPPED or PENDING, force it to be treated as a failure
       if (result.status === 'SKIPPED' || result.status === 'PENDING') {
-        console.log('='.repeat(50));
         console.log(`STEP ${result.status} DETECTED - TREATING AS FAILURE`);
-        console.log('='.repeat(50));
         // Force the test to fail
         result.status = 'FAILED';
       }
-      console.log('='.repeat(50));
-      console.log('TEST FAILURE DETECTED');
-      console.log('='.repeat(50));
+      console.log('❌ TEST FAILURE DETECTED');
       
       // Display conversation URL prominently in console
       if (this.conversationUrl) {
-        console.log(`🔗 CONVERSATION URL: ${this.conversationUrl}`);
+        console.log(`❌ CONVERSATION URL: ${this.conversationUrl}`);
         // Attach URL to the report with enhanced formatting
         await this.attach(`
 === FAILURE DETAILS ===
 Conversation URL: ${this.conversationUrl}
-Scenario: ${this.pickle?.name || 'Unknown'}
+Scenario: ${scenarioName}
 Status: FAILED
 Timestamp: ${new Date().toISOString()}
 ========================
         `, 'text/plain');
       } else {
-        console.log('⚠️  No conversation URL captured');
+        console.log('No conversation URL captured');
         await this.attach(`
 === FAILURE DETAILS ===
 Conversation URL: Not Available
-Scenario: ${this.pickle?.name || 'Unknown'}
+Scenario: ${scenarioName}
 Status: FAILED
 Timestamp: ${new Date().toISOString()}
 Note: URL could not be captured
@@ -93,20 +113,24 @@ Note: URL could not be captured
           const screenshot = await this.takeScreenshot(screenshotPath);
           if (screenshot) {
             await this.attach(screenshot, 'image/png');
-            console.log(`📸 Screenshot saved: ${screenshotPath}`);
+            console.log(`❌ Screenshot saved: ${screenshotPath}`);
           }
         } catch (screenshotError) {
           console.error('Failed to take failure screenshot:', screenshotError);
         }
       }
       
-      console.log('='.repeat(50));
+      // Only color the X symbol in red, keep the rest of the text white
+      console.log(`\x1b[31m❌\x1b[0m Scenario failed: ${scenarioName} (${result.status}) - ${executionTime}ms`);
     } else {
-      // For successful tests, still attach URL if available
+      // For successful tests, only color the checkmark in green
       if (this.conversationUrl) {
         await this.attach(`Conversation URL: ${this.conversationUrl}`, 'text/plain');
-        console.log(`✅ Test passed - Conversation URL: ${this.conversationUrl}`);
+        // Only the checkmark is green, rest is default color
+        console.log(`\x1b[92m✅\x1b[0m Test passed - Conversation URL: ${this.conversationUrl}`);
       }
+      // Only the checkmark is green, rest is default color
+      console.log(`\x1b[92m✅\x1b[0m Scenario completed: ${scenarioName} (passed) - ${executionTime}ms`);
     }
     
   } catch (error) {
