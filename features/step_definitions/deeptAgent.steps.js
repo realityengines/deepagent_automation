@@ -47,6 +47,36 @@ When(
   }
 );
 
+When(
+  "I search the prompt {string} with follow-up query {string} for AI workflow",
+  async function (promatSearch, follow_up_query) {
+    await deepAgentPage.enterPromapt(promatSearch);
+    await deepAgentPage.clickSendButton();
+    await deepAgentPage.page.waitForTimeout(3000);
+    const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    await deepAgentPage.enterPromaptQuery(follow_up_query);
+    await deepAgentPage.page.waitForTimeout(3000);
+    await deepAgentPage.clickSendButton();
+    const secondElapsdTime = await deepAgentPage.waitforStopButtonInvisble();
+    await this.page.waitForTimeout(3000);
+    const authDetailsisVisible=await deepAgentPage.authDetails.isVisible();
+    let thirdElapsedTime=0
+    if(authDetailsisVisible)
+    {
+      await deepAgentPage.authDetails.fill("udaysingh@abacus.ai");
+      await deepAgentPage.submitButton.click();
+      await deepAgentPage.page.waitForTimeout(3000);
+      thirdElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+    }
+
+    deepAgentPage.elapsedTime = firstElapsedTime + secondElapsdTime+thirdElapsedTime;
+    console.log("Total elapsed time after prompts:", deepAgentPage.elapsedTime);
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`Conversation URL: ${convoURL}`);
+    await deepAgentPage.getConvoId();
+  }
+);
+
 Then("I should see the status {string} for the task", async function (status) {
   await deepAgentPage.waitforStopButtonInvisble();
   await deepAgentPage.page.waitForTimeout(3000);
@@ -752,6 +782,11 @@ Then(
 
 Then("I should see the generated video", async function () {
   await deepAgentPage.verifyVideoGeneration();
+});
+
+Then("I should verify that the video duration is more than 12 seconds", async function () {
+  await this.page.waitForTimeout(3000)
+  await deepAgentPage.verifyVideoDuration();
 });
 
 Then(
@@ -1692,6 +1727,135 @@ Then("Verify all the page images are loaded and not broken", async function () {
     throw error;
   }
 });
+
+Then("I complete the sign-up process create new role and upload the resume", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 120000 }), // 2 min
+    deepAgentPage.clickOnDeployLink(), // trigger new tab
+  ]);
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await websitePage.performSignUp();
+  await websitePage.createNewRole();
+  await websitePage.uploadTheResume();
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`🔗 Conversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+ 
+});
+
+Then("I click on the Use AI Workflow and upload the CSV file", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnUseAIWorkFlow(), // Now properly awaited in Promise.all
+  ]);
+
+  await newPage.waitForLoadState();
+  this.page = newPage;
+  deepAgentPage = new DeepAgentPage(newPage);
+  await this.page.waitForTimeout(2000);
+  await deepAgentPage.uploadCSVFile();
+  await deepAgentPage.page.waitForTimeout(3000);
+  await newPage.close();
+  this.page = originalPage;
+  console.log("Returned to original page");
+
+  deepAgentPage=new DeepAgentPage(originalPage);
+  // Capture conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`\nConversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+});
+
+Then("I serach the prompt {string}", async function (promatSearch) {
+  
+  await deepAgentPage.enterPromapt(promatSearch);
+  await deepAgentPage.clickSendButton();
+  await deepAgentPage.page.waitForTimeout(3000);
+  const firstElapsedTime = await deepAgentPage.waitforStopButtonInvisble();
+
+});
+
+
+Then("I complete the sign-up process and submit a leave application", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 120000 }), // 2 min
+    deepAgentPage.clickOnDeployLink(), // trigger new tab
+  ]);
+  await newPage.waitForLoadState();
+  websitePage = new WebsitePage(newPage);
+  this.page = newPage;
+  await websitePage.performRegisteration();
+  await websitePage.performSignInAction()
+  await websitePage.applyForALeave()
+  await newPage.close();
+  this.page = originalPage;
+  deepAgentPage = new DeepAgentPage(originalPage);
+  await deepAgentPage.verifyDataBase([
+    "users",
+    "user",
+    "User",
+    "Users"
+  ]);
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`🔗 Conversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+ 
+});
+
+Then("I click on the Use AI Workflow start the ai work flow and validate the csv file", async function () {
+  
+  const originalPage = this.page;
+  await this.page.waitForTimeout(5000);
+  const [newPage] = await Promise.all([
+    this.page.context().waitForEvent("page", { timeout: 60000 }), // Increased timeout
+    deepAgentPage.clickOnUseAIWorkFlow(), // Now properly awaited in Promise.all
+  ]);
+
+  await newPage.waitForLoadState();
+  this.page = newPage;
+  deepAgentPage = new DeepAgentPage(newPage);
+  await this.page.waitForTimeout(2000);
+  await deepAgentPage.startTheAIWork();
+  await deepAgentPage.validateCsvFile()
+  await deepAgentPage.page.waitForTimeout(3000);
+  await newPage.close();
+  this.page = originalPage;
+  console.log("Returned to original page");
+
+  deepAgentPage=new DeepAgentPage(originalPage);
+  // Capture conversation URL
+  try {
+    const convoURL = await deepAgentPage.getConvoURL();
+    console.log(`\nConversation URL: ${convoURL}`);
+  } catch (error) {
+    console.log("Conversation URL not available");
+  }
+});
+
+
 
 
 

@@ -151,6 +151,7 @@ export class DeepAgentPage {
       "[data-icon*='arrow-down-to-line']"
     );
 
+    this.videoDuration = page.locator("(//*[contains(text(), 'Duration')])[1]/..");
     this.htmlCode = page.locator("(//span[.='html'])[1]");
 
     //  Perform the registration process-
@@ -187,6 +188,18 @@ export class DeepAgentPage {
     // new locators
     this.dropdownOptions = page.locator('[role*="option"]');
     this.rowPresent= page.locator("(//*[@role='row'])[1]");
+
+      // AI workflow-
+      this.useAIWorkFlow= page.locator("//button[text()='Use AI Workflow']");
+      this.fileInput = page.locator('[type="file"]');
+      this.fileLoaderIcon=page.locator("[class*='fa-spin']")
+      this.loaderIcon=page.locator("[src*='abacus_loader']");
+      this.downloadIcon=page.locator("[data-icon='arrow-down-to-line']");
+      this.dataIcon=page.locator("[data-icon='download']")
+      this.authDetails=page.locator("//*[text()='Auth Details']/ancestor::form/descendant::input[@type='text']");
+      this.startAiWorkFlowButton=page.locator("//*[text()='Start']");
+      this.successMessage=page.locator("//*[contains(text(),'started successfully')]");
+      this.taskconvo=page.locator("(//*[contains(@id,'task-convo')])[1]")
 
     this.elapsedTime = 0;
   }
@@ -1493,6 +1506,19 @@ export class DeepAgentPage {
     await download.saveAs(filePath);
   }
 
+  async verifyVideoDuration() {
+
+    const videoDurationText = await this.videoDuration.textContent();
+    const match = videoDurationText.match(/Duration:\s*"?\s*([\d.]+)\s*seconds/i);
+    const duration = match ? parseFloat(match[1]) : null;
+    console.log("Video duration extracted:", duration);
+    if (duration > 12) {
+        console.log("Video duration is more than 12 seconds.");
+    } else {
+        throw new Error("Video duration is less than or equal to 12 seconds.");
+    }
+  }
+
   async performSignUp(attachFn) {
     const signupReport = [];
     try {
@@ -1685,6 +1711,87 @@ async verifyDataSeeding()
     await this.rowPresent.isVisible();
     await this.dropDown.click();
   }
+
+}
+
+async clickOnUseAIWorkFlow()
+{
+ await this.page.waitForTimeout(2000);
+ await this.useAIWorkFlow.waitFor({ state: "visible", timeout: 10000 });
+ await this.useAIWorkFlow.click({ force: true, timeout: 10000 });
+}
+
+async uploadCSVFile()
+{
+ const filePath = path.resolve('testData/lead-details.csv'); // Convert to absolute path
+ await this.fileInput.setInputFiles(filePath);
+ await this.waitForLoaderInvisible(this.fileLoaderIcon);
+ await this.submitButton.click()
+ await this.waitForLoaderInvisible(this.loaderIcon);
+ await this.downloadIcon.waitFor({ state: "visible", timeout: 10000 });
+}
+
+async startTheAIWork()
+{
+  await this.page.waitForTimeout(2000)
+  await this.startAiWorkFlowButton.click();
+  await this.successMessage.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+  const isVisible=await this.successMessage.isVisible()
+  expect(isVisible).to.be.true
+  await this.taskconvo.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+  await this.page.waitForTimeout(8000)
+  await this.taskconvo.click()
+}
+
+async validateCsvFile(){
+  await this.page.waitForTimeout(2000)
+  await this.dataIcon.waitFor({
+    state: "visible",
+    timeout: 10000,
+  });
+}
+
+async waitForLoaderInvisible(element) {
+   
+ const startTime = Date.now();
+ const maxWaitTime = 300000; // 5 minutes in milliseconds
+ const checkInterval = 10000; // 10 seconds
+ let isVisible = true;
+
+ console.log('🕒 Waiting for spinner to become invisible...');
+
+ while (isVisible && Date.now() - startTime < maxWaitTime) {
+   try {
+     // Check if the spinner is visible
+     isVisible = await element.isVisible({ timeout: 1000 });
+
+     if (!isVisible) {
+       this.elapsedTime = Date.now() - startTime;
+       console.log(`✅ Spinner disappeared after ${this.elapsedTime / 1000} seconds`);
+       break;
+     }
+
+     // Log every 30 seconds
+     this.elapsedTime = Date.now() - startTime;
+     if (this.elapsedTime % 30000 < checkInterval) {
+       console.log(`⏳ Spinner still visible after ${Math.floor(this.elapsedTime / 1000)} seconds...`);
+     }
+
+     await this.page.waitForTimeout(checkInterval);
+   } catch (error) {
+     // If element is detached or error occurs, assume it's gone
+     console.log(`⚠️ Spinner check error: ${error.message}`);
+     isVisible = false;
+     this.elapsedTime = Date.now() - startTime;
+     break;
+   }
+ }
 
 }
 }

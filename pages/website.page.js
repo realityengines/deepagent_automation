@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { expect } from "chai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,9 +13,9 @@ export class WebsitePage {
         this.joinUSButton = this.page.locator("(//*[contains(@class,'items-center')]//following::*[contains(text(),'Join Us')])[1]");
         this.firstNameField= this.page.locator("//*[contains(@id,'first')] | //*[contains(@name,'first')] | //*[contains(@placeholder,'Your first name')]");
         this.lastNameField = this.page.locator("//*[contains(@id,'last')] | //*[contains(@name,'last')] | //*[contains(@placeholder,'Your last name')]");
-        this.emailField = this.page.locator("(//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')])[1]");
-        this.passwordField=this.page.locator("//*[contains(@id,'password')] | //*[contains(@name,'password')] | (//*[contains(@type,'password')])[1]");
-        this.confirmPasswordField = this.page.locator("//*[contains(@id,'confirm')] | //*[contains(@name,'confirm')] | (//*[contains(@type,'password')])[2] ");
+        this.emailField = this.page.locator("//*[contains(@id,'email')] | //*[contains(@name,'email')] | //*[contains(@type,'email')] | //*[@placeholder='Email']");
+        this.passwordField=this.page.locator("(//*[contains(@id,'password')] | //*[contains(@name,'password')] | //*[contains(@type,'password')])[1]");
+        this.confirmPasswordField = this.page.locator("(//*[contains(@id,'password')] | //*[contains(@name,'password')] | //*[contains(@type,'password')])[2]");
         this.checkOut= this.page.locator("[role='checkbox']");
         this.submitButton=this.page.locator("[type='submit']");
         this.loginLink=this.page.locator("(//*[contains(@class,'items-center')]//following::*//*[contains(text(),'Login') or contains(text(),'Sign')])[1]");
@@ -46,7 +47,7 @@ export class WebsitePage {
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
 
         //HR website locators-
-        this.signUpLink=this.page.locator("//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up']");
+        this.signUpLink=this.page.locator("(//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up'])[1]");
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
@@ -54,6 +55,28 @@ export class WebsitePage {
        // ifrmae 
         this.iframechatbot=this.page.locator('iframe[role*="presentation"]');
         this.chatbotInputField=this.page.locator("(//*[contains(@placeholder,'Write something')] | //input[contains(@placeholder,'Ask me about NYC')])");
+        
+        //LLMAPIS-
+        this.successsMessage=this.page.locator("//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'successfully')]");
+        this.newRoleButton=this.page.locator("//*[contains(text(),'New Role')]");
+        this.roleNameField=this.page.locator("(//*[@id='name'] | //*[@name='name'] | //*[@placeholder='Name'] )");
+        this.experienceField=this.page.locator("(//*[@id='experience'] | //*[@name='experience'] | //*[@placeholder='Experience'])")
+        this.skillsField=this.page.locator("(//*[@id='skills'] | //*[@name='skills'] | //*[@placeholder='Skills'])");
+        this.locationField=this.page.locator("(//*[@id='location'] | //*[@name='location'] | //*[@placeholder='Location'])");
+        this.jobDescriptionField=this.page.locator("//*[contains(@placeholder,'Description')]");
+        this.uploadResumeButton=this.page.locator("(//*[text()='Upload Resume'])[1]");
+        this.uploadButton=this.page.locator("//button[contains(text(),'Upload')]");
+        this.roleLink=this.page.locator("//*[text()='Roles']");
+        this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
+
+        //LLM-
+        this.registrationLink=this.page.locator("(//*[contains(text(),'have an account?')]/a | //a[contains(@href,'signup')])[1]");
+        this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
+        this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
+        this.startDate=this.page.locator("(//*[@type='date'])[1]")
+        this.endDate=this.page.locator("(//*[@type='date'])[2]")
+        this.leaveTypeField=this.page.locator("[placeholder='Leave Type']")
+        this.reasonInputField=this.page.locator("[placeholder='reason']");
         
     }
 
@@ -507,4 +530,131 @@ async checkTheChatbot(chatbot) {
     await this.page.screenshot({ path: "send_click_failed.png", fullPage: true });
   }
 }
+
+async performSignUp()
+{
+  await this.page.waitForTimeout(5000)
+  const signInIsVisible=await this.loginLink.isVisible()
+  if(signInIsVisible)
+  {
+    await this.loginLink.click()
+  }
+
+  await this.signUpLink.click()
+  await this.fullnameField.fill("testqa");
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.confirmPasswordField.fill("Password@1234");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(10000)
+}
+
+async createNewRole()
+{
+  await this.newRoleButton.waitFor({ state: 'visible', timeout: 10000 });
+  await this.newRoleButton.click();
+  await this.roleNameField.fill("Software testing");
+  await this.experienceField.fill("5");
+  await this.skillsField.fill("playwright with Javascript");
+  await this.locationField.fill("Bangalore");
+  const jobFieldVisible=await this.jobDescriptionField.isVisible()
+  if(jobFieldVisible)
+  {
+    await this.jobDescriptionField.fill("Looking for a candidate have 5 plus years of experience in automation testing")
+  }
+  await this.submitButton.click();
+  await this.page.waitForTimeout(10000);
+}
+
+async uploadTheResume()
+{
+  const isVisible=await this.uploadResumeButton.isVisible()
+  if(isVisible)
+  {
+    await this.uploadResumeButton.click();   
+  }
+  else{
+    await this.roleLink.click();
+    await this.viweDetails.click();
+    await this.uploadResumeButton.click(); 
+  }
+  const filePath = path.resolve('testData/resumesample.pdf'); // Convert to absolute path
+  await this.fileInput.setInputFiles(filePath);
+  await this.page.waitForTimeout(3000)
+  await this.uploadButton.click();
+  const message = await this.successsMessage.isVisible();
+  expect(message).to.be.true;
+  await this.page.waitForTimeout(5000)
+  
+}
+
+async performRegisteration()
+{
+  await this.page.waitForTimeout(5000)
+  await this.registrationLink.click()
+  await this.fullnameField.fill("testqa");
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.confirmPasswordField.fill("Password@1234");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(10000)
+}
+
+async performSignInAction()
+{
+  const logoutVisible=await this.logout.isVisible();
+  if(logoutVisible)
+  {
+    await this.logout.click();
+  }
+
+  await this.emailField.fill("testuser@gmail.com");
+  await this.passwordField.fill("Password@1234");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(5000);
+
+}
+
+async applyForALeave() {
+  // Generate tomorrow's and day-after-tomorrow's dates
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const dayAfterTomorrow = new Date(today);
+  dayAfterTomorrow.setDate(today.getDate() + 2);
+
+  // Format date to yyyy-mm-dd for <input type="date">
+  const formatDate = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  await this.page.waitForTimeout(5000);
+  await this.leaveRequestLink.click();
+  await this.newRequestButton.click();
+  
+  await this.startDate.fill(formatDate(tomorrow));          // Fill tomorrow's date
+  await this.endDate.fill(formatDate(dayAfterTomorrow));    // Fill day-after-tomorrow's date
+
+  // await this.dropDown.click();
+  // await this.page.waitForTimeout(2000);
+
+  // const count = await this.dropdownOptions.count();
+  // for (let i = 0; i < count; i++) {
+  //   const text = await this.dropdownOptions.nth(i).innerText();
+  //   if (text.trim().toLowerCase() === 'sick leave') {
+  //     await this.dropdownOptions.nth(i).click();
+  //     break;
+  //   }
+  // }
+
+  await this.leaveTypeField.fill("sick leave");
+  await this.reasonInputField.fill("Taking sick leave for two days due to cold and fever.");
+  await this.submitButton.click();
+  await this.page.waitForTimeout(5000);
+}
+
 }
