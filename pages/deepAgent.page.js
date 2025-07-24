@@ -94,7 +94,7 @@ export class DeepAgentPage {
     this.agentTitle = page.locator("#complex_agent__title");
 
     this.deployOption = page.locator(
-      "//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')]"
+      "(//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')])[1]"
     );
     this.deploymentName = page.locator("input[class*='flex-1 text-darkcolor']");
 
