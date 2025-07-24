@@ -1856,9 +1856,168 @@ Then("I click on the Use AI Workflow start the ai work flow and validate the csv
 });
 
 
+// Then("verify all the page links on the preview window return status 200", async function () {
+//   try {
+//     console.log("\n=== Verifying In-Iframe Link Navigation ===");
+
+//     // Step 1: Locate the iframe
+//     const iframeElement = await this.page.waitForSelector("iframe[src*='preview.abacusai.app']", {
+//       timeout: 10000,
+//     });
+//     const frame = await iframeElement.contentFrame();
+
+//     if (!frame) {
+//       throw new Error("❌ Unable to access iframe contents.");
+//     }
+
+//     // Step 2: Get all clickable links inside the iframe
+//     const links = await frame.evaluate(() => {
+//       const anchors = Array.from(
+//         document.querySelectorAll(
+//           'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"]):not([href^="tel:"])'
+//         )
+//       );
+//       return anchors.map((a, i) => ({
+//         href: a.getAttribute("href"),
+//         text: a.textContent.trim() || `Link ${i + 1}`,
+//       }));
+//     });
+
+//     console.log(`🔗 Found ${links.length} links in iframe`);
+
+//     for (let i = 0; i < links.length; i++) {
+//       const { href, text } = links[i];
+//       const selector = `a[href="${href}"]`;
+
+//       console.log(`\n👉 Clicking: "${text}" (${href})`);
+
+//       // Get initial URL before click
+//       const beforeURL = frame.url();
+
+//       // Click link
+//       await frame.click(selector);
+//       await frame.waitForTimeout(7000); // wait 7 seconds
+
+//       // Get updated URL after click
+//       const afterURL = frame.url();
+
+//       // Log navigation behavior
+//       if (beforeURL !== afterURL) {
+//         console.log(`✅ URL changed: "${beforeURL}" → "${afterURL}"`);
+//       } else {
+//         console.warn(`⚠️ URL did not change after clicking "${text}"`);
+//       }
+//     }
+
+//     console.log("\n✅ All iframe links navigated in the same tab");
+
+//   } catch (err) {
+//     console.error("\n❌ Error verifying iframe navigation:");
+//     console.error(err.message);
+//     throw err;
+//   }
+// });
 
 
+Then("verify all the page links on the preview window return status 200", async function () {
+  try {
+    console.log("\n=== Verifying In-Iframe Link Navigation and Status ===");
 
+    const iframeElement = await this.page.waitForSelector("iframe[src*='preview.abacusai.app']", {
+      timeout: 10000,
+    });
+    const frame = await iframeElement.contentFrame();
 
+    if (!frame) throw new Error("❌ Unable to access iframe contents.");
+
+    const links = await frame.evaluate(() => {
+      const anchors = Array.from(
+        document.querySelectorAll(
+          'a[href]:not([href=""]):not([href^="#"]):not([href^="javascript:"]):not([href^="mailto:"]):not([href^="tel:"])'
+        )
+      );
+      return anchors.map((a, i) => ({
+        href: a.href,
+        text: a.textContent.trim() || `Link ${i + 1}`,
+      }));
+    });
+
+    console.log(`🔗 Found ${links.length} links in iframe`);
+
+    let successLinks = [];
+    let failedLinks = [];
+
+    for (let i = 0; i < links.length; i++) {
+      const { href, text } = links[i];
+
+      console.log(`👉 Clicking: "${text}" (${href})`);
+      const beforeURL = frame.url();
+
+      await frame.click(`a[href="${new URL(href).pathname}"]`);
+      await frame.waitForTimeout(1000);
+
+      const afterURL = frame.url();
+
+      if (beforeURL !== afterURL) {
+        console.log(`✅ URL changed: "${beforeURL}" → "${afterURL}"`);
+      } else {
+        console.warn(`⚠️ URL did not change after clicking "${text}"`);
+      }
+
+      try {
+        const response = await this.page.request.get(href);
+        const status = response.status();
+
+        if (status === 200) {
+          successLinks.push({ text, href, status });
+        } else {
+          failedLinks.push({ text, href, status });
+        }
+      } catch (err) {
+        failedLinks.push({ text, href, status: "Request Failed" });
+      }
+    }
+
+    const reportLines = [
+      "=== URL VERIFICATION RESULTS ===",
+      `Total Links: ${links.length}`,
+      `Successful (200): ${successLinks.length}`,
+      `Failed: ${failedLinks.length}`,
+      "",
+      "Successful Links:",
+      ...successLinks.map(
+        (link) => `"${link.text}" (${link.href}) - Status: ${link.status}`
+      ),
+      "",
+      "Failed Links:",
+      ...failedLinks.map(
+        (link) => `"${link.text}" (${link.href}) - Status: ${link.status}`
+      ),
+    ];
+
+    const finalReport = reportLines.join("\n");
+
+    console.log("\n" + finalReport);
+    await this.attach(finalReport, "text/plain");
+
+    // ✅ Save to file in test-reports folder
+    const reportDir = path.resolve("test-reports");
+    if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir);
+    const filePath = path.join(reportDir, "report-cucumber1.txt");
+    fs.writeFileSync(filePath, finalReport);
+    console.log(`📁 Report saved to: ${filePath}`);
+
+    if (failedLinks.length > 0) {
+      throw new Error(`${failedLinks.length} links failed with non-200 status`);
+    }
+
+    console.log("\n✅ All iframe links verified successfully.\n");
+
+  } catch (err) {
+    console.error("\n❌ Error in iframe link verification:");
+    console.error(err.message);
+    throw err;
+  }
+});
 
 

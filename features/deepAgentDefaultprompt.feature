@@ -69,6 +69,10 @@
 #     When I search the chat bot prompt "<promat_user_search>" with follow-up query "<follow_up_query>"
 #     And the compute points should not exceed 150k
 #     Then Then I can see the custom chat and perform some action
+ #Then verify all the page links on the preview window return status 200
 #     Examples:
 #       | promat_user_search    | follow_up_query                                                                                                                |
 #       | Personal AI assistant | Assist me in building a personalized AI assistant designed to perform web searches and utilize various query tools effectively |
+
+
+
