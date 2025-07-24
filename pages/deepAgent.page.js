@@ -96,6 +96,8 @@ export class DeepAgentPage {
     this.deployOption = page.locator(
       "(//span[contains(@class, 'whitespace-nowrap')  and contains(text(), 'Deploy')])[1]"
     );
+
+    this.abacusAIDomain=page.locator("//*[contains(text(),'Abacus.AI Domain')]");
     this.deploymentName = page.locator("input[class*='flex-1 text-darkcolor']");
 
     this.deploymentUrl = page.locator("//*[text()='Deployed URL:']//following-sibling::div/a");

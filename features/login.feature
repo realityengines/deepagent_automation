@@ -10,6 +10,7 @@ Feature: Login Functionality
     And I enter valid password "Testuser@123"
     And I click the login button
     Then I should be logged in successfully
+   
 
   @Login
   Scenario: Login to the application
