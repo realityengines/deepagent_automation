@@ -748,7 +748,9 @@ Then(
 
     const softAssert = async (label, locator) => {
       try {
+        await this.page.waitForTimeout(3000);
         console.log(`🔍 Checking ${label}...`);
+        await this.page.waitForTimeout(2000);
         const elements = await locator.elementHandles();
     
         if (elements.length === 0) {
