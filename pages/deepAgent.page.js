@@ -202,7 +202,7 @@ export class DeepAgentPage {
       this.loaderIcon=page.locator("[src*='abacus_loader']");
       this.downloadIcon=page.locator("[data-icon='arrow-down-to-line']");
       this.dataIcon=page.locator("[data-icon='download']")
-      this.authDetails=page.locator("//*[text()='Auth Details']/ancestor::form/descendant::input[@type='text']");
+      this.authDetails=page.locator("(//*[text()='Auth Details']/ancestor::form/descendant::input[@type='text'])[1]");
       this.startAiWorkFlowButton=page.locator("//*[text()='Start']");
       this.successMessage=page.locator("//*[contains(text(),'started successfully')]");
       this.taskconvo=page.locator("(//*[contains(@id,'task-convo')])[1]")
