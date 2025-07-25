@@ -47,7 +47,7 @@ export class WebsitePage {
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
 
         //HR website locators-
-        this.signUpLink=this.page.locator("(//*[translate(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), ' -_*', '') = 'signup'     or translate(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), ' -_*', '') = 'getstarted'])[1]");
+        this.signUpLink=this.page.locator("(//*[self::a or self::button or self::input][   contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ -_.*', 'abcdefghijklmnopqrstuvwxyz'), 'signup') or   contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ -_.*', 'abcdefghijklmnopqrstuvwxyz'), 'signup') or   contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ -_.*', 'abcdefghijklmnopqrstuvwxyz'), 'getstarted') or   contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ -_.*', 'abcdefghijklmnopqrstuvwxyz'), 'getstarted') ])[1]");
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
