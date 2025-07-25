@@ -72,7 +72,7 @@ export class WebsitePage {
         //LLM-
         this.registrationLink=this.page.locator("(//*[contains(text(),'have an account?')]/a | //a[contains(@href,'signup')])[1]");
         this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
-        this.newRequestButton=this.page.locator("(//*[text()='New Request'])[1]");
+        this.newRequestButton=this.page.locator("(//*[text()='New Request'] | //*[contains(text(),'Request Leave')])[1]");
         this.startDate=this.page.locator("(//*[@type='date'])[1]")
         this.endDate=this.page.locator("(//*[@type='date'])[2]")
         this.leaveTypeField=this.page.locator("[placeholder='Leave Type']")
@@ -617,6 +617,18 @@ async performSignInAction()
 }
 
 async applyForALeave() {
+
+  await this.page.waitForTimeout(10000);
+  const isVisible = await this.leaveRequestLink.isVisible();
+  if(isVisible)
+  {
+  await this.leaveRequestLink.click();
+  }
+  else{
+    await this.performSignInAction();
+    await this.page.waitForTimeout(10000);
+    await this.leaveRequestLink.click();
+  }
   // Generate tomorrow's and day-after-tomorrow's dates
   const today = new Date();
   const tomorrow = new Date(today);
@@ -633,8 +645,7 @@ async applyForALeave() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  await this.page.waitForTimeout(5000);
-  await this.leaveRequestLink.click();
+  await this.page.waitForTimeout(3000);
   await this.newRequestButton.click();
   
   await this.startDate.fill(formatDate(tomorrow));          // Fill tomorrow's date
