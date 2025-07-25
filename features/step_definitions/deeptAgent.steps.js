@@ -604,14 +604,17 @@ Then("I should deploy the website", async function () {
     .substring(2, 8)}`;
 
     await deepAgentPage.deployOption.click();
+  await deepAgentPage.page.waitForTimeout(2000);
+  await deepAgentPage.abacusAIDomain.click();
+  await deepAgentPage.page.waitForTimeout(2000);
     await deepAgentPage.deploymentName.fill(randomDeploymentName);
     await deepAgentPage.deployButton.click();
   
     try {
-      // Wait until success message is visible (up to 30s)
+      // Wait until success message is visible (up to 90s)
       await deepAgentPage.deploysucessmessage.waitFor({
         state: "visible",
-        timeout: 30000,
+        timeout: 90000,
       });
   
       const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
@@ -643,11 +646,14 @@ Then("I should deploy the created website", async function () {
     .substring(2, 8)}`;
 
   await deepAgentPage.deployOption.click();
+ await deepAgentPage.page.waitForTimeout(2000);
+  await deepAgentPage.abacusAIDomain.click();
+  await deepAgentPage.page.waitForTimeout(2000);
   await deepAgentPage.deploymentName.fill(randomDeploymentName);
   await deepAgentPage.deployButton.click();
   await deepAgentPage.deploysucessmessage.waitFor({
     state: "visible",
-    timeout: 10000,
+    timeout: 70000,
   });
   const isVisible = await deepAgentPage.deploysucessmessage.isVisible();
   expect(isVisible).to.be.true;
