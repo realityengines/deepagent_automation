@@ -161,6 +161,7 @@ export class DeepAgentPage {
     this.signUpButtonAnchorTag = page.locator(
       "(//a[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up') or  contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'get started')])[1]"
     );
+     this.signUpButtonSpan = page.locator("(//span[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign up') or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'get started')])[1]");
     this.nameField = page.locator("//*[@id='fullName' or (@id='name') or contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'full name')]");
     this.emailField = page.locator("//*[translate(@id, 'EMAIL', 'email') = 'email' or contains(translate(@placeholder, 'EMAIL', 'email'), 'email')]");
     this.passwordField = page.locator("(//*[@type='password'])[1]");
@@ -1529,24 +1530,30 @@ export class DeepAgentPage {
      try {
       signupReport.push("=== SIGNUP EXECUTION RESULTS ===");
       signupReport.push(`Signup started at: ${new Date().toISOString()}`);
+
+       try {
+      // Wait for the sign-up button to be visible and clickable
+      await this.signUpButton.waitFor({ state: 'visible' });
+      signupReport.push("Step 1: Clicked 'Sign Up' button");
+      await this.signUpButton.click();
+    } catch (error) {
+      // If the button is not clickable, try clicking the anchor tag
+      signupReport.push("Step 1: 'Sign Up' button not clickable, trying the link instead");
+
       try {
-        // Attempt to click the sign-up button
-        await this.page.waitForTimeout(1000); // Optional: wait for a short time before clicking
-        signupReport.push("Step 1: Clicked 'Sign Up' button");
-
-        // Try clicking the signUpButton
-        await this.signUpButton.click();
-      } catch (error) {
-        // If the button doesn't work (possibly not clickable), try clicking the anchor tag
-        signupReport.push(
-          "Step 1: 'Sign Up' button not clickable, trying the link instead"
-        );
-
-        // Wait for the link to be clickable
-        await this.page.waitForTimeout(1000); // Optional: wait for a short time before clicking the link
+        // Wait for the anchor tag link to be visible and clickable
+        await this.signUpButtonAnchorTag.waitFor({ state: 'visible' });
         await this.signUpButtonAnchorTag.click();
-        signupReport.push("Step 1: Clicked 'Sign Up' button by anchor tag");
+      } catch (error) {
+        // If the anchor tag isn't clickable, try clicking the span instead
+        signupReport.push("Step 1: 'Sign Up' link not clickable, trying the span instead");
+
+        // Wait for the span element to be visible and clickable
+        await this.signUpButtonSpan.waitFor({ state: 'visible' });
+        await this.signUpButtonSpan.click();
       }
+    }
+
 
   
       signupReport.push("Step 2: Filled in name");
