@@ -592,6 +592,7 @@ async performRegisteration()
 {
   await this.page.waitForTimeout(5000)
   await this.registrationLink.click()
+  await this.page.waitForTimeout(5000)
   await this.fullnameField.fill("testqa");
   await this.emailField.fill("testuser@gmail.com");
   await this.passwordField.fill("Password@1234");
