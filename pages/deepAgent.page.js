@@ -1526,13 +1526,28 @@ export class DeepAgentPage {
 
   async performSignUp(attachFn) {
     const signupReport = [];
-    try {
+     try {
       signupReport.push("=== SIGNUP EXECUTION RESULTS ===");
       signupReport.push(`Signup started at: ${new Date().toISOString()}`);
-  
-      await this.page.waitForTimeout(1000);
-      signupReport.push("Step 1: Clicked 'Sign Up' button");
-      await this.signUpButton.click();
+      try {
+        // Attempt to click the sign-up button
+        await this.page.waitForTimeout(1000); // Optional: wait for a short time before clicking
+        signupReport.push("Step 1: Clicked 'Sign Up' button");
+
+        // Try clicking the signUpButton
+        await this.signUpButton.click();
+      } catch (error) {
+        // If the button doesn't work (possibly not clickable), try clicking the anchor tag
+        signupReport.push(
+          "Step 1: 'Sign Up' button not clickable, trying the link instead"
+        );
+
+        // Wait for the link to be clickable
+        await this.page.waitForTimeout(1000); // Optional: wait for a short time before clicking the link
+        await this.signUpButtonAnchorTag.click();
+        signupReport.push("Step 1: Clicked 'Sign Up' button by anchor tag");
+      }
+
   
       signupReport.push("Step 2: Filled in name");
       await this.nameField.fill("Test User");
