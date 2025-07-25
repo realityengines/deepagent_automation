@@ -47,7 +47,7 @@ export class WebsitePage {
         this.rowPresent= this.page.locator("(//*[@role='row'])[1]");
 
         //HR website locators-
-        this.signUpLink=this.page.locator("(//*[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'sign up'])[1]");
+        this.signUpLink=this.page.locator("(//*[translate(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), ' -_*', '') = 'signup'     or translate(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), ' -_*', '') = 'getstarted'])[1]");
 
         //Chatbot-
         // this.chatbotInputField=this.page.locator("input[placeholder*='Ask me about NYC']");
