@@ -76,7 +76,7 @@ export class WebsitePage {
         this.startDate=this.page.locator("(//*[@type='date'])[1]")
         this.endDate=this.page.locator("(//*[@type='date'])[2]")
         this.leaveTypeField=this.page.locator("[placeholder='Leave Type']")
-        this.reasonInputField=this.page.locator("[placeholder='reason']");
+        this.reasonInputField=this.page.locator("//*[contains(@placeholder,'reason')] | //*[contains(@placeholder,'Reason')]");
         
     }
 
