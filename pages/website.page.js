@@ -70,7 +70,7 @@ export class WebsitePage {
         this.viweDetails=this.page.locator("(//*[text()='View Details'])[1]");
 
         //LLM-
-        this.registrationLink=this.page.locator("(//*[contains(text(),'have an account?')]/a | //a[contains(@href,'signup')])[1]");
+        this.registrationLink=this.page.locator("((//button | //a | //span)[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'account') or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'signup')])[1]");
         this.leaveRequestLink=this.page.locator("(//*[text()='Leave Requests'])[1]");
         this.newRequestButton=this.page.locator("(//*[text()='New Request'] | //*[contains(text(),'Request Leave')])[1]");
         this.startDate=this.page.locator("(//*[@type='date'])[1]")
